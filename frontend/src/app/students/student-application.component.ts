@@ -30,6 +30,7 @@ export class StudentApplicationComponent implements OnInit {
         spouse_accompanying: false,
         spouse_age: null,
         spouse_edu_level: '',
+        spouse_edu_country: '',
         spouse_edu_field: '',
         spouse_has_work_experience: false,
         spouse_has_other_work_experience: false,
@@ -68,7 +69,8 @@ export class StudentApplicationComponent implements OnInit {
         citizenship_country: '',
         passport_country: '',
         has_second_passport: false,
-        second_passport_country: ''
+        second_passport_country: '',
+        education_country: ''
     };
     children: any[] = [];
     suggestedPrograms: any[] = [];
@@ -325,12 +327,14 @@ export class StudentApplicationComponent implements OnInit {
                     });
                     
                     // Sync unmapped education properties from JSON
+                    this.application.other_country_edu_list = (this.application.education_data.other_country_edu_list || []).map((q: any) => ({ ...q, country: q.country || '' }));
+                    this.application.education_country = this.application.education_data.education_country || this.application.education_country || '';
                     this.application.highest_education_status = this.application.education_data.highest_education_status || 'Completed';
                     this.application.highest_education_expected = this.application.education_data.highest_education_expected || '';
                     this.application.has_other_country_edu = this.application.education_data.has_other_country_edu || false;
-                    this.application.other_country_edu_list = this.application.education_data.other_country_edu_list || [];
                     this.application.spouse_edu_status = this.application.education_data.spouse_edu_status || 'Completed';
                     this.application.spouse_edu_expected = this.application.education_data.spouse_edu_expected || '';
+                    this.application.spouse_edu_country = this.application.education_data.spouse_edu_country || this.application.spouse_edu_country || '';
                     this.application.spouse_edu_field = this.application.education_data.spouse_edu_field || this.application.spouse_edu_field || '';
                     this.application.spouse_education = this.application.education_data.spouse_education || [];
                     this.application.spouse_has_other_country_edu = this.application.education_data.spouse_has_other_country_edu || false;
@@ -789,7 +793,7 @@ export class StudentApplicationComponent implements OnInit {
         if (!this.application.education_data.additional) {
             this.application.education_data.additional = [];
         }
-        this.application.education_data.additional.push({ level: '', field: '' });
+        this.application.education_data.additional.push({ country: '', level: '', field: '', status: 'Completed', expected_completion: '' });
     }
 
     addCountryEducation(country: string) {
@@ -829,6 +833,7 @@ export class StudentApplicationComponent implements OnInit {
             this.application.spouse_education = [];
         }
         this.application.spouse_education.push({ 
+            country: '',
             level: '', 
             field: '', 
             status: 'Completed', 
@@ -846,9 +851,17 @@ export class StudentApplicationComponent implements OnInit {
         this.application.education_data.additional.splice(index, 1);
     }
 
+    clearHighestQualification() {
+        this.application.education_country = '';
+        this.application.highest_education = '';
+        this.application.education_field = '';
+        this.application.highest_education_status = 'Completed';
+        this.application.highest_education_expected = '';
+    }
+
     addOtherCountryEducation(target: 'applicant' | 'spouse' = 'applicant') {
         const list = target === 'applicant' ? this.application.other_country_edu_list : this.application.spouse_other_country_edu_list;
-        list.push({ level: '', field: '', status: 'Completed', expected_completion: '' });
+        list.push({ country: '', level: '', field: '', status: 'Completed', expected_completion: '' });
     }
 
     removeOtherCountryEducation(index: number, target: 'applicant' | 'spouse' = 'applicant') {
@@ -1019,10 +1032,12 @@ export class StudentApplicationComponent implements OnInit {
         if (!this.application.education_data) this.application.education_data = {};
         this.application.education_data.highest_education_status = this.application.highest_education_status;
         this.application.education_data.highest_education_expected = this.application.highest_education_expected;
+        this.application.education_data.education_country = this.application.education_country;
         this.application.education_data.has_other_country_edu = this.application.has_other_country_edu;
         this.application.education_data.other_country_edu_list = this.application.has_other_country_edu ? this.application.other_country_edu_list : [];
         this.application.education_data.spouse_edu_status = this.application.spouse_edu_status;
         this.application.education_data.spouse_edu_expected = this.application.spouse_edu_expected;
+        this.application.education_data.spouse_edu_country = this.application.spouse_edu_country;
         this.application.education_data.spouse_edu_field = this.application.spouse_edu_field;
         this.application.education_data.spouse_education = this.application.spouse_education;
         this.application.education_data.spouse_has_other_country_edu = this.application.spouse_has_other_country_edu;

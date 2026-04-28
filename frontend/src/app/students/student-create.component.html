@@ -48,6 +48,8 @@
                         <div class="mobile-input">
                             <select [(ngModel)]="student.phone_country_code">
                                 <option value="+91">+91 (IN)</option>
+                                <option value="+971">+971 (UAE)</option>
+                                <option value="+1">+1 (US)</option> 
                             </select>
                             <input type="tel" [(ngModel)]="student.phone_number" maxlength="10" (input)="onNumberInput($event, 'phone_number')" placeholder="Phone Number">
                         </div>
