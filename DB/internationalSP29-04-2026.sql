@@ -1,4 +1,98 @@
 DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddApplicationAdmTest`(
+      IN p_application_id INT,
+      IN p_test_type VARCHAR(50),
+      IN p_quant_score VARCHAR(10),
+      IN p_verbal_score VARCHAR(10),
+      IN p_data_insights_score VARCHAR(10),
+      IN p_overall_score VARCHAR(10)
+    )
+BEGIN
+      INSERT INTO application_admission_tests (
+        application_id, test_type, quant_score, verbal_score, data_insights_score
+      ) VALUES (
+        p_application_id, p_test_type, p_quant_score, p_verbal_score, p_data_insights_score
+      );
+    END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddApplicationEducation`(
+                IN p_application_id INT, IN p_country VARCHAR(100), IN p_level VARCHAR(100), 
+                IN p_field VARCHAR(100), IN p_status VARCHAR(50), IN p_expected_completion DATE, 
+                IN p_is_highest TINYINT(1), IN p_edu_type VARCHAR(20)
+            )
+BEGIN
+                INSERT INTO application_education (application_id, country, level, field, status, expected_completion, is_highest, edu_type)
+                VALUES (p_application_id, p_country, p_level, p_field, p_status, p_expected_completion, p_is_highest, p_edu_type);
+            END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddApplicationLangTest`(
+      IN p_application_id INT,
+      IN p_test_type VARCHAR(50),
+      IN p_reading_score VARCHAR(10),
+      IN p_writing_score VARCHAR(10),
+      IN p_speaking_score VARCHAR(10),
+      IN p_listening_score VARCHAR(10),
+      IN p_overall_score VARCHAR(10),
+      IN p_is_spouse TINYINT(1)
+    )
+BEGIN
+      INSERT INTO application_language_tests (
+        application_id, test_type, reading_score, writing_score, speaking_score, listening_score, is_spouse
+      ) VALUES (
+        p_application_id, p_test_type, p_reading_score, p_writing_score, p_speaking_score, p_listening_score, p_is_spouse
+      );
+    END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddApplicationRelative`(
+    IN p_application_id INT, IN p_country VARCHAR(100), IN p_relationship VARCHAR(100), IN p_related_to ENUM('Applicant', 'Spouse')
+)
+BEGIN
+    INSERT INTO application_relatives (application_id, country, relationship, related_to)
+    VALUES (p_application_id, p_country, p_relationship, p_related_to);
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddApplicationSpouseEdu`(
+    IN p_application_id INT, IN p_country VARCHAR(100), IN p_level VARCHAR(100), 
+    IN p_field VARCHAR(100), IN p_status VARCHAR(50), IN p_expected_completion DATE
+)
+BEGIN
+    INSERT INTO application_spouse_education (application_id, country, level, field, status, expected_completion)
+    VALUES (p_application_id, p_country, p_level, p_field, p_status, p_expected_completion);
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddApplicationSpouseWork`(
+    IN p_application_id INT, IN p_country VARCHAR(100), IN p_job_title VARCHAR(255), 
+    IN p_work_years INT, IN p_work_months INT
+)
+BEGIN
+    INSERT INTO application_spouse_work (application_id, country, job_title, work_years, work_months)
+    VALUES (p_application_id, p_country, p_job_title, p_work_years, p_work_months);
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddApplicationWork`(
+                IN p_application_id INT, IN p_country VARCHAR(100), IN p_job_title VARCHAR(100), 
+                IN p_work_years INT, IN p_work_months INT, IN p_is_current TINYINT(1),
+                IN p_work_type VARCHAR(20)
+            )
+BEGIN
+                INSERT INTO application_work_experience (application_id, country, job_title, work_years, work_months, is_current, work_type)
+                VALUES (p_application_id, p_country, p_job_title, p_work_years, p_work_months, p_is_current, p_work_type);
+            END$$
+DELIMITER ;
+
+DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddFollowUp`(
     IN p_student_id INT,
     IN p_branch_id INT,
@@ -25,6 +119,44 @@ BEGIN
         assigned_to = p_assigned_to
     WHERE student_id = p_student_id;
 END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddRegistrationEducation`(
+                IN p_registration_id INT, IN p_country VARCHAR(100), IN p_level VARCHAR(100), 
+                IN p_field VARCHAR(100), IN p_status VARCHAR(50), IN p_expected_completion DATE, 
+                IN p_is_highest TINYINT(1), IN p_edu_type VARCHAR(20)
+            )
+BEGIN
+                INSERT INTO registration_education (registration_id, country, level, field, status, expected_completion, is_highest, edu_type)
+                VALUES (p_registration_id, p_country, p_level, p_field, p_status, p_expected_completion, p_is_highest, p_edu_type);
+            END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddRegistrationLangTest`(
+                IN p_registration_id INT, IN p_type VARCHAR(50), IN p_reading VARCHAR(20), 
+                IN p_writing VARCHAR(20), IN p_speaking VARCHAR(20), IN p_listening VARCHAR(20), 
+                IN p_overall VARCHAR(20), IN p_is_spouse TINYINT(1)
+            )
+BEGIN
+                INSERT INTO registration_language_tests (registration_id, test_type, reading, writing, speaking, listening, overall, is_spouse)
+                VALUES (p_registration_id, p_type, p_reading, p_writing, p_speaking, p_listening, p_overall, p_is_spouse);
+            END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddRegistrationWork`(
+                IN p_registration_id INT, IN p_country VARCHAR(100), IN p_job_title VARCHAR(100), 
+                IN p_work_years INT, IN p_work_months INT, IN p_work_category VARCHAR(20),
+                IN p_work_type VARCHAR(20)
+            )
+BEGIN
+                -- Note: registration table uses work_category instead of is_current in some schemas, 
+                -- but we will stick to the provided pattern.
+                INSERT INTO registration_work_experience (registration_id, country, job_title, work_years, work_months, work_category, work_type)
+                VALUES (p_registration_id, p_country, p_job_title, p_work_years, p_work_months, p_work_category, p_work_type);
+            END$$
 DELIMITER ;
 
 DELIMITER $$
@@ -62,6 +194,45 @@ BEGIN
         p_visa_interested, p_work_interested, p_branch_id, p_created_by
     );
     SELECT LAST_INSERT_ID() as student_id;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_DeleteApplicationChildren`(IN p_application_id INT)
+BEGIN
+    DELETE FROM application_education WHERE application_id = p_application_id;
+    DELETE FROM application_work_experience WHERE application_id = p_application_id;
+    -- Add other child tables here
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_DeleteApplicationChildrenFull`(IN p_application_id INT)
+BEGIN
+    DELETE FROM application_education WHERE application_id = p_application_id;
+    DELETE FROM application_work_experience WHERE application_id = p_application_id;
+    DELETE FROM application_language_tests WHERE application_id = p_application_id;
+    DELETE FROM application_admission_tests WHERE application_id = p_application_id;
+    DELETE FROM application_spouse_education WHERE application_id = p_application_id;
+    DELETE FROM application_spouse_work WHERE application_id = p_application_id;
+    DELETE FROM application_relatives WHERE application_id = p_application_id;
+    DELETE FROM application_children WHERE application_id = p_application_id;
+    DELETE FROM suggested_programs WHERE application_id = p_application_id;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_DeleteRegistrationChildrenFull`(IN p_registration_id INT)
+BEGIN
+    DELETE FROM registration_education WHERE registration_id = p_registration_id;
+    DELETE FROM registration_work_experience WHERE registration_id = p_registration_id;
+    DELETE FROM registration_language_tests WHERE registration_id = p_registration_id;
+    DELETE FROM registration_admission_tests WHERE registration_id = p_registration_id;
+    DELETE FROM registration_spouse_education WHERE registration_id = p_registration_id;
+    DELETE FROM registration_spouse_work WHERE registration_id = p_registration_id;
+    DELETE FROM registration_relatives WHERE registration_id = p_registration_id;
+    DELETE FROM registration_children WHERE registration_id = p_registration_id;
+    DELETE FROM registration_suggested_programs WHERE registration_id = p_registration_id;
 END$$
 DELIMITER ;
 
@@ -359,14 +530,53 @@ DELIMITER ;
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetStudentApplication`(IN p_student_id INT)
 BEGIN
-    -- 1. Get Application
-    SELECT * FROM student_applications WHERE student_id = p_student_id;
+    -- Result 1: Core Application Data
+    SELECT * FROM student_applications WHERE student_id = p_student_id LIMIT 1;
     
-    -- 2. Get Children
-    SELECT * FROM application_children WHERE application_id = (SELECT application_id FROM student_applications WHERE student_id = p_student_id);
+    -- Result 2: Education
+    SELECT e.* FROM application_education e
+    JOIN student_applications a ON e.application_id = a.application_id
+    WHERE a.student_id = p_student_id;
     
-    -- 3. Get Suggested Programs
-    SELECT * FROM suggested_programs WHERE application_id = (SELECT application_id FROM student_applications WHERE student_id = p_student_id);
+    -- Result 3: Work Experience
+    SELECT w.* FROM application_work_experience w
+    JOIN student_applications a ON w.application_id = a.application_id
+    WHERE a.student_id = p_student_id;
+    
+    -- Result 4: Language Tests
+    SELECT t.* FROM application_language_tests t
+    JOIN student_applications a ON t.application_id = a.application_id
+    WHERE a.student_id = p_student_id;
+    
+    -- Result 5: Admission Tests
+    SELECT t.* FROM application_admission_tests t
+    JOIN student_applications a ON t.application_id = a.application_id
+    WHERE a.student_id = p_student_id;
+    
+    -- Result 6: Spouse Education
+    SELECT e.* FROM application_spouse_education e
+    JOIN student_applications a ON e.application_id = a.application_id
+    WHERE a.student_id = p_student_id;
+    
+    -- Result 7: Spouse Work
+    SELECT w.* FROM application_spouse_work w
+    JOIN student_applications a ON w.application_id = a.application_id
+    WHERE a.student_id = p_student_id;
+    
+    -- Result 8: Relatives
+    SELECT r.* FROM application_relatives r
+    JOIN student_applications a ON r.application_id = a.application_id
+    WHERE a.student_id = p_student_id;
+    
+    -- Result 9: Children
+    SELECT c.* FROM application_children c
+    JOIN student_applications a ON c.application_id = a.application_id
+    WHERE a.student_id = p_student_id;
+    
+    -- Result 10: Suggested Programs
+    SELECT s.* FROM suggested_programs s
+    JOIN student_applications a ON s.application_id = a.application_id
+    WHERE a.student_id = p_student_id;
 END$$
 DELIMITER ;
 
@@ -437,15 +647,25 @@ DELIMITER ;
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetStudentRegistration`(IN p_student_id INT)
 BEGIN
-    DECLARE v_reg_id INT DEFAULT NULL;
-    SELECT registration_id INTO v_reg_id FROM student_registrations WHERE student_id = p_student_id LIMIT 1;
-    IF v_reg_id IS NOT NULL THEN
-        SELECT * FROM student_registrations WHERE student_id = p_student_id;
-        SELECT * FROM registration_children WHERE registration_id = v_reg_id;
-        SELECT * FROM registration_suggested_programs WHERE registration_id = v_reg_id;
-    ELSE
-        CALL sp_GetStudentApplication(p_student_id);
-    END IF;
+    -- Result 1: Core Registration Data
+    SELECT * FROM student_registrations WHERE student_id = p_student_id LIMIT 1;
+    
+    -- Result 2: Education
+    SELECT e.* FROM registration_education e
+    JOIN student_registrations r ON e.registration_id = r.registration_id
+    WHERE r.student_id = p_student_id;
+    
+    -- Result 3: Work Experience
+    SELECT w.* FROM registration_work_experience w
+    JOIN student_registrations r ON w.registration_id = r.registration_id
+    WHERE r.student_id = p_student_id;
+    
+    -- Result 4: Language Tests
+    SELECT t.* FROM registration_language_tests t
+    JOIN student_registrations r ON t.registration_id = r.registration_id
+    WHERE r.student_id = p_student_id;
+    
+    -- (Add others like Spouse/Relatives as you create those tables)
 END$$
 DELIMITER ;
 
@@ -859,6 +1079,62 @@ END$$
 DELIMITER ;
 
 DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_UpsertStudentApplication_Core`(
+    IN p_student_id INT,
+    IN p_passport_name VARCHAR(255),
+    IN p_age INT,
+    IN p_dob DATE,
+    IN p_gender ENUM('Male','Female','Other'),
+    IN p_marital_status VARCHAR(50),
+    IN p_spouse_accompanying TINYINT(1),
+    IN p_address_country VARCHAR(100),
+    IN p_address_state VARCHAR(100),
+    IN p_address_suburb VARCHAR(100),
+    IN p_contact1_code VARCHAR(10),
+    IN p_contact1 VARCHAR(50),
+    IN p_contact2_code VARCHAR(10),
+    IN p_contact2 VARCHAR(50),
+    IN p_email VARCHAR(100),
+    IN p_citizenship_country VARCHAR(100),
+    IN p_passport_country VARCHAR(100),
+    IN p_has_second_passport TINYINT(1),
+    IN p_second_passport_country VARCHAR(100),
+    IN p_highest_education VARCHAR(100),
+    IN p_education_field VARCHAR(100)
+)
+BEGIN
+    INSERT INTO student_applications (
+        student_id, passport_name, age, dob, gender, marital_status, spouse_accompanying,
+        address_country, address_state, address_suburb, contact1_code, contact1,
+        contact2_code, contact2, email, citizenship_country, passport_country,
+        has_second_passport, second_passport_country, highest_education, education_field
+    )
+    VALUES (
+        p_student_id, p_passport_name, p_age, p_dob, p_gender, p_marital_status, p_spouse_accompanying,
+        p_address_country, p_address_state, p_address_suburb, p_contact1_code, p_contact1,
+        p_contact2_code, p_contact2, p_email, p_citizenship_country, p_passport_country,
+        p_has_second_passport, p_second_passport_country, p_highest_education, p_education_field
+    )
+    ON DUPLICATE KEY UPDATE
+        passport_name = VALUES(passport_name),
+        age = VALUES(age),
+        dob = VALUES(dob),
+        gender = VALUES(gender),
+        marital_status = VALUES(marital_status),
+        spouse_accompanying = VALUES(spouse_accompanying),
+        address_country = VALUES(address_country),
+        address_state = VALUES(address_state),
+        address_suburb = VALUES(address_suburb),
+        contact1 = VALUES(contact1),
+        contact2 = VALUES(contact2),
+        email = VALUES(email),
+        updated_at = CURRENT_TIMESTAMP;
+    
+    SELECT application_id AS app_id FROM student_applications WHERE student_id = p_student_id ORDER BY created_at DESC LIMIT 1;
+END$$
+DELIMITER ;
+
+DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_UpsertStudentRegistration`(
     IN p_student_id INT, IN p_passport_name VARCHAR(255), IN p_first_name VARCHAR(100), IN p_last_name VARCHAR(100), IN p_age INT, IN p_dob DATE, IN p_gender ENUM('Male', 'Female', 'Other'),
     IN p_marital_status VARCHAR(50), IN p_spouse_accompanying TINYINT(1), IN p_address_country VARCHAR(100),
@@ -948,6 +1224,68 @@ BEGIN
         WHERE registration_id = v_reg_id;
     END IF;
     SELECT v_reg_id AS registration_id;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_UpsertStudentRegistration_Core`(
+    IN p_student_id INT,
+    IN p_passport_name VARCHAR(255),
+    IN p_first_name VARCHAR(100),
+    IN p_last_name VARCHAR(100),
+    IN p_age INT,
+    IN p_dob DATE,
+    IN p_gender ENUM('Male','Female','Other'),
+    IN p_marital_status VARCHAR(50),
+    IN p_spouse_accompanying TINYINT(1),
+    IN p_address_country VARCHAR(100),
+    IN p_address_state VARCHAR(100),
+    IN p_address_suburb VARCHAR(100),
+    IN p_address_postcode VARCHAR(20),
+    IN p_contact1_code VARCHAR(10),
+    IN p_contact1 VARCHAR(50),
+    IN p_contact2_code VARCHAR(10),
+    IN p_contact2 VARCHAR(50),
+    IN p_email VARCHAR(100),
+    IN p_citizenship_country VARCHAR(100),
+    IN p_passport_country VARCHAR(100),
+    IN p_has_second_passport TINYINT(1),
+    IN p_second_passport_country VARCHAR(100),
+    IN p_highest_education VARCHAR(100),
+    IN p_education_field VARCHAR(100)
+)
+BEGIN
+    INSERT INTO student_registrations (
+        student_id, passport_name, first_name, last_name, age, dob, gender, marital_status, spouse_accompanying,
+        address_country, address_state, address_suburb, address_postcode, contact1_code, contact1,
+        contact2_code, contact2, email, citizenship_country, passport_country,
+        has_second_passport, second_passport_country, highest_education, education_field
+    )
+    VALUES (
+        p_student_id, p_passport_name, p_first_name, p_last_name, p_age, p_dob, p_gender, p_marital_status, p_spouse_accompanying,
+        p_address_country, p_address_state, p_address_suburb, p_address_postcode, p_contact1_code, p_contact1,
+        p_contact2_code, p_contact2, p_email, p_citizenship_country, p_passport_country,
+        p_has_second_passport, p_second_passport_country, p_highest_education, p_education_field
+    )
+    ON DUPLICATE KEY UPDATE
+        passport_name = VALUES(passport_name),
+        first_name = VALUES(first_name),
+        last_name = VALUES(last_name),
+        age = VALUES(age),
+        dob = VALUES(dob),
+        gender = VALUES(gender),
+        marital_status = VALUES(marital_status),
+        spouse_accompanying = VALUES(spouse_accompanying),
+        address_country = VALUES(address_country),
+        address_state = VALUES(address_state),
+        address_suburb = VALUES(address_suburb),
+        address_postcode = VALUES(address_postcode),
+        contact1 = VALUES(contact1),
+        contact2 = VALUES(contact2),
+        email = VALUES(email),
+        updated_at = CURRENT_TIMESTAMP;
+    
+    SELECT registration_id AS reg_id FROM student_registrations WHERE student_id = p_student_id ORDER BY created_at DESC LIMIT 1;
 END$$
 DELIMITER ;
 
