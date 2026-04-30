@@ -220,7 +220,7 @@ const saveStudentApplication = (studentId, data) => {
 
                 // 1. Upsert Application Details (Core)
                 const [results] = await pConn.query(
-                    'CALL sp_UpsertStudentApplication_Core(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                    'CALL sp_UpsertStudentApplication_Core(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
                     [
                         studentId,
                         application.passport_name || '',
@@ -242,7 +242,8 @@ const saveStudentApplication = (studentId, data) => {
                         application.has_second_passport ? 1 : 0,
                         application.second_passport_country || '',
                         application.highest_education || '',
-                        application.education_field || ''
+                        application.education_field || '',
+                        application.spouse_age || null
                     ]
                 );
 
@@ -288,16 +289,16 @@ const saveStudentApplication = (studentId, data) => {
                 // Spouse Education
                 if (spouse_education && spouse_education.length > 0) {
                     for (const edu of spouse_education) {
-                        await pConn.query('CALL sp_AddApplicationSpouseEdu(?, ?, ?, ?, ?, ?)', 
-                        [applicationId, edu.country, edu.level, edu.field, edu.status, normalizeDate(edu.expected_completion)]);
+                        await pConn.query('CALL sp_AddApplicationSpouseEdu(?, ?, ?, ?, ?, ?, ?)', 
+                        [applicationId, edu.country, edu.level, edu.field, edu.status, normalizeDate(edu.expected_completion), edu.edu_type || 'highest']);
                     }
                 }
 
                 // Spouse Work
                 if (spouse_work && spouse_work.length > 0) {
                     for (const work of spouse_work) {
-                        await pConn.query('CALL sp_AddApplicationSpouseWork(?, ?, ?, ?, ?)', 
-                        [applicationId, work.country, work.job_title, work.work_years || 0, work.work_months || 0]);
+                        await pConn.query('CALL sp_AddApplicationSpouseWork(?, ?, ?, ?, ?, ?)', 
+                        [applicationId, work.country, work.job_title, work.work_years || 0, work.work_months || 0, work.work_type || 'other']);
                     }
                 }
 
@@ -321,8 +322,8 @@ const saveStudentApplication = (studentId, data) => {
                 if (suggestedPrograms && suggestedPrograms.length > 0) {
                     for (const prog of suggestedPrograms) {
                         await pConn.query(
-                            'INSERT INTO suggested_programs (application_id, program, details, status, sub_status, remarks, is_selected, branch_id, department_id, assigned_to) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                            [applicationId, prog.program, prog.details, prog.status, prog.sub_status, prog.remarks, toBoolInt(prog.is_selected), prog.branch_id || null, prog.department_id || null, prog.assigned_to || null]
+                            'INSERT INTO suggested_programs (application_id, program_type, program, details, status, sub_status, remarks, is_selected, branch_id, department_id, assigned_to) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                            [applicationId, prog.type || 'OTHER', prog.program, prog.details, prog.status, prog.sub_status, prog.remarks, toBoolInt(prog.is_selected), prog.branch_id || null, prog.department_id || null, prog.assigned_to || null]
                         );
                     }
                 }
@@ -351,7 +352,10 @@ const getStudentRegistration = (studentId) => {
                 work_experience_list: results[2] || [],
                 language_tests: results[3] || [],
                 children: results[4] || [],
-                suggestedPrograms: results[5] || []
+                suggestedPrograms: results[5] || [],
+                spouse_education: results[6] || [],
+                spouse_work: results[7] || [],
+                relatives: results[8] || []
             });
         });
     });
@@ -370,7 +374,7 @@ const saveStudentRegistration = (studentId, data) => {
 
                 // 1. Upsert Registration Details (Core)
                 const [results] = await pConn.query(
-                    'CALL sp_UpsertStudentRegistration_Core(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                    'CALL sp_UpsertStudentRegistration_Core(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
                     [
                         studentId,
                         app.passport_name || '',
@@ -395,7 +399,8 @@ const saveStudentRegistration = (studentId, data) => {
                         app.has_second_passport ? 1 : 0,
                         app.second_passport_country || '',
                         app.highest_education || '',
-                        app.education_field || ''
+                        app.education_field || '',
+                        app.spouse_age || null
                     ]
                 );
 
@@ -430,8 +435,29 @@ const saveStudentRegistration = (studentId, data) => {
                     }
                 }
 
-                // Other child tables (Admission, Spouse, Relatives) follow same pattern...
-                // (Adding these as they are defined in the schema)
+                // Spouse Education
+                if (spouse_education && spouse_education.length > 0) {
+                    for (const edu of spouse_education) {
+                        await pConn.query('CALL sp_AddRegistrationSpouseEdu(?, ?, ?, ?, ?, ?, ?)', 
+                        [registrationId, edu.country, edu.level, edu.field, edu.status, normalizeDate(edu.expected_completion), edu.edu_type || 'highest']);
+                    }
+                }
+
+                // Spouse Work
+                if (spouse_work && spouse_work.length > 0) {
+                    for (const work of spouse_work) {
+                        await pConn.query('CALL sp_AddRegistrationSpouseWork(?, ?, ?, ?, ?, ?)', 
+                        [registrationId, work.country, work.job_title, work.work_years || 0, work.work_months || 0, work.work_type || 'other']);
+                    }
+                }
+
+                // Relatives
+                if (relatives && relatives.length > 0) {
+                    for (const rel of relatives) {
+                        await pConn.query('INSERT INTO registration_relatives (registration_id, country, relationship, related_to) VALUES (?, ?, ?, ?)',
+                        [registrationId, rel.country, rel.relationship, rel.related_to]);
+                    }
+                }
 
                 // Legacy Children (Accompanying)
                 if (children && children.length > 0) {
@@ -449,8 +475,8 @@ const saveStudentRegistration = (studentId, data) => {
                     for (const prog of suggestedPrograms) {
                         await new Promise((res, rej) => {
                             connection.query(
-                                'INSERT INTO registration_suggested_programs (registration_id, program, details, status, sub_status, remarks, is_selected, branch_id, department_id, assigned_to) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                                [registrationId, prog.program, prog.details, prog.status, prog.sub_status, prog.remarks, toBoolInt(prog.is_selected), prog.branch_id || null, prog.department_id || null, prog.assigned_to || null],
+                                'INSERT INTO registration_suggested_programs (registration_id, program_type, program, details, status, sub_status, remarks, is_selected, branch_id, department_id, assigned_to) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                                [registrationId, prog.type || 'OTHER', prog.program, prog.details, prog.status, prog.sub_status, prog.remarks, toBoolInt(prog.is_selected), prog.branch_id || null, prog.department_id || null, prog.assigned_to || null],
                                 err => err ? rej(err) : res()
                             );
                         });

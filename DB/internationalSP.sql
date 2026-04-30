@@ -60,24 +60,33 @@ DELIMITER ;
 
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddApplicationSpouseEdu`(
-    IN p_application_id INT, IN p_country VARCHAR(100), IN p_level VARCHAR(100), 
-    IN p_field VARCHAR(100), IN p_status VARCHAR(50), IN p_expected_completion DATE
-)
+        IN p_app_id INT,
+        IN p_country VARCHAR(100),
+        IN p_level VARCHAR(100),
+        IN p_field VARCHAR(100),
+        IN p_status VARCHAR(50),
+        IN p_expected_completion DATE,
+        IN p_edu_type VARCHAR(20)
+    )
 BEGIN
-    INSERT INTO application_spouse_education (application_id, country, level, field, status, expected_completion)
-    VALUES (p_application_id, p_country, p_level, p_field, p_status, p_expected_completion);
-END$$
+        INSERT INTO application_spouse_education (application_id, country, level, field, status, expected_completion, edu_type)
+        VALUES (p_app_id, p_country, p_level, p_field, p_status, p_expected_completion, p_edu_type);
+    END$$
 DELIMITER ;
 
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddApplicationSpouseWork`(
-    IN p_application_id INT, IN p_country VARCHAR(100), IN p_job_title VARCHAR(255), 
-    IN p_work_years INT, IN p_work_months INT
-)
+        IN p_app_id INT,
+        IN p_country VARCHAR(100),
+        IN p_job_title VARCHAR(255),
+        IN p_work_years INT,
+        IN p_work_months INT,
+        IN p_work_type VARCHAR(20)
+    )
 BEGIN
-    INSERT INTO application_spouse_work (application_id, country, job_title, work_years, work_months)
-    VALUES (p_application_id, p_country, p_job_title, p_work_years, p_work_months);
-END$$
+        INSERT INTO application_spouse_work (application_id, country, job_title, work_years, work_months, work_type)
+        VALUES (p_app_id, p_country, p_job_title, p_work_years, p_work_months, p_work_type);
+    END$$
 DELIMITER ;
 
 DELIMITER $$
@@ -143,6 +152,37 @@ BEGIN
                 INSERT INTO registration_language_tests (registration_id, test_type, reading, writing, speaking, listening, overall, is_spouse)
                 VALUES (p_registration_id, p_type, p_reading, p_writing, p_speaking, p_listening, p_overall, p_is_spouse);
             END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddRegistrationSpouseEdu`(
+        IN p_reg_id INT,
+        IN p_country VARCHAR(100),
+        IN p_level VARCHAR(100),
+        IN p_field VARCHAR(100),
+        IN p_status VARCHAR(50),
+        IN p_expected_completion DATE,
+        IN p_edu_type VARCHAR(20)
+    )
+BEGIN
+        INSERT INTO registration_spouse_education (registration_id, country, level, field, status, expected_completion, edu_type)
+        VALUES (p_reg_id, p_country, p_level, p_field, p_status, p_expected_completion, p_edu_type);
+    END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddRegistrationSpouseWork`(
+        IN p_reg_id INT,
+        IN p_country VARCHAR(100),
+        IN p_job_title VARCHAR(255),
+        IN p_work_years INT,
+        IN p_work_months INT,
+        IN p_work_type VARCHAR(20)
+    )
+BEGIN
+        INSERT INTO registration_spouse_work (registration_id, country, job_title, work_years, work_months, work_type)
+        VALUES (p_reg_id, p_country, p_job_title, p_work_years, p_work_months, p_work_type);
+    END$$
 DELIMITER ;
 
 DELIMITER $$
@@ -647,26 +687,49 @@ DELIMITER ;
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetStudentRegistration`(IN p_student_id INT)
 BEGIN
-    -- Result 1: Core Registration Data
-    SELECT * FROM student_registrations WHERE student_id = p_student_id LIMIT 1;
-    
-    -- Result 2: Education
-    SELECT e.* FROM registration_education e
-    JOIN student_registrations r ON e.registration_id = r.registration_id
-    WHERE r.student_id = p_student_id;
-    
-    -- Result 3: Work Experience
-    SELECT w.* FROM registration_work_experience w
-    JOIN student_registrations r ON w.registration_id = r.registration_id
-    WHERE r.student_id = p_student_id;
-    
-    -- Result 4: Language Tests
-    SELECT t.* FROM registration_language_tests t
-    JOIN student_registrations r ON t.registration_id = r.registration_id
-    WHERE r.student_id = p_student_id;
-    
-    -- (Add others like Spouse/Relatives as you create those tables)
-END$$
+                -- Result 1: Core Registration Data
+                SELECT * FROM student_registrations WHERE student_id = p_student_id LIMIT 1;
+                
+                -- Result 2: Education
+                SELECT e.* FROM registration_education e
+                JOIN student_registrations r ON e.registration_id = r.registration_id
+                WHERE r.student_id = p_student_id;
+                
+                -- Result 3: Work Experience
+                SELECT w.* FROM registration_work_experience w
+                JOIN student_registrations r ON w.registration_id = r.registration_id
+                WHERE r.student_id = p_student_id;
+                
+                -- Result 4: Language Tests
+                SELECT t.* FROM registration_language_tests t
+                JOIN student_registrations r ON t.registration_id = r.registration_id
+                WHERE r.student_id = p_student_id;
+                
+                -- Result 5: Children
+                SELECT c.* FROM registration_children c
+                JOIN student_registrations r ON c.registration_id = r.registration_id
+                WHERE r.student_id = p_student_id;
+                
+                -- Result 6: Suggested Programs
+                SELECT s.* FROM registration_suggested_programs s
+                JOIN student_registrations r ON s.registration_id = r.registration_id
+                WHERE r.student_id = p_student_id;
+
+                -- Result 7: Spouse Education
+                SELECT e.* FROM registration_spouse_education e
+                JOIN student_registrations r ON e.registration_id = r.registration_id
+                WHERE r.student_id = p_student_id;
+
+                -- Result 8: Spouse Work
+                SELECT w.* FROM registration_spouse_work w
+                JOIN student_registrations r ON w.registration_id = r.registration_id
+                WHERE r.student_id = p_student_id;
+
+                -- Result 9: Relatives
+                SELECT rel.* FROM registration_relatives rel
+                JOIN student_registrations r ON rel.registration_id = r.registration_id
+                WHERE r.student_id = p_student_id;
+            END$$
 DELIMITER ;
 
 DELIMITER $$
@@ -1100,20 +1163,23 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_UpsertStudentApplication_Core`(
     IN p_has_second_passport TINYINT(1),
     IN p_second_passport_country VARCHAR(100),
     IN p_highest_education VARCHAR(100),
-    IN p_education_field VARCHAR(100)
+    IN p_education_field VARCHAR(100),
+    IN p_spouse_age INT
 )
 BEGIN
     INSERT INTO student_applications (
         student_id, passport_name, age, dob, gender, marital_status, spouse_accompanying,
         address_country, address_state, address_suburb, contact1_code, contact1,
         contact2_code, contact2, email, citizenship_country, passport_country,
-        has_second_passport, second_passport_country, highest_education, education_field
+        has_second_passport, second_passport_country, highest_education, education_field,
+        spouse_age
     )
     VALUES (
         p_student_id, p_passport_name, p_age, p_dob, p_gender, p_marital_status, p_spouse_accompanying,
         p_address_country, p_address_state, p_address_suburb, p_contact1_code, p_contact1,
         p_contact2_code, p_contact2, p_email, p_citizenship_country, p_passport_country,
-        p_has_second_passport, p_second_passport_country, p_highest_education, p_education_field
+        p_has_second_passport, p_second_passport_country, p_highest_education, p_education_field,
+        p_spouse_age
     )
     ON DUPLICATE KEY UPDATE
         passport_name = VALUES(passport_name),
@@ -1128,6 +1194,7 @@ BEGIN
         contact1 = VALUES(contact1),
         contact2 = VALUES(contact2),
         email = VALUES(email),
+        spouse_age = VALUES(spouse_age),
         updated_at = CURRENT_TIMESTAMP;
     
     SELECT application_id AS app_id FROM student_applications WHERE student_id = p_student_id ORDER BY created_at DESC LIMIT 1;
@@ -1252,20 +1319,23 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_UpsertStudentRegistration_Core`(
     IN p_has_second_passport TINYINT(1),
     IN p_second_passport_country VARCHAR(100),
     IN p_highest_education VARCHAR(100),
-    IN p_education_field VARCHAR(100)
+    IN p_education_field VARCHAR(100),
+    IN p_spouse_age INT
 )
 BEGIN
     INSERT INTO student_registrations (
         student_id, passport_name, first_name, last_name, age, dob, gender, marital_status, spouse_accompanying,
         address_country, address_state, address_suburb, address_postcode, contact1_code, contact1,
         contact2_code, contact2, email, citizenship_country, passport_country,
-        has_second_passport, second_passport_country, highest_education, education_field
+        has_second_passport, second_passport_country, highest_education, education_field,
+        spouse_age
     )
     VALUES (
         p_student_id, p_passport_name, p_first_name, p_last_name, p_age, p_dob, p_gender, p_marital_status, p_spouse_accompanying,
         p_address_country, p_address_state, p_address_suburb, p_address_postcode, p_contact1_code, p_contact1,
         p_contact2_code, p_contact2, p_email, p_citizenship_country, p_passport_country,
-        p_has_second_passport, p_second_passport_country, p_highest_education, p_education_field
+        p_has_second_passport, p_second_passport_country, p_highest_education, p_education_field,
+        p_spouse_age
     )
     ON DUPLICATE KEY UPDATE
         passport_name = VALUES(passport_name),
@@ -1283,6 +1353,7 @@ BEGIN
         contact1 = VALUES(contact1),
         contact2 = VALUES(contact2),
         email = VALUES(email),
+        spouse_age = VALUES(spouse_age),
         updated_at = CURRENT_TIMESTAMP;
     
     SELECT registration_id AS reg_id FROM student_registrations WHERE student_id = p_student_id ORDER BY created_at DESC LIMIT 1;
