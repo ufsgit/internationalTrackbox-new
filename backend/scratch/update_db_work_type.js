@@ -32,14 +32,13 @@ async function updateDb() {
         await connection.query(`
             CREATE PROCEDURE sp_AddRegistrationWork(
                 IN p_registration_id INT, IN p_country VARCHAR(100), IN p_job_title VARCHAR(100), 
-                IN p_work_years INT, IN p_work_months INT, IN p_work_category VARCHAR(20),
+                IN p_work_years INT, IN p_work_months INT, IN p_type VARCHAR(20),
                 IN p_work_type VARCHAR(20)
             )
             BEGIN
-                -- Note: registration table uses work_category instead of is_current in some schemas, 
-                -- but we will stick to the provided pattern.
-                INSERT INTO registration_work_experience (registration_id, country, job_title, work_years, work_months, work_category, work_type)
-                VALUES (p_registration_id, p_country, p_job_title, p_work_years, p_work_months, p_work_category, p_work_type);
+                -- registration_work_experience uses 'type' enum('current','previous') not 'work_category'
+                INSERT INTO registration_work_experience (registration_id, country, job_title, work_years, work_months, type, work_type)
+                VALUES (p_registration_id, p_country, p_job_title, p_work_years, p_work_months, p_type, p_work_type);
             END
         `);
 

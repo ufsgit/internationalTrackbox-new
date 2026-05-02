@@ -1028,7 +1028,8 @@
                                             YES</label>
                                         <label><input type="radio" [name]="'spouse_is_current_work_'+country"
                                                 [(ngModel)]="application.migration_spouse_data[country].is_currently_working"
-                                                [value]="false">
+                                                [value]="false"
+                                                (change)="onWorkToggle(country, 'migration_spouse_data', 'current_work_experience_list')">
                                             NO</label>
                                     </div>
                                 </div>
@@ -1072,7 +1073,8 @@
                                             YES</label>
                                         <label><input type="radio" [name]="'spouse_has_other_work_'+country"
                                                 [(ngModel)]="application.migration_spouse_data[country].has_other_work"
-                                                [value]="false">
+                                                [value]="false"
+                                                (change)="onWorkToggle(country, 'migration_spouse_data', 'other_work_experience_list')">
                                             NO</label>
                                     </div>
                                 </div>
@@ -1106,28 +1108,14 @@
                             </div>
                         </ng-container>
                     </div>
-
-                    <!-- 1. General Work Experience -->
+                    <!-- 1. General Work Experience (Only shown if NOT Migration) -->
                     <div class="work-row" *ngIf="showGeneralWorkExperience">
                         <div class="work-label" style="flex: 0 0 280px;">Does Spouse have any Work Experience?</div>
                         <div class="radio-group-modern" style="flex: 0 0 auto;">
-                            <label><input type="radio" name="spouse_has_work" [value]="true" [(ngModel)]="application.spouse_has_work_experience" (change)="onWorkToggle(null, 'spouse_work_experience_list')"> YES</label>
-                            <label><input type="radio" name="spouse_has_work" [value]="false" [(ngModel)]="application.spouse_has_work_experience"> NO</label>
-                        </div>
-                        <div class="edu-inputs" style="flex: 0 0 auto; display: flex; align-items: center; gap: 8px; margin-left: 20px;" *ngIf="application.spouse_has_work_experience">
-                            <input type="number" [(ngModel)]="application.spouse_work_experience_years" style="width: 140px;" placeholder="Total Year of Exp">
+                            <label><input type="radio" name="spouse_has_work_gen" [value]="true" [(ngModel)]="application.spouse_has_work_experience" (change)="onWorkToggle(null, 'spouse_work_experience_list')"> YES</label>
+                            <label><input type="radio" name="spouse_has_work_gen" [value]="false" [(ngModel)]="application.spouse_has_work_experience" (change)="onWorkToggle(null, 'spouse_work_experience_list')"> NO</label>
                         </div>
                         <div style="flex: 1;"></div>
-                    </div>
-
-                    <!-- General Work Experience (Migration Only) -->
-                    <div class="work-row" *ngIf="!showGeneralWorkExperience">
-                        <div class="work-label" style="flex: 0 0 280px;">Does Spouse have any Work Experience?</div>
-                        <div class="radio-group-modern" style="flex: 0 0 auto;">
-                            <label><input type="radio" name="spouse_has_work" [value]="true" [(ngModel)]="application.spouse_has_work_experience" (change)="onWorkToggle(null, 'spouse_work_experience_list')"> YES</label>
-                            <label><input type="radio" name="spouse_has_work" [value]="false" [(ngModel)]="application.spouse_has_work_experience"> NO</label>
-                        </div>
-                        <div style="flex: 3;"></div>
                     </div>
                     <div class="work-experience-list" *ngIf="application.spouse_has_work_experience" style="width: 100%; padding: 15px; background: #f0f7ff; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e0e7ff;">
                         <div class="work-inputs" *ngFor="let exp of application.spouse_work_experience_list; let i = index"
@@ -1164,12 +1152,12 @@
                         </div>
                     </div>
 
-                    <!-- Other Country Work Experience (Conditional) -->
-                    <div class="work-row" *ngIf="!showGeneralWorkExperience">
+                    <!-- Other Country Work Experience (Always available for spouse if accompanying) -->
+                    <div class="work-row">
                         <div class="work-label" style="flex: 0 0 280px;">Does Spouse have any other Work Experience?</div>
                         <div class="radio-group-modern" style="flex: 0 0 auto;">
                             <label><input type="radio" name="spouse_has_other_work_exp" [value]="true" [(ngModel)]="application.spouse_has_other_work_experience" (change)="onWorkToggle(null, 'spouse_other_work_experience_list')"> YES</label>
-                            <label><input type="radio" name="spouse_has_other_work_exp" [value]="false" [(ngModel)]="application.spouse_has_other_work_experience"> NO</label>
+                            <label><input type="radio" name="spouse_has_other_work_exp" [value]="false" [(ngModel)]="application.spouse_has_other_work_experience" (change)="onWorkToggle(null, 'spouse_other_work_experience_list')"> NO</label>
                         </div>
                         <div style="flex: 3;"></div>
                     </div>

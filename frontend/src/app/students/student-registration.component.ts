@@ -298,7 +298,8 @@ export class StudentRegistrationComponent implements OnInit {
                     const appObj: any = this.application;
                     ['spouse_accompanying', 'has_canadian_edu', 'has_australian_edu', 'has_aus_specialised_edu',
                         'has_nz_edu', 'has_work_experience', 'has_language_test', 'has_admission_test', 'has_relatives',
-                        'spouse_canadian_edu', 'spouse_australian_edu', 'spouse_aus_specialised_edu', 'has_second_passport'].forEach(key => {
+                        'spouse_canadian_edu', 'spouse_australian_edu', 'spouse_aus_specialised_edu', 'has_second_passport',
+                        'spouse_has_work_experience', 'spouse_has_other_work_experience'].forEach(key => {
                             appObj[key] = !!appObj[key];
                         });
                 } else {
@@ -911,6 +912,8 @@ export class StudentRegistrationComponent implements OnInit {
 
             if (hasWork && (!countryData[subTarget] || countryData[subTarget].length === 0)) {
                 this.addWorkExperience(country, target, subTarget);
+            } else if (!hasWork) {
+                countryData[subTarget] = [];
             }
         } else {
             const hasWork = target === 'work_experience_list' ? this.application.has_work_experience :
@@ -920,6 +923,8 @@ export class StudentRegistrationComponent implements OnInit {
 
             if (hasWork && (!this.application[target] || this.application[target].length === 0)) {
                 this.addWorkExperience(null, target);
+            } else if (!hasWork) {
+                this.application[target] = [];
             }
         }
     }
@@ -1390,7 +1395,7 @@ export class StudentRegistrationComponent implements OnInit {
                         work_years: parseInt(w.work_years) || 0,
                         work_months: parseInt(w.work_months) || 0,
                         type: 'previous',
-                        work_type: 'other'
+                        work_type: 'curr_other'
                     });
                 }
             });
@@ -1456,7 +1461,7 @@ export class StudentRegistrationComponent implements OnInit {
                         job_title: w.job_title,
                         work_years: parseInt(w.work_years) || 0,
                         work_months: parseInt(w.work_months) || 0,
-                        work_type: 'prev_other'
+                        work_type: 'curr_other'
                     });
                 }
             });
@@ -1643,53 +1648,65 @@ export class StudentRegistrationComponent implements OnInit {
         const assessSpouseLangTests: any[] = (data.language_tests || []).filter((t: any) => t.is_spouse);
         const assessAdmTests: any[] = data.admission_tests || [];
 
-        if (isNew || !regApp.language_test_list || regApp.language_test_list.length === 0) {
-            if (assessLangTests.length > 0) {
-                regApp.language_test_list = assessLangTests.map((t: any) => ({
-                    test_type: t.type || t.test_type || '',
-                    type: t.type || t.test_type || '',
+        // ─── Language Tests ───────────────────────────────────────────────────────
+        if (assessLangTests.length > 0) {
+            regApp.language_test_list = assessLangTests.map((t: any) => {
+                const testType = String(t.test_type || t.type || t.language_test || t.testType || '').trim().toUpperCase();
+                return {
+                    test_type: testType,
+                    type: testType,
                     reading: t.reading || t.reading_score || '',
                     writing: t.writing || t.writing_score || '',
                     speaking: t.speaking || t.speaking_score || '',
                     listening: t.listening || t.listening_score || '',
                     overall: t.overall || '',
                     is_spouse: 0
-                }));
-                regApp.has_language_test = true;
-            } else if (app.has_language_test && app.language_test_type) {
-                // Legacy flat-field fallback
-                regApp.language_test_list = [{
-                    test_type: app.language_test_type || '',
-                    type: app.language_test_type || '',
-                    reading: app.reading_score || '',
-                    writing: app.writing_score || '',
-                    speaking: app.speaking_score || '',
-                    listening: app.listening_score || '',
-                    overall: '',
-                    is_spouse: 0
-                }];
-                regApp.has_language_test = true;
-            }
+                };
+            });
+        } else if (app.has_language_test && app.language_test_type) {
+            // Legacy flat-field fallback
+            regApp.language_test_list = [{
+                test_type: String(app.language_test_type).trim().toUpperCase(),
+                type: String(app.language_test_type).trim().toUpperCase(),
+                reading: app.reading_score || '',
+                writing: app.writing_score || '',
+                speaking: app.speaking_score || '',
+                listening: app.listening_score || '',
+                overall: '',
+                is_spouse: 0
+            }];
         }
 
-        if (isNew || !regApp.spouse_language_test_list || regApp.spouse_language_test_list.length === 0) {
-            if (assessSpouseLangTests.length > 0) {
-                regApp.spouse_language_test_list = assessSpouseLangTests.map((t: any) => ({
-                    test_type: t.type || t.test_type || '',
-                    type: t.type || t.test_type || '',
+        // Force boolean visibility if records exist
+        if (regApp.language_test_list && regApp.language_test_list.length > 0) {
+            regApp.has_language_test = true;
+        }
+
+        // ─── Spouse Language Tests ───────────────────────────────────────────────
+        if (assessSpouseLangTests.length > 0) {
+            regApp.spouse_language_test_list = assessSpouseLangTests.map((t: any) => {
+                const testType = String(t.test_type || t.type || t.language_test || t.testType || '').trim().toUpperCase();
+                return {
+                    test_type: testType,
+                    type: testType,
                     reading: t.reading || t.reading_score || '',
                     writing: t.writing || t.writing_score || '',
                     speaking: t.speaking || t.speaking_score || '',
                     listening: t.listening || t.listening_score || '',
                     overall: t.overall || '',
                     is_spouse: 1
-                }));
-                regApp.spouse_has_language_test = true;
-                regApp.spouse_lang_test_type = regApp.spouse_language_test_list[0]?.type || '';
-            }
+                };
+            });
+            regApp.spouse_lang_test_type = regApp.spouse_language_test_list[0]?.type || '';
         }
 
-        if (isNew || !regApp.admission_test_list || regApp.admission_test_list.length === 0) {
+        // Force boolean visibility if records exist
+        if (regApp.spouse_language_test_list && regApp.spouse_language_test_list.length > 0) {
+            regApp.spouse_has_language_test = true;
+        }
+
+        // ─── Admission Tests ──────────────────────────────────────────────────────
+        if (!regApp.admission_test_list || regApp.admission_test_list.length === 0) {
             if (assessAdmTests.length > 0) {
                 regApp.admission_test_list = assessAdmTests.map((t: any) => ({
                     test_type: t.type || t.test_type || '',
@@ -1699,7 +1716,6 @@ export class StudentRegistrationComponent implements OnInit {
                     data_insights: t.data_insights || t.data_insights_score || '',
                     overall: t.overall || ''
                 }));
-                regApp.has_admission_test = true;
             } else if (app.has_admission_test && app.admission_test_type) {
                 regApp.admission_test_list = [{
                     test_type: app.admission_test_type || '',
@@ -1709,8 +1725,11 @@ export class StudentRegistrationComponent implements OnInit {
                     data_insights: app.data_insights_score || '',
                     overall: ''
                 }];
-                regApp.has_admission_test = true;
             }
+        }
+        // Force boolean visibility if records exist
+        if (regApp.admission_test_list && regApp.admission_test_list.length > 0) {
+            regApp.has_admission_test = true;
         }
 
         // ─── Relational Data (Education, Work, Spouse, Relatives) ─────────────────
@@ -1835,17 +1854,16 @@ export class StudentRegistrationComponent implements OnInit {
                     app.migration_data[country].has_other_work = true;
                     if (!app.migration_data[country].other_work_experience_list) app.migration_data[country].other_work_experience_list = [];
                     app.migration_data[country].other_work_experience_list.push(w);
-                } else if (w.work_type === 'other') {
-                    app.has_other_work_experience = true;
-                    if (!app.other_work_experience_list) app.other_work_experience_list = [];
-                    app.other_work_experience_list.push(w);
-                } else if (w.work_type === 'curr_other') {
-                    if (w.is_current === 1 || w.is_current === true) {
+                } else if (w.work_type === 'curr_other' || w.work_type === 'other') {
+                    // Check type (enum 'current'/'previous') or is_current (0/1 from assessment sync)
+                    const isCurrent = w.type === 'current' || w.is_current === 1 || w.is_current === true;
+                    if (isCurrent) {
                         // General current work experience
                         app.has_work_experience = true;
+                        if (!app.work_experience_list) app.work_experience_list = [];
                         app.work_experience_list.push(w);
                     } else {
-                        // General other (non-current) work experience — "Do you have any other Work Experience?"
+                        // General other (non-current) work experience
                         app.has_other_work_experience = true;
                         if (!app.other_work_experience_list) app.other_work_experience_list = [];
                         app.other_work_experience_list.push(w);
@@ -1946,22 +1964,20 @@ export class StudentRegistrationComponent implements OnInit {
                     app.migration_spouse_data[country].has_other_work = true;
                     if (!app.migration_spouse_data[country].other_work_experience_list) app.migration_spouse_data[country].other_work_experience_list = [];
                     app.migration_spouse_data[country].other_work_experience_list.push(w);
-                } else if (w.work_type === 'curr_other' || w.work_type === 'other') {
-                    app.spouse_has_work_experience = true;
-                    if (!app.spouse_work_experience_list) app.spouse_work_experience_list = [];
-                    // Map country to employment_country to match HTML binding
-                    if (w.country && !w.employment_country) {
-                        w.employment_country = w.country;
+                } else if (w.work_type === 'other' || w.work_type === 'curr_other' || w.work_type === 'prev_other') {
+                    // Check type column (enum) or is_current (from assessment sync)
+                    const isCurrent = w.type === 'current' || w.is_current === 1 || w.is_current === true;
+                    if (isCurrent && w.work_type !== 'prev_other') {
+                        app.spouse_has_work_experience = true;
+                        if (!app.spouse_work_experience_list) app.spouse_work_experience_list = [];
+                        if (w.country && !w.employment_country) w.employment_country = w.country;
+                        app.spouse_work_experience_list.push(w);
+                    } else {
+                        app.spouse_has_other_work_experience = true;
+                        if (!app.spouse_other_work_experience_list) app.spouse_other_work_experience_list = [];
+                        if (w.country && !w.employment_country) w.employment_country = w.country;
+                        app.spouse_other_work_experience_list.push(w);
                     }
-                    app.spouse_work_experience_list.push(w);
-                } else if (w.work_type === 'prev_other') {
-                    app.spouse_has_other_work_experience = true;
-                    if (!app.spouse_other_work_experience_list) app.spouse_other_work_experience_list = [];
-                    // Map country to employment_country to match HTML binding
-                    if (w.country && !w.employment_country) {
-                        w.employment_country = w.country;
-                    }
-                    app.spouse_other_work_experience_list.push(w);
                 }
             });
         }

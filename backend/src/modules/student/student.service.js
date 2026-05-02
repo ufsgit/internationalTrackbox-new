@@ -431,7 +431,15 @@ const saveStudentRegistration = (studentId, data) => {
                 if (language_tests && language_tests.length > 0) {
                     for (const test of language_tests) {
                         await pConn.query('CALL sp_AddRegistrationLangTest(?, ?, ?, ?, ?, ?, ?, ?)', 
-                        [registrationId, test.test_type, test.reading, test.writing, test.speaking, test.listening, test.overall, toBoolInt(test.is_spouse)]);
+                        [registrationId, test.type || test.test_type, test.reading, test.writing, test.speaking, test.listening, test.overall || '', toBoolInt(test.is_spouse)]);
+                    }
+                }
+
+                // Admission Tests
+                if (admission_tests && admission_tests.length > 0) {
+                    for (const test of admission_tests) {
+                        await pConn.query('CALL sp_AddRegistrationAdmissionTest(?, ?, ?, ?, ?, ?)', 
+                        [registrationId, test.type || test.test_type, test.quant, test.verbal, test.data_insights, test.overall || '']);
                     }
                 }
 

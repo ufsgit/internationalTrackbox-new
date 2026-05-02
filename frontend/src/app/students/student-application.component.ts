@@ -588,8 +588,9 @@ export class StudentApplicationComponent implements OnInit {
                                 this.application.migration_data[country].has_other_work = true;
                                 this.application.migration_data[country].other_work_experience_list.push(w);
                             }
-                        } else if (w.work_type === 'curr_other') {
-                            if (w.is_current) {
+                        } else if (w.work_type === 'curr_other' || w.work_type === 'other') {
+                            const isCurrent = w.is_current === 1 || w.is_current === true || w.type === 'current';
+                            if (isCurrent) {
                                 this.application.has_work_experience = true;
                                 this.application.work_experience_list.push(w);
                             } else {
@@ -630,9 +631,15 @@ export class StudentApplicationComponent implements OnInit {
                             this.application.migration_spouse_data[country].has_work = true;
                             this.application.migration_spouse_data[country].has_other_work = true;
                             this.application.migration_spouse_data[country].other_work_experience_list.push(w);
-                        } else if (w.work_type === 'other') {
-                            this.application.spouse_has_work_experience = true;
-                            this.application.spouse_work_experience_list.push(w);
+                        } else if (w.work_type === 'curr_other' || w.work_type === 'other' || w.work_type === 'prev_other') {
+                            const isCurrent = w.is_current === 1 || w.is_current === true || w.type === 'current';
+                            if (isCurrent && w.work_type !== 'prev_other') {
+                                this.application.spouse_has_work_experience = true;
+                                this.application.spouse_work_experience_list.push(w);
+                            } else {
+                                this.application.spouse_has_other_work_experience = true;
+                                this.application.spouse_other_work_experience_list.push(w);
+                            }
                         }
                     });
                 }
@@ -1579,7 +1586,8 @@ export class StudentApplicationComponent implements OnInit {
                         job_title: w.job_title,
                         work_years: parseInt(w.work_years) || 0,
                         work_months: parseInt(w.work_months) || 0,
-                        work_type: 'other'
+                        is_current: 1,
+                        work_type: 'curr_other'
                     });
                 }
             });
@@ -1592,7 +1600,8 @@ export class StudentApplicationComponent implements OnInit {
                         job_title: w.job_title,
                         work_years: parseInt(w.work_years) || 0,
                         work_months: parseInt(w.work_months) || 0,
-                        work_type: 'other'
+                        is_current: 0,
+                        work_type: 'curr_other'
                     });
                 }
             });
@@ -1712,6 +1721,8 @@ export class StudentApplicationComponent implements OnInit {
 
             if (hasWork && (!countryData[subTarget] || countryData[subTarget].length === 0)) {
                 this.addWorkExperience(country, target, subTarget);
+            } else if (!hasWork) {
+                countryData[subTarget] = [];
             }
         } else {
             const hasWork = target === 'work_experience_list' ? this.application.has_work_experience :
@@ -1721,6 +1732,8 @@ export class StudentApplicationComponent implements OnInit {
 
             if (hasWork && (!this.application[target] || this.application[target].length === 0)) {
                 this.addWorkExperience(null, target);
+            } else if (!hasWork) {
+                this.application[target] = [];
             }
         }
     }
