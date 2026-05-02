@@ -159,6 +159,8 @@ export class StudentRegistrationComponent implements OnInit {
         this.studentService.getStudentAssessment(this.studentId).subscribe({
             next: (res) => {
                 if (res) {
+                    // Setting the signal triggers the effect() which calls patchFromAssessment.
+                    // Do NOT call patchFromAssessment directly here to avoid double execution.
                     this.assessmentData.set(res);
                 }
             },
@@ -293,21 +295,27 @@ export class StudentRegistrationComponent implements OnInit {
                     this.registrationLoaded = true;
                     this.application = data.application;
                     // Ensure boolean types
+                    const appObj: any = this.application;
                     ['spouse_accompanying', 'has_canadian_edu', 'has_australian_edu', 'has_aus_specialised_edu',
                         'has_nz_edu', 'has_work_experience', 'has_language_test', 'has_admission_test', 'has_relatives',
                         'spouse_canadian_edu', 'spouse_australian_edu', 'spouse_aus_specialised_edu', 'has_second_passport'].forEach(key => {
-                            this.application[key] = !!this.application[key];
+                            appObj[key] = !!appObj[key];
                         });
-
-                    if (this.application.contact1_code) this.application.mobile_country_code = this.application.contact1_code;
-                    if (this.application.contact2_code) this.application.phone_country_code = this.application.contact2_code;
+                } else {
+                    // No saved registration — new form, assessment data will fill it
+                    this.registrationLoaded = false;
+                }
+                const app: any = this.application;
+                if (app) {
+                    if (app.contact1_code) app.mobile_country_code = app.contact1_code;
+                    if (app.contact2_code) app.phone_country_code = app.contact2_code;
 
                     this.prePopulateFields();
 
-                    if (this.application.dob) {
-                        if (this.application.dob.includes('T')) {
-                            const d = new Date(this.application.dob);
-                            this.application.dob = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                    if (app.dob) {
+                        if (app.dob.includes('T')) {
+                            const d = new Date(app.dob);
+                            app.dob = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
                         }
                     }
 
@@ -327,18 +335,16 @@ export class StudentRegistrationComponent implements OnInit {
 
                     // --- Legacy JSON Fallback (Only if Relational Arrays are Empty) ---
                     if (!data.education_list?.length && !data.work_experience_list?.length) {
-                        if (typeof this.application.migration_data === 'string') {
-                            try { this.application.migration_data = JSON.parse(this.application.migration_data); } catch (e) { this.application.migration_data = {}; }
-                        }
-                        if (typeof this.application.relatives_data === 'string') {
-                            try { this.application.relatives_data = JSON.parse(this.application.relatives_data); } catch (e) { this.application.relatives_data = {}; }
-                        }
                         if (typeof this.application.education_data === 'string') {
                             try { this.application.education_data = JSON.parse(this.application.education_data); } catch (e) { this.application.education_data = {}; }
                         }
                     }
+                    if (!this.application.migration_data) this.application.migration_data = {};
+                    if (!this.application.relatives_data) this.application.relatives_data = {};
+                    if (!this.application.education_data) this.application.education_data = {};
 
                     // Sync unmapped education properties
+                    if (!this.application.education_data) this.application.education_data = {};
                     this.application.education_country = this.application.education_country || '';
                     this.application.highest_education_status = this.application.highest_education_status || 'Completed';
                     
@@ -410,54 +416,7 @@ export class StudentRegistrationComponent implements OnInit {
                 }
                 this.children = (data.children || []).map((c: any) => ({ ...c, is_accompanying: !!c.is_accompanying }));
                 this.application.has_children = this.children.length > 0;
-                this.suggestedPrograms = (data.suggestedPrograms || []).flatMap((p: any) => {
-                    const upperProg = (p.program || '').toUpperCase();
-                    let type = p.program_type || 'OTHER';
-                    
-                    if (!p.program_type) {
-                        if (upperProg.includes('STUDY')) type = 'STUDY';
-                        else if (upperProg.includes('MIGRATION')) type = 'MIGRATION';
-                        else if (upperProg.includes('VISA')) type = 'VISA';
-                        else if (upperProg.includes('WORK')) type = 'WORK';
-                        else if (upperProg.includes('COACHING')) type = 'COACHING';
-                    }
-
-                    let country = '', level = '', field = '', intake = '', year = '', occupation = '', category = '', course = '', batch = '', subType = 'default';
-
-                    if (type === 'STUDY') {
-                        country = p.program.replace(/STUDY/i, '').trim();
-                        const mainParts = p.details.split(' - ');
-                        const courseParts = (mainParts[0] || '').split(' ');
-                        const intakeParts = (mainParts[1] || '').split(' ');
-
-                        level = courseParts[0] || '';
-                        field = courseParts.slice(1).join(' ') || '';
-                        intake = intakeParts[0] || '';
-                        year = intakeParts[1] || '';
-                        subType = 'default';
-                    } else if (type === 'MIGRATION') {
-                        country = p.program.replace('MIGRATION', '').trim();
-                        const parts = p.details.split(' - ');
-                        occupation = parts[0] || '';
-                        category = parts[1] || '';
-                    } else if (type === 'VISA') {
-                        country = p.program.replace('VISA', '').trim();
-                        category = p.details;
-                    } else if (type === 'WORK') {
-                        country = p.program.replace('WORK', '').trim();
-                        occupation = p.details;
-                    } else if (type === 'COACHING') {
-                        const parts = p.details.split(' - ');
-                        course = parts[0] || '';
-                        batch = parts[1] || '';
-                    }
-
-                    const result = { ...p, type, subType, country, level, field, intake, year, occupation, category, course, batch };
-
-                    // Initialize cascading data for existing programs
-                    const idx = this.suggestedPrograms.length + 0; // index in the final array depends on how flatMap works, better to do after map
-                    return [result];
-                });
+                this.suggestedPrograms = this.parseSuggestedPrograms(data.suggestedPrograms || []);
 
                 // After loading, initialize cascading maps
                 this.suggestedPrograms.forEach((p, i) => {
@@ -505,189 +464,15 @@ export class StudentRegistrationComponent implements OnInit {
                 this.application.spouse_work_experience_list = [];
                 this.application.spouse_other_work_experience_list = [];
                 this.application.spouse_has_work_experience = false;
-                
 
-                if (data.education_list) {
-                    data.education_list.forEach((edu: any) => {
-                        if (edu.is_highest || edu.edu_type === 'highest') {
-                            if (edu.is_highest) {
-                                this.application.highest_education = edu.level;
-                                this.application.education_field = edu.field;
-                                this.application.education_country = edu.country;
-                                this.application.highest_education_status = edu.status;
-                                this.application.highest_education_expected = formatMonth(edu.expected_completion);
-                            } else {
-                                this.application.education_data.additional.push({
-                                    ...edu,
-                                    expected_completion: formatMonth(edu.expected_completion)
-                                });
-                            }
-                        } else if (edu.edu_type === 'country') {
-                            const country = edu.country;
-                            if (!this.application.education_data[country]) {
-                                this.application.education_data[country] = { 
-                                    has_edu: true, 
-                                    level: edu.level, 
-                                    field: edu.field, 
-                                    status: edu.status, 
-                                    expected_completion: formatMonth(edu.expected_completion),
-                                    additional_entries: [] 
-                                };
-                            } else {
-                                this.application.education_data[country].additional_entries.push({
-                                    ...edu,
-                                    expected_completion: formatMonth(edu.expected_completion)
-                                });
-                            }
-                        } else if (edu.edu_type === 'other') {
-                            this.application.has_other_country_edu = true;
-                            this.application.other_country_edu_list.push({
-                                ...edu,
-                                expected_completion: formatMonth(edu.expected_completion)
-                            });
-                        }
-                    });
+                // For existing registrations, load relational data from the saved registration.
+                // For new registrations, patchFromAssessment (called below) will populate everything.
+                if (this.registrationLoaded) {
+                    this.mapRelationalData(data);
                 }
 
-                this.application.migration_data = {};
-                this.application.work_experience_list = [];
-                this.application.other_work_experience_list = [];
-                if (data.work_experience_list) {
-                    data.work_experience_list.forEach((w: any) => {
-                        // Sync field names for UI
-                        w.employment_country = w.country;
-                        const country = (w.country || '').trim();
-                        
-                        if (w.work_type === 'curr_country') {
-                            if (this.interestedCountries.includes(country) || this.migrationCountries.includes(country)) {
-                                if (!this.application.migration_data[country]) {
-                                    this.application.migration_data[country] = { 
-                                        has_work: true, is_currently_working: true, has_other_work: false,
-                                        current_work_experience_list: [], other_work_experience_list: [] 
-                                    };
-                                }
-                                this.application.migration_data[country].has_work = true;
-                                this.application.migration_data[country].is_currently_working = true;
-                                this.application.migration_data[country].current_work_experience_list.push(w);
-                            }
-                        } else if (w.work_type === 'other_country') {
-                            if (this.interestedCountries.includes(country) || this.migrationCountries.includes(country)) {
-                                if (!this.application.migration_data[country]) {
-                                    this.application.migration_data[country] = { 
-                                        has_work: true, is_currently_working: false, has_other_work: true,
-                                        current_work_experience_list: [], other_work_experience_list: [] 
-                                    };
-                                }
-                                this.application.migration_data[country].has_work = true;
-                                this.application.migration_data[country].has_other_work = true;
-                                this.application.migration_data[country].other_work_experience_list.push(w);
-                            }
-                        } else if (w.work_type === 'curr_other') {
-                            if (w.type === 'current' || w.is_current) {
-                                this.application.has_work_experience = true;
-                                this.application.work_experience_list.push(w);
-                            } else {
-                                this.application.has_other_work_experience = true;
-                                this.application.other_work_experience_list.push(w);
-                            }
-                        }
-                    });
-                }
-
-                if (data.spouse_education) {
-                    data.spouse_education.forEach((edu: any) => {
-                        const formattedEdu = {
-                            ...edu,
-                            expected_completion: formatMonth(edu.expected_completion)
-                        };
-                        
-                        if (edu.edu_type === 'country') {
-                            const country = edu.country;
-                            if (!this.application.migration_spouse_data[country]) {
-                                this.application.migration_spouse_data[country] = { 
-                                    has_edu: false, is_currently_working: false, has_other_work: false,
-                                    current_work_experience_list: [], other_work_experience_list: [],
-                                    additional_entries: []
-                                };
-                            }
-                            
-                            const sData = this.application.migration_spouse_data[country];
-                            if (!sData.edu_level) {
-                                sData.has_edu = true;
-                                sData.edu_level = edu.level;
-                                sData.edu_field = edu.field;
-                                sData.status = edu.status || 'Completed';
-                                sData.expected_completion = formatMonth(edu.expected_completion);
-                            } else if (sData.edu_level !== edu.level) {
-                                sData.additional_entries.push(formattedEdu);
-                            }
-                        } else if (edu.edu_type === 'highest') {
-                            if (!this.application.spouse_edu_country) {
-                                this.application.spouse_edu_country = edu.country;
-                                this.application.spouse_edu_level = edu.level;
-                                this.application.spouse_edu_field = edu.field;
-                                this.application.spouse_edu_status = edu.status || 'Completed';
-                                this.application.spouse_edu_expected = formatMonth(edu.expected_completion);
-                            } else {
-                                this.application.spouse_education.push(formattedEdu);
-                            }
-                        } else if (edu.edu_type === 'other') {
-                            this.application.spouse_has_other_country_edu = true;
-                            this.application.spouse_other_country_edu_list.push(formattedEdu);
-                        }
-                    });
-                }
-
-                if (data.spouse_work) {
-                    this.application.spouse_work_experience_list = [];
-                    this.application.spouse_other_work_experience_list = [];
-                    
-                    data.spouse_work.forEach((w: any) => {
-                        w.employment_country = w.country;
-                        const country = (w.country || '').trim();
-                        if (w.work_type === 'curr_country') {
-                            if (!this.application.migration_spouse_data[country]) {
-                                this.application.migration_spouse_data[country] = { 
-                                    has_edu: false, is_currently_working: true, has_other_work: false,
-                                    current_work_experience_list: [], other_work_experience_list: [],
-                                    additional_entries: []
-                                };
-                            }
-                            this.application.migration_spouse_data[country].has_work = true;
-                            this.application.migration_spouse_data[country].is_currently_working = true;
-                            this.application.migration_spouse_data[country].current_work_experience_list.push(w);
-                        } else if (w.work_type === 'other_country') {
-                            if (!this.application.migration_spouse_data[country]) {
-                                this.application.migration_spouse_data[country] = { 
-                                    has_edu: false, is_currently_working: false, has_other_work: true,
-                                    current_work_experience_list: [], other_work_experience_list: [],
-                                    additional_entries: []
-                                };
-                            }
-                            this.application.migration_spouse_data[country].has_work = true;
-                            this.application.migration_spouse_data[country].has_other_work = true;
-                            this.application.migration_spouse_data[country].other_work_experience_list.push(w);
-                        } else if (w.work_type === 'other') {
-                            this.application.spouse_has_work_experience = true;
-                            this.application.spouse_work_experience_list.push(w);
-                        }
-                    });
-                }
-
-                if (data.relatives) {
-                    data.relatives.forEach((rel: any) => {
-                        const country = (rel.country || 'Other').trim();
-                        if (!this.application.relatives_data[country]) {
-                            this.application.relatives_data[country] = { has_rel: false };
-                        }
-                        this.application.relatives_data[country].has_rel = true;
-                        this.application.relatives_data[country].relationship = rel.relationship;
-                        this.application.relatives_data[country].related_to = rel.related_to;
-                        this.application.has_relatives = true;
-                    });
-                }
-
-                // If assessment data is already loaded, try to patch any missing fields
+                // If assessment data is already loaded, patch any missing fields.
+                // For a new registration (registrationLoaded=false), this copies ALL assessment data.
                 const assessment = this.assessmentData();
                 if (assessment) {
                     this.patchFromAssessment(assessment);
@@ -696,6 +481,53 @@ export class StudentRegistrationComponent implements OnInit {
                 this.loadingService.hide();
             },
             error: () => this.loadingService.hide()
+        });
+    }
+
+    parseSuggestedPrograms(programs: any[]): any[] {
+        return (programs || []).flatMap((p: any) => {
+            const upperProg = (p.program || '').toUpperCase();
+            let type = p.program_type || 'OTHER';
+            
+            if (!p.program_type) {
+                if (upperProg.includes('STUDY')) type = 'STUDY';
+                else if (upperProg.includes('MIGRATION')) type = 'MIGRATION';
+                else if (upperProg.includes('VISA')) type = 'VISA';
+                else if (upperProg.includes('WORK')) type = 'WORK';
+                else if (upperProg.includes('COACHING')) type = 'COACHING';
+            }
+
+            let country = '', level = '', field = '', intake = '', year = '', occupation = '', category = '', course = '', batch = '', subType = 'default';
+
+            if (type === 'STUDY') {
+                country = p.program.replace(/STUDY/i, '').trim();
+                const mainParts = p.details.split(' - ');
+                const courseParts = (mainParts[0] || '').split(' ');
+                const intakeParts = (mainParts[1] || '').split(' ');
+
+                level = courseParts[0] || '';
+                field = courseParts.slice(1).join(' ') || '';
+                intake = intakeParts[0] || '';
+                year = intakeParts[1] || '';
+                subType = 'default';
+            } else if (type === 'MIGRATION') {
+                country = p.program.replace('MIGRATION', '').trim();
+                const parts = p.details.split(' - ');
+                occupation = parts[0] || '';
+                category = parts[1] || '';
+            } else if (type === 'VISA') {
+                country = p.program.replace('VISA', '').trim();
+                category = p.details;
+            } else if (type === 'WORK') {
+                country = p.program.replace('WORK', '').trim();
+                occupation = p.details;
+            } else if (type === 'COACHING') {
+                const parts = p.details.split(' - ');
+                course = parts[0] || '';
+                batch = parts[1] || '';
+            }
+
+            return [{ ...p, type, subType, country, level, field, intake, year, occupation, category, course, batch }];
         });
     }
 
@@ -896,7 +728,7 @@ export class StudentRegistrationComponent implements OnInit {
         if (!this.suggestedPrograms || this.suggestedPrograms.length === 0) {
             return true;
         }
-        const types = this.suggestedPrograms.map(p => p.type.toUpperCase());
+        const types = this.suggestedPrograms.map(p => (p.type || '').toUpperCase());
         const onlyVisa = types.every(t => t === 'VISA');
         return !onlyVisa;
     }
@@ -905,7 +737,7 @@ export class StudentRegistrationComponent implements OnInit {
         if (!this.suggestedPrograms || this.suggestedPrograms.length === 0) {
             return true;
         }
-        return !this.suggestedPrograms.some(p => p.type.toUpperCase() === 'MIGRATION');
+        return !this.suggestedPrograms.some(p => (p.type || '').toUpperCase() === 'MIGRATION');
     }
 
     get migrationCountries(): string[] {
@@ -1021,6 +853,17 @@ export class StudentRegistrationComponent implements OnInit {
 
     removeCountryEducation(country: string, index: number) {
         this.application.education_data[country].additional_entries.splice(index, 1);
+    }
+
+    addSpouseCountryEducation(country: string) {
+        if (!this.application.migration_spouse_data[country].additional_entries) {
+            this.application.migration_spouse_data[country].additional_entries = [];
+        }
+        this.application.migration_spouse_data[country].additional_entries.push({ country: country, level: '', field: '', status: 'Completed', expected_completion: '' });
+    }
+
+    removeSpouseCountryEducation(country: string, index: number) {
+        this.application.migration_spouse_data[country].additional_entries.splice(index, 1);
     }
 
     addSpouseQualification() {
@@ -1285,6 +1128,10 @@ export class StudentRegistrationComponent implements OnInit {
     }
 
     onSave() {
+        // Sync UI phone-code dropdowns → backend field names before saving
+        if (this.application.mobile_country_code) this.application.contact1_code = this.application.mobile_country_code;
+        if (this.application.phone_country_code)  this.application.contact2_code = this.application.phone_country_code;
+
         // Sync JSON data back to flat fields for hardcoded countries (Backward Compatibility)
         const countriesToSync = [
             { name: 'Canada', prefix: 'canadian' },
@@ -1543,7 +1390,7 @@ export class StudentRegistrationComponent implements OnInit {
                         work_years: parseInt(w.work_years) || 0,
                         work_months: parseInt(w.work_months) || 0,
                         type: 'previous',
-                        work_type: 'curr_other'
+                        work_type: 'other'
                     });
                 }
             });
@@ -1596,7 +1443,7 @@ export class StudentRegistrationComponent implements OnInit {
                         job_title: w.job_title,
                         work_years: parseInt(w.work_years) || 0,
                         work_months: parseInt(w.work_months) || 0,
-                        work_type: 'other'
+                        work_type: 'curr_other'
                     });
                 }
             });
@@ -1609,7 +1456,7 @@ export class StudentRegistrationComponent implements OnInit {
                         job_title: w.job_title,
                         work_years: parseInt(w.work_years) || 0,
                         work_months: parseInt(w.work_months) || 0,
-                        work_type: 'other'
+                        work_type: 'prev_other'
                     });
                 }
             });
@@ -1705,170 +1552,433 @@ export class StudentRegistrationComponent implements OnInit {
     }
 
     patchFromAssessment(data: any) {
-        const app = data.application;
-        if (!app) return;
+        if (!data || !data.application) return;
+        const app: any = data.application;
+        const regApp: any = this.application;
 
-        // Populate common fields if they are currently empty
-        const fieldsToPatch = [
-            'passport_name', 'gender', 'marital_status', 'spouse_accompanying',
-            'address_country', 'address_state', 'address_suburb',
-            'contact1', 'contact2', 'email', 'citizenship_country',
-            'passport_country', 'has_second_passport', 'second_passport_country', 'education_country', 'dob',
-            'highest_education', 'education_field', 'has_canadian_edu',
-            'canadian_edu_level', 'canadian_edu_field', 'has_australian_edu',
-            'australian_edu_level', 'australian_edu_field', 'has_aus_specialised_edu',
-            'aus_specialised_edu_level', 'aus_specialised_edu_field', 'has_nz_edu',
-            'nz_edu_level', 'nz_edu_field', 'has_work_experience',
-            'total_work_experience', 'canadian_work_years', 'australian_work_years',
-            'nz_work_years', 'has_language_test', 'language_test_type',
-            'writing_score', 'listening_score', 'speaking_score', 'reading_score',
-            'has_admission_test', 'admission_test_type', 'quant_score',
-            'verbal_score', 'data_insights_score', 'spouse_age',
-            'spouse_edu_level', 'spouse_edu_country', 'spouse_canadian_edu', 'spouse_canadian_edu_level',
-            'spouse_canadian_edu_field', 'spouse_australian_edu',
-            'spouse_australian_edu_level', 'spouse_australian_edu_field',
-            'spouse_aus_specialised_edu', 'spouse_aus_specialised_edu_level',
-            'spouse_aus_specialised_edu_field', 'spouse_work_exp', 'spouse_work_experience_years',
-            'spouse_canadian_work', 'spouse_australian_work', 'spouse_nz_work',
-            'spouse_lang_test_type', 'spouse_writing', 'spouse_listening',
-            'spouse_speaking', 'spouse_reading', 'has_relatives',
-            'relative_relationship', 'relative_related_to', 'education_country',
-            'spouse_has_work_experience', 'spouse_has_other_work_experience'
+        // ─── Scalar Fields ─────────────────────────────────────────────────────────
+        // When this is a NEW registration (no saved data), copy ALL assessment fields.
+        // When editing an existing registration, only fill genuinely empty fields.
+        const isNew = !this.registrationLoaded;
+
+        const scalarFields = [
+            'passport_name', 'first_name', 'last_name', 'gender', 'marital_status',
+            'spouse_accompanying', 'spouse_age', 'dob', 'age',
+            'address_country', 'address_state', 'address_suburb', 'address_postcode',
+            'contact1', 'contact1_code', 'contact2', 'contact2_code', 'email',
+            'citizenship_country', 'passport_country', 'has_second_passport', 'second_passport_country',
+            'education_country', 'highest_education', 'education_field',
+            'highest_education_status', 'highest_education_expected',
+            'has_canadian_edu', 'canadian_edu_level', 'canadian_edu_field',
+            'has_australian_edu', 'australian_edu_level', 'australian_edu_field',
+            'has_aus_specialised_edu', 'aus_specialised_edu_level', 'aus_specialised_edu_field',
+            'has_nz_edu', 'nz_edu_level', 'nz_edu_field',
+            'has_work_experience', 'total_work_experience',
+            'canadian_work_years', 'australian_work_years', 'nz_work_years',
+            'has_other_work_experience',
+            'has_language_test', 'language_test_type',
+            'reading_score', 'listening_score', 'speaking_score', 'writing_score',
+            'has_admission_test', 'admission_test_type',
+            'quant_score', 'verbal_score', 'data_insights_score',
+            'has_relatives',
+            'spouse_edu_country', 'spouse_edu_level', 'spouse_edu_field',
+            'spouse_edu_status', 'spouse_edu_expected',
+            'spouse_has_work_experience', 'spouse_has_other_work_experience',
+            'spouse_work_experience_years',
+            'spouse_has_language_test', 'spouse_lang_test_type',
+            'spouse_writing', 'spouse_listening', 'spouse_speaking', 'spouse_reading',
+            'spouse_canadian_edu', 'spouse_canadian_edu_level', 'spouse_canadian_edu_field',
+            'spouse_australian_edu', 'spouse_australian_edu_level', 'spouse_australian_edu_field',
+            'spouse_aus_specialised_edu', 'spouse_aus_specialised_edu_level', 'spouse_aus_specialised_edu_field'
         ];
 
-        fieldsToPatch.forEach(field => {
-            if (app[field] !== undefined && app[field] !== null && 
-                (this.application[field] === '' || this.application[field] === null || this.application[field] === false || this.application[field] === undefined)) {
-                
+        scalarFields.forEach(field => {
+            if (app[field] === undefined || app[field] === null) return;
+            const currentVal = regApp[field];
+            const isEmpty = currentVal === '' || currentVal === null || currentVal === undefined || currentVal === false || currentVal === 0;
+            if (isNew || isEmpty) {
                 let value = app[field];
+                
+                // Force boolean conversion for checkboxes/dropdowns
+                const booleanFields = [
+                    'spouse_accompanying', 'has_canadian_edu', 'has_australian_edu', 'has_aus_specialised_edu',
+                    'has_nz_edu', 'has_work_experience', 'has_other_work_experience', 'has_language_test', 
+                    'has_admission_test', 'has_relatives', 'spouse_canadian_edu', 'spouse_australian_edu', 
+                    'spouse_aus_specialised_edu', 'has_second_passport', 'spouse_has_work_experience',
+                    'spouse_has_other_work_experience', 'spouse_has_language_test'
+                ];
+                if (booleanFields.includes(field)) {
+                    value = !!value;
+                }
+
                 // Format DOB for date input
                 if (field === 'dob' && value) {
-                    try { 
+                    try {
                         if (value.includes('T')) {
                             const d = new Date(value);
                             value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
                         }
                     } catch (e) { }
                 }
-                if (field === 'spouse_work_exp' && value && !this.application.spouse_work_experience_years) {
-                    this.application.spouse_work_experience_years = value;
-                }
-                this.application[field] = value;
+                regApp[field] = value;
             }
         });
 
-        // Trigger age calculation if dob was patched
-        if (this.application.dob) this.onDobChange();
+        // ─── Contact Codes (always sync from assessment) ───────────────────────────
+        if (app.contact1_code) regApp.mobile_country_code = app.contact1_code;
+        if (app.contact2_code) regApp.phone_country_code = app.contact2_code;
 
-        // Parse and patch JSON objects
-        ['education_data', 'migration_data', 'migration_spouse_data', 'relatives_data', 'language_test_list', 'admission_test_list'].forEach(key => {
-            let parsed = app[key];
-            if (typeof parsed === 'string') {
-                try { parsed = JSON.parse(parsed); } catch (e) { parsed = null; }
+        // ─── Age from DOB ─────────────────────────────────────────────────────────
+        if (regApp.dob) this.onDobChange();
+
+        // ─── Ensure relational containers exist ───────────────────────────────────
+        if (!regApp.education_data || typeof regApp.education_data !== 'object') regApp.education_data = { additional: [] };
+        if (!regApp.migration_data || typeof regApp.migration_data !== 'object') regApp.migration_data = {};
+        if (!regApp.migration_spouse_data || typeof regApp.migration_spouse_data !== 'object') regApp.migration_spouse_data = {};
+        if (!regApp.relatives_data || typeof regApp.relatives_data !== 'object') regApp.relatives_data = {};
+
+        // ─── Language / Admission Tests ────────────────────────────────────────────
+        // Copy from assessment relational list when registration has none
+        const assessLangTests: any[] = (data.language_tests || []).filter((t: any) => !t.is_spouse);
+        const assessSpouseLangTests: any[] = (data.language_tests || []).filter((t: any) => t.is_spouse);
+        const assessAdmTests: any[] = data.admission_tests || [];
+
+        if (isNew || !regApp.language_test_list || regApp.language_test_list.length === 0) {
+            if (assessLangTests.length > 0) {
+                regApp.language_test_list = assessLangTests.map((t: any) => ({
+                    test_type: t.type || t.test_type || '',
+                    type: t.type || t.test_type || '',
+                    reading: t.reading || t.reading_score || '',
+                    writing: t.writing || t.writing_score || '',
+                    speaking: t.speaking || t.speaking_score || '',
+                    listening: t.listening || t.listening_score || '',
+                    overall: t.overall || '',
+                    is_spouse: 0
+                }));
+                regApp.has_language_test = true;
+            } else if (app.has_language_test && app.language_test_type) {
+                // Legacy flat-field fallback
+                regApp.language_test_list = [{
+                    test_type: app.language_test_type || '',
+                    type: app.language_test_type || '',
+                    reading: app.reading_score || '',
+                    writing: app.writing_score || '',
+                    speaking: app.speaking_score || '',
+                    listening: app.listening_score || '',
+                    overall: '',
+                    is_spouse: 0
+                }];
+                regApp.has_language_test = true;
             }
-            if (parsed) {
-                if (Array.isArray(parsed)) {
-                    if (parsed.length > 0 && (!this.application[key] || this.application[key].length === 0)) {
-                        this.application[key] = JSON.parse(JSON.stringify(parsed));
-                    }
-                } else if (Object.keys(parsed).length > 0) {
-                    // Merge if existing is empty or not present
-                    if (!this.application[key] || Object.keys(this.application[key]).length === 0) {
-                        this.application[key] = parsed;
-                    }
-                }
-            }
-        });
+        }
 
-        // Sync Spouse other work experience from migration_spouse_data['General'] if available
-        if (this.application.migration_spouse_data && this.application.migration_spouse_data['General']) {
-            const gen = this.application.migration_spouse_data['General'];
-            if (gen.spouse_has_other_work_experience !== undefined) {
-                this.application.spouse_has_other_work_experience = !!gen.spouse_has_other_work_experience;
-            }
-            if (gen.spouse_other_work_experience_list && (!this.application.spouse_other_work_experience_list || this.application.spouse_other_work_experience_list.length === 0)) {
-                this.application.spouse_other_work_experience_list = JSON.parse(JSON.stringify(gen.spouse_other_work_experience_list));
+        if (isNew || !regApp.spouse_language_test_list || regApp.spouse_language_test_list.length === 0) {
+            if (assessSpouseLangTests.length > 0) {
+                regApp.spouse_language_test_list = assessSpouseLangTests.map((t: any) => ({
+                    test_type: t.type || t.test_type || '',
+                    type: t.type || t.test_type || '',
+                    reading: t.reading || t.reading_score || '',
+                    writing: t.writing || t.writing_score || '',
+                    speaking: t.speaking || t.speaking_score || '',
+                    listening: t.listening || t.listening_score || '',
+                    overall: t.overall || '',
+                    is_spouse: 1
+                }));
+                regApp.spouse_has_language_test = true;
+                regApp.spouse_lang_test_type = regApp.spouse_language_test_list[0]?.type || '';
             }
         }
 
-        // Map spouse_lang_test_type from list if available
-        if (this.application.spouse_language_test_list && this.application.spouse_language_test_list.length > 0 && !this.application.spouse_lang_test_type) {
-            this.application.spouse_lang_test_type = this.application.spouse_language_test_list[0].type;
-        }
-
-        // Normalize education status defaults
-        if (this.application.education_data) {
-            if (this.application.education_data.additional) {
-                this.application.education_data.additional.forEach((q: any) => {
-                    if (!q.status) q.status = 'Completed';
-                });
+        if (isNew || !regApp.admission_test_list || regApp.admission_test_list.length === 0) {
+            if (assessAdmTests.length > 0) {
+                regApp.admission_test_list = assessAdmTests.map((t: any) => ({
+                    test_type: t.type || t.test_type || '',
+                    type: t.type || t.test_type || '',
+                    quant: t.quant || t.quant_score || '',
+                    verbal: t.verbal || t.verbal_score || '',
+                    data_insights: t.data_insights || t.data_insights_score || '',
+                    overall: t.overall || ''
+                }));
+                regApp.has_admission_test = true;
+            } else if (app.has_admission_test && app.admission_test_type) {
+                regApp.admission_test_list = [{
+                    test_type: app.admission_test_type || '',
+                    type: app.admission_test_type || '',
+                    quant: app.quant_score || '',
+                    verbal: app.verbal_score || '',
+                    data_insights: app.data_insights_score || '',
+                    overall: ''
+                }];
+                regApp.has_admission_test = true;
             }
-            // For destination specific education
-            this.educationCountries.forEach(c => {
-                if (this.application.education_data[c] && !this.application.education_data[c].status) {
-                    this.application.education_data[c].status = 'Completed';
-                }
-            });
-        }
-        if (this.application.spouse_education) {
-            this.application.spouse_education.forEach((q: any) => {
-                if (!q.status) q.status = 'Completed';
-            });
-        }
-        if (this.application.other_country_edu_list) {
-            this.application.other_country_edu_list.forEach((q: any) => {
-                if (!q.status) q.status = 'Completed';
-            });
-        }
-        if (this.application.spouse_other_country_edu_list) {
-            this.application.spouse_other_country_edu_list.forEach((q: any) => {
-                if (!q.status) q.status = 'Completed';
-            });
         }
 
-        // Backward compatibility for Language Tests if list is empty
-        if (this.application.has_language_test && (!this.application.language_test_list || this.application.language_test_list.length === 0)) {
-            this.application.language_test_list = [{
-                type: this.application.language_test_type || '',
-                reading: this.application.reading_score || '',
-                listening: this.application.listening_score || '',
-                speaking: this.application.speaking_score || '',
-                writing: this.application.writing_score || ''
-            }];
+        // ─── Relational Data (Education, Work, Spouse, Relatives) ─────────────────
+        if (isNew) {
+            this.mapRelationalData(data);
         }
 
-        // Backward compatibility for Admission Tests if list is empty
-        if (this.application.has_admission_test && (!this.application.admission_test_list || this.application.admission_test_list.length === 0)) {
-            this.application.admission_test_list = [{
-                type: this.application.admission_test_type || '',
-                quant: this.application.quant_score || '',
-                verbal: this.application.verbal_score || '',
-                data_insights: this.application.data_insights_score || ''
-            }];
+        // ─── Children ─────────────────────────────────────────────────────────────
+        if ((isNew || !this.children || this.children.length === 0) && data.children && data.children.length > 0) {
+            this.children = data.children.map((c: any) => ({ ...c, is_accompanying: !!c.is_accompanying }));
+            regApp.has_children = true;
         }
 
-        // Patch children if empty
-        if (data.children && data.children.length > 0 && (!this.children || this.children.length === 0)) {
-            this.children = JSON.parse(JSON.stringify(data.children));
-            this.application.has_children = true;
-        }
-
-        // Patch suggested programs if empty
-        if (data.suggestedPrograms && data.suggestedPrograms.length > 0 && (!this.suggestedPrograms || this.suggestedPrograms.length === 0)) {
-            console.log('AUTO-FILL: Patching Suggested Programs...');
-            this.suggestedPrograms = JSON.parse(JSON.stringify(data.suggestedPrograms));
-            // Trigger cascading data refresh
-            this.suggestedPrograms.forEach((p, i) => {
+        // ─── Suggested Programs ───────────────────────────────────────────────────
+        if ((isNew || !this.suggestedPrograms || this.suggestedPrograms.length === 0) && data.suggestedPrograms && data.suggestedPrograms.length > 0) {
+            this.suggestedPrograms = this.parseSuggestedPrograms(JSON.parse(JSON.stringify(data.suggestedPrograms)));
+            this.suggestedPrograms.forEach((p: any, i: number) => {
                 if (p.branch_id) this.loadRowDepartments(i, p.branch_id);
                 if (p.branch_id && p.department_id) this.loadRowStaff(i, p.branch_id, p.department_id);
             });
         }
 
-        // Initialize migration data to ensure structure is correct
+        // ─── Final cleanup ────────────────────────────────────────────────────────
         this.initializeMigrationData();
-        
-        // Final sync of UI fields
         this.prePopulateFields();
+    }
+
+    mapRelationalData(data: any) {
+        if (!data) return;
+        const app: any = this.application;
+        const formatMonth = (d: string) => d ? d.substring(0, 7) : '';
+
+        // ── Education list ────────────────────────────────────────────────────────
+        if (data.education_list && data.education_list.length > 0) {
+            // Reset destination arrays before filling to prevent duplicates
+            if (!app.education_data) app.education_data = { additional: [] };
+            app.education_data.additional = [];
+            this.migrationCountries.forEach((c: string) => {
+                if (app.education_data[c]) app.education_data[c].additional_entries = [];
+            });
+            app.other_country_edu_list = [];
+
+            data.education_list.forEach((edu: any) => {
+                if (edu.is_highest || edu.edu_type === 'highest') {
+                    if (edu.is_highest) {
+                        app.highest_education = edu.level;
+                        app.education_field = edu.field;
+                        app.education_country = edu.country;
+                        app.highest_education_status = edu.status;
+                        app.highest_education_expected = formatMonth(edu.expected_completion);
+                    } else {
+                        if (!app.education_data.additional) app.education_data.additional = [];
+                        app.education_data.additional.push({
+                            ...edu,
+                            expected_completion: formatMonth(edu.expected_completion)
+                        });
+                    }
+                } else if (edu.edu_type === 'country') {
+                    const country = edu.country;
+                    if (!app.education_data[country]) {
+                        app.education_data[country] = {
+                            has_edu: true,
+                            level: edu.level,
+                            field: edu.field,
+                            status: edu.status,
+                            expected_completion: formatMonth(edu.expected_completion),
+                            additional_entries: []
+                        };
+                    } else {
+                        if (!app.education_data[country].additional_entries) app.education_data[country].additional_entries = [];
+                        app.education_data[country].additional_entries.push({
+                            ...edu,
+                            expected_completion: formatMonth(edu.expected_completion)
+                        });
+                    }
+                } else if (edu.edu_type === 'other') {
+                    app.has_other_country_edu = true;
+                    if (!app.other_country_edu_list) app.other_country_edu_list = [];
+                    app.other_country_edu_list.push({
+                        ...edu,
+                        expected_completion: formatMonth(edu.expected_completion)
+                    });
+                }
+            });
+        }
+
+        // ── Work experience list ──────────────────────────────────────────────────
+        // Reset target lists before filling
+        app.work_experience_list = [];
+        app.other_work_experience_list = [];
+        this.migrationCountries.forEach((c: string) => {
+            if (app.migration_data && app.migration_data[c]) {
+                app.migration_data[c].current_work_experience_list = [];
+                app.migration_data[c].other_work_experience_list = [];
+            }
+        });
+
+        if (data.work_experience_list && data.work_experience_list.length > 0) {
+            data.work_experience_list.forEach((w: any) => {
+                w.employment_country = w.country;
+                const country = (w.country || '').trim();
+
+                if (w.work_type === 'curr_country') {
+                    if (!app.migration_data[country]) {
+                        app.migration_data[country] = {
+                            has_work: true, is_currently_working: true, has_other_work: false,
+                            current_work_experience_list: [], other_work_experience_list: []
+                        };
+                    }
+                    app.migration_data[country].has_work = true;
+                    app.migration_data[country].is_currently_working = true;
+                    if (!app.migration_data[country].current_work_experience_list) app.migration_data[country].current_work_experience_list = [];
+                    app.migration_data[country].current_work_experience_list.push(w);
+                } else if (w.work_type === 'other_country') {
+                    if (!app.migration_data[country]) {
+                        app.migration_data[country] = {
+                            has_work: true, is_currently_working: false, has_other_work: true,
+                            current_work_experience_list: [], other_work_experience_list: []
+                        };
+                    }
+                    app.migration_data[country].has_work = true;
+                    app.migration_data[country].has_other_work = true;
+                    if (!app.migration_data[country].other_work_experience_list) app.migration_data[country].other_work_experience_list = [];
+                    app.migration_data[country].other_work_experience_list.push(w);
+                } else if (w.work_type === 'other') {
+                    app.has_other_work_experience = true;
+                    if (!app.other_work_experience_list) app.other_work_experience_list = [];
+                    app.other_work_experience_list.push(w);
+                } else if (w.work_type === 'curr_other') {
+                    if (w.is_current === 1 || w.is_current === true) {
+                        // General current work experience
+                        app.has_work_experience = true;
+                        app.work_experience_list.push(w);
+                    } else {
+                        // General other (non-current) work experience — "Do you have any other Work Experience?"
+                        app.has_other_work_experience = true;
+                        if (!app.other_work_experience_list) app.other_work_experience_list = [];
+                        app.other_work_experience_list.push(w);
+                    }
+                }
+            });
+        }
+
+        // ── Spouse education ──────────────────────────────────────────────────────
+        if (data.spouse_education && data.spouse_education.length > 0) {
+            // Reset
+            app.spouse_education = [];
+            this.migrationCountries.forEach((c: string) => {
+                if (app.migration_spouse_data && app.migration_spouse_data[c]) {
+                    app.migration_spouse_data[c].additional_entries = [];
+                }
+            });
+
+            data.spouse_education.forEach((edu: any) => {
+                const formattedEdu = {
+                    ...edu,
+                    expected_completion: formatMonth(edu.expected_completion)
+                };
+
+                if (edu.edu_type === 'highest') {
+                    if (!app.spouse_edu_country) {
+                        app.spouse_edu_country = edu.country;
+                        app.spouse_edu_level = edu.level;
+                        app.spouse_edu_field = edu.field;
+                        app.spouse_edu_status = edu.status;
+                        app.spouse_edu_expected = formatMonth(edu.expected_completion);
+                    } else {
+                        if (!app.spouse_education) app.spouse_education = [];
+                        app.spouse_education.push(formattedEdu);
+                    }
+                } else if (edu.edu_type === 'country') {
+                    const country = (edu.country || '').trim();
+                    if (!app.migration_spouse_data[country]) {
+                        app.migration_spouse_data[country] = {
+                            has_edu: true, is_currently_working: false, has_other_work: false,
+                            current_work_experience_list: [], other_work_experience_list: [],
+                            additional_entries: []
+                        };
+                    }
+                    const sData = app.migration_spouse_data[country];
+                    sData.has_edu = true;
+                    if (!sData.edu_level) {
+                        sData.edu_level = edu.level;
+                        sData.edu_field = edu.field;
+                        sData.status = edu.status;
+                        sData.expected_completion = formatMonth(edu.expected_completion);
+                    } else {
+                        if (!sData.additional_entries) sData.additional_entries = [];
+                        sData.additional_entries.push(formattedEdu);
+                    }
+                } else if (edu.edu_type === 'other') {
+                    app.spouse_has_other_country_edu = true;
+                    if (!app.spouse_other_country_edu_list) app.spouse_other_country_edu_list = [];
+                    app.spouse_other_country_edu_list.push(formattedEdu);
+                }
+            });
+        }
+
+        // ── Spouse work ───────────────────────────────────────────────────────────
+        if (data.spouse_work && data.spouse_work.length > 0) {
+            // Reset
+            app.spouse_work_experience_list = [];
+            this.migrationCountries.forEach((c: string) => {
+                if (app.migration_spouse_data && app.migration_spouse_data[c]) {
+                    app.migration_spouse_data[c].current_work_experience_list = [];
+                    app.migration_spouse_data[c].other_work_experience_list = [];
+                }
+            });
+
+            data.spouse_work.forEach((w: any) => {
+                const country = (w.country || '').trim();
+                if (w.work_type === 'curr_country') {
+                    if (!app.migration_spouse_data[country]) {
+                        app.migration_spouse_data[country] = {
+                            has_edu: false, is_currently_working: true, has_other_work: false,
+                            current_work_experience_list: [], other_work_experience_list: [],
+                            additional_entries: []
+                        };
+                    }
+                    app.migration_spouse_data[country].has_work = true;
+                    app.migration_spouse_data[country].is_currently_working = true;
+                    if (!app.migration_spouse_data[country].current_work_experience_list) app.migration_spouse_data[country].current_work_experience_list = [];
+                    app.migration_spouse_data[country].current_work_experience_list.push(w);
+                } else if (w.work_type === 'other_country') {
+                    if (!app.migration_spouse_data[country]) {
+                        app.migration_spouse_data[country] = {
+                            has_edu: false, is_currently_working: false, has_other_work: true,
+                            current_work_experience_list: [], other_work_experience_list: [],
+                            additional_entries: []
+                        };
+                    }
+                    app.migration_spouse_data[country].has_work = true;
+                    app.migration_spouse_data[country].has_other_work = true;
+                    if (!app.migration_spouse_data[country].other_work_experience_list) app.migration_spouse_data[country].other_work_experience_list = [];
+                    app.migration_spouse_data[country].other_work_experience_list.push(w);
+                } else if (w.work_type === 'curr_other' || w.work_type === 'other') {
+                    app.spouse_has_work_experience = true;
+                    if (!app.spouse_work_experience_list) app.spouse_work_experience_list = [];
+                    // Map country to employment_country to match HTML binding
+                    if (w.country && !w.employment_country) {
+                        w.employment_country = w.country;
+                    }
+                    app.spouse_work_experience_list.push(w);
+                } else if (w.work_type === 'prev_other') {
+                    app.spouse_has_other_work_experience = true;
+                    if (!app.spouse_other_work_experience_list) app.spouse_other_work_experience_list = [];
+                    // Map country to employment_country to match HTML binding
+                    if (w.country && !w.employment_country) {
+                        w.employment_country = w.country;
+                    }
+                    app.spouse_other_work_experience_list.push(w);
+                }
+            });
+        }
+
+        // ── Relatives ─────────────────────────────────────────────────────────────
+        if (data.relatives && data.relatives.length > 0) {
+            data.relatives.forEach((rel: any) => {
+                const country = (rel.country || 'Other').trim();
+                if (!app.relatives_data[country]) {
+                    app.relatives_data[country] = { has_rel: false };
+                }
+                app.relatives_data[country].has_rel = true;
+                app.relatives_data[country].relationship = rel.relationship;
+                app.relatives_data[country].related_to = rel.related_to;
+                app.has_relatives = true;
+            });
+        }
     }
 
     goBack() {

@@ -237,6 +237,10 @@ export class StudentApplicationComponent implements OnInit {
                             this.application[key] = !!this.application[key];
                         });
 
+                    // Sync DB fields -> UI dropdowns
+                    if (this.application.contact1_code) this.application.mobile_country_code = this.application.contact1_code;
+                    if (this.application.contact2_code) this.application.phone_country_code = this.application.contact2_code;
+
                     this.prePopulateFields();
 
                     // Relational re-assembly moved to the end of this method to ensure suggestedPrograms are fully loaded
@@ -466,17 +470,20 @@ export class StudentApplicationComponent implements OnInit {
                             }
                         } else if (edu.edu_type === 'country') {
                             const country = edu.country;
-                            if (!this.application.education_data[country]) {
+                            const existing = this.application.education_data[country];
+                            if (!existing || (!existing.level && !existing.has_edu)) {
+                                // No entry yet, or pre-initialized placeholder (has_edu:false, no level) — set as primary
                                 this.application.education_data[country] = { 
                                     has_edu: true, 
                                     level: edu.level, 
                                     field: edu.field, 
                                     status: edu.status, 
                                     expected_completion: formatMonth(edu.expected_completion),
-                                    additional_entries: []
+                                    additional_entries: existing?.additional_entries || []
                                 };
                             } else {
-                                this.application.education_data[country].additional_entries.push({
+                                if (!existing.additional_entries) existing.additional_entries = [];
+                                existing.additional_entries.push({
                                     ...edu,
                                     expected_completion: formatMonth(edu.expected_completion)
                                 });
@@ -525,7 +532,7 @@ export class StudentApplicationComponent implements OnInit {
                                 data.edu_field = edu.field;
                                 data.status = edu.status || 'Completed';
                                 data.expected_completion = formatMonth(edu.expected_completion);
-                            } else if (data.edu_level !== edu.level) {
+                            } else {
                                 data.additional_entries.push(formattedEdu);
                             }
                         } else if (edu.edu_type === 'highest') {
@@ -1225,6 +1232,10 @@ export class StudentApplicationComponent implements OnInit {
     }
 
     onSave() {
+        // Sync UI phone-code dropdowns → backend field names before saving
+        if (this.application.mobile_country_code) this.application.contact1_code = this.application.mobile_country_code;
+        if (this.application.phone_country_code)  this.application.contact2_code = this.application.phone_country_code;
+
         // Sync JSON data back to flat fields for hardcoded countries (Backward Compatibility)
         const countriesToSync = [
             { name: 'Canada', prefix: 'canadian' },
