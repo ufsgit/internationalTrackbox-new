@@ -1037,37 +1037,7 @@ export class StudentApplicationComponent implements OnInit {
         this.application.education_data.additional.push({ country: '', level: '', field: '', status: 'Completed', expected_completion: '' });
     }
 
-    addCountryEducation(country: string) {
-        if (!this.application.education_data[country].additional_entries) {
-            this.application.education_data[country].additional_entries = [];
-        }
-        this.application.education_data[country].additional_entries.push({ 
-            level: '', 
-            field: '', 
-            status: 'Completed', 
-            expected_completion: '' 
-        });
-    }
 
-    removeCountryEducation(country: string, index: number) {
-        this.application.education_data[country].additional_entries.splice(index, 1);
-    }
-
-    addSpouseCountryEducation(country: string) {
-        if (!this.application.migration_spouse_data[country].additional_entries) {
-            this.application.migration_spouse_data[country].additional_entries = [];
-        }
-        this.application.migration_spouse_data[country].additional_entries.push({ 
-            level: '', 
-            field: '', 
-            status: 'Completed', 
-            expected_completion: '' 
-        });
-    }
-
-    removeSpouseCountryEducation(country: string, index: number) {
-        this.application.migration_spouse_data[country].additional_entries.splice(index, 1);
-    }
 
     addSpouseQualification() {
         if (!this.application.spouse_education) {
