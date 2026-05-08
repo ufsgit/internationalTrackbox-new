@@ -87,7 +87,7 @@
                     <td>{{s.follow_up_on | date:'dd-MM-yyyy'}}</td>
                     <td><a [routerLink]="['/students/edit', s.student_id]" class="student-link">{{s.student_name}}</a>
                     </td>
-                    <td>{{s.mobile_number}}</td>
+                    <td>{{s.mobile_country_code}} {{s.mobile_number}}</td>
                     <td>{{s.enquiry_source}}</td>
                     <td>
                         <div class="text-truncate" [title]="s.remark">{{s.remark}}</div>

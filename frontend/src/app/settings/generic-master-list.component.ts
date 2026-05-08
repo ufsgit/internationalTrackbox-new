@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DialogService } from '../shared/dialog.service';
@@ -70,7 +70,7 @@ import { Observable } from 'rxjs';
     `,
     styleUrls: ['./settings-shared.css']
 })
-export class GenericMasterListComponent implements OnInit {
+export class GenericMasterListComponent implements OnInit, OnChanges {
     @Input() title: string = '';
     @Input() description: string = '';
     @Input() itemName: string = '';
@@ -89,7 +89,14 @@ export class GenericMasterListComponent implements OnInit {
         this.loadItems();
     }
 
+    ngOnChanges(changes: SimpleChanges) {
+        if (changes['title'] || changes['loadFn']) {
+            this.loadItems();
+        }
+    }
+
     loadItems() {
+        this.items = [];
         this.loadFn().subscribe(data => this.items = data);
     }
 

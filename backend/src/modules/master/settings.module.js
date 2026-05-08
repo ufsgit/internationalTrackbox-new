@@ -45,5 +45,7 @@ genericCrud('visa_categories', 'visa_cat_id');
 genericCrud('migration_categories', 'migration_cat_id');
 genericCrud('work_categories', 'work_cat_id');
 genericCrud('coaching_courses', 'course_id');
+genericCrud('course_admission', 'id');
+genericCrud('course_language', 'id');
 
 module.exports = router;

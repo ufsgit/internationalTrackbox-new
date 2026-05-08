@@ -52,6 +52,9 @@ export const routes: Routes = [
             { path: 'settings/work-categories', component: WorkCategoryListComponent },
             { path: 'settings/visa-categories', component: VisaCategoryListComponent },
             { path: 'settings/coaching-courses', component: CoachingCourseListComponent },
+            { path: 'settings/course-admission', component: CoachingCourseListComponent },
+            { path: 'settings/course-language', component: CoachingCourseListComponent },
+            { path: 'settings/board-authorities', loadComponent: () => import('./settings/board-authority-list.component').then(m => m.BoardAuthorityListComponent) },
             { path: 'reports/enquiry', component: EnquiryReportComponent },
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
         ]

@@ -179,4 +179,34 @@ export class SettingsService {
     deleteCoachingCourse(id: number): Observable<any> {
         return this.http.delete(`${this.apiUrl}/coaching_courses/${id}`);
     }
+
+    getAdmissionCourses(): Observable<any[]> {
+        return this.http.get<any[]>(`${this.apiUrl}/course_admission`);
+    }
+    saveAdmissionCourse(data: any): Observable<any> {
+        return this.http.post(`${this.apiUrl}/course_admission`, data);
+    }
+    deleteAdmissionCourse(id: number): Observable<any> {
+        return this.http.delete(`${this.apiUrl}/course_admission/${id}`);
+    }
+
+    getLanguageCourses(): Observable<any[]> {
+        return this.http.get<any[]>(`${this.apiUrl}/course_language`);
+    }
+    saveLanguageCourse(data: any): Observable<any> {
+        return this.http.post(`${this.apiUrl}/course_language`, data);
+    }
+    deleteLanguageCourse(id: number): Observable<any> {
+        return this.http.delete(`${this.apiUrl}/course_language/${id}`);
+    }
+
+    getBoardAuthorities(): Observable<any[]> {
+        return this.http.get<any[]>(`${this.apiUrl}/board_authorities`);
+    }
+    saveBoardAuthority(data: any): Observable<any> {
+        return this.http.post(`${this.apiUrl}/board_authorities`, data);
+    }
+    deleteBoardAuthority(id: number): Observable<any> {
+        return this.http.delete(`${this.apiUrl}/board_authorities/${id}`);
+    }
 }

@@ -200,7 +200,11 @@ const getStudentApplication = (studentId) => {
                 spouse_work: results[6] || [],
                 relatives: results[7] || [],
                 children: results[8] || [],
-                suggestedPrograms: results[9] || []
+                suggestedPrograms: results[9] || [],
+                skill_assessment_list: results[10] || [],
+                lang_interest: (results[11] || []).filter(li => !li.is_spouse),
+                spouse_lang_interest: (results[11] || []).filter(li => li.is_spouse),
+                adm_interest: results[12] || []
             });
         });
     });
@@ -220,7 +224,7 @@ const saveStudentApplication = (studentId, data) => {
 
                 // 1. Upsert Application Details (Core)
                 const [results] = await pConn.query(
-                    'CALL sp_UpsertStudentApplication_Core(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                    'CALL sp_UpsertStudentApplication_Core(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
                     [
                         studentId,
                         application.passport_name || '',
@@ -243,14 +247,54 @@ const saveStudentApplication = (studentId, data) => {
                         application.second_passport_country || '',
                         application.highest_education || '',
                         application.education_field || '',
-                        application.spouse_age || null
+                        application.spouse_age || null,
+                        toBoolInt(application.contact1_whatsapp),
+                        toBoolInt(application.contact1_bot),
+                        toBoolInt(application.contact1_telegram),
+                        toBoolInt(application.contact2_whatsapp),
+                        toBoolInt(application.contact2_bot),
+                        toBoolInt(application.contact2_telegram),
+                        toBoolInt(application.has_skill_assessment),
+                        toBoolInt(application.skill_assessment_interest),
+                        toBoolInt(application.interested_in_lang_coaching),
+                        toBoolInt(application.interested_in_admission_coaching)
                     ]
                 );
 
                 const applicationId = results[0][0].app_id;
 
-                // 2. Clear existing children and suggested programs (Full Cleanup)
+                // 2. Clear existing children, programs, skills, and interests (Full Cleanup)
                 await pConn.query('CALL sp_DeleteApplicationChildrenFull(?)', [applicationId]);
+                await pConn.query('CALL sp_DeleteApplicationSkillsFull(?)', [applicationId]);
+                await pConn.query('CALL sp_DeleteApplicationLangInterestFull(?)', [applicationId]);
+                await pConn.query('CALL sp_DeleteApplicationAdmInterestFull(?)', [applicationId]);
+
+                // 3. Insert Modular Child Records
+                
+                // Interests
+                if (application.interested_in_lang_coaching) {
+                    await pConn.query('CALL sp_AddApplicationLangInterest(?, ?, ?, ?)', 
+                    [applicationId, application.lang_coaching_course || '', normalizeDate(application.expected_lang_coaching_date), 0]);
+                }
+                if (application.spouse_interested_in_lang_coaching) {
+                    await pConn.query('CALL sp_AddApplicationLangInterest(?, ?, ?, ?)', 
+                    [applicationId, application.spouse_lang_coaching_course || '', normalizeDate(application.spouse_expected_lang_coaching_date), 1]);
+                }
+                if (application.interested_in_admission_coaching) {
+                    await pConn.query('CALL sp_AddApplicationAdmInterest(?, ?, ?)', 
+                    [applicationId, application.admission_coaching_course || '', normalizeDate(application.expected_admission_coaching_date)]);
+                }
+
+                // 3. Insert Modular Child Records
+                
+                // Skill Assessments
+                if (application.skill_assessment_list && application.skill_assessment_list.length > 0) {
+                    const isInterest = toBoolInt(application.skill_assessment_interest);
+                    for (const skill of application.skill_assessment_list) {
+                        await pConn.query('CALL sp_AddApplicationSkill(?, ?, ?, ?, ?, ?)', 
+                        [applicationId, skill.country, skill.authority, skill.status, skill.sub_status, isInterest]);
+                    }
+                }
 
                 // 3. Insert Modular Child Records (Looping in Backend)
                 
@@ -265,8 +309,8 @@ const saveStudentApplication = (studentId, data) => {
                 // Work Experience
                 if (work_experience_list && work_experience_list.length > 0) {
                     for (const work of work_experience_list) {
-                        await pConn.query('CALL sp_AddApplicationWork(?, ?, ?, ?, ?, ?, ?)', 
-                        [applicationId, work.country, work.job_title, work.work_years || 0, work.work_months || 0, toBoolInt(work.is_current), work.work_type || 'curr_country']);
+                        await pConn.query('CALL sp_AddApplicationWork(?, ?, ?, ?, ?, ?, ?, ?, ?)', 
+                        [applicationId, work.country, work.job_title, work.status || 'Completed', normalizeDate(work.start_date), work.work_years || 0, work.work_months || 0, toBoolInt(work.is_current), work.work_type || 'curr_country']);
                     }
                 }
 
@@ -297,8 +341,8 @@ const saveStudentApplication = (studentId, data) => {
                 // Spouse Work
                 if (spouse_work && spouse_work.length > 0) {
                     for (const work of spouse_work) {
-                        await pConn.query('CALL sp_AddApplicationSpouseWork(?, ?, ?, ?, ?, ?)', 
-                        [applicationId, work.country, work.job_title, work.work_years || 0, work.work_months || 0, work.work_type || 'other']);
+                        await pConn.query('CALL sp_AddApplicationSpouseWork(?, ?, ?, ?, ?, ?, ?, ?)', 
+                        [applicationId, work.country, work.job_title, work.status || 'Completed', normalizeDate(work.start_date), work.work_years || 0, work.work_months || 0, work.work_type || 'other']);
                     }
                 }
 
@@ -355,7 +399,11 @@ const getStudentRegistration = (studentId) => {
                 suggestedPrograms: results[5] || [],
                 spouse_education: results[6] || [],
                 spouse_work: results[7] || [],
-                relatives: results[8] || []
+                relatives: results[8] || [],
+                skill_assessment_list: results[9] || [],
+                lang_interest: (results[10] || []).filter(li => !li.is_spouse),
+                spouse_lang_interest: (results[10] || []).filter(li => li.is_spouse),
+                adm_interest: results[11] || []
             });
         });
     });
@@ -374,7 +422,7 @@ const saveStudentRegistration = (studentId, data) => {
 
                 // 1. Upsert Registration Details (Core)
                 const [results] = await pConn.query(
-                    'CALL sp_UpsertStudentRegistration_Core(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                    'CALL sp_UpsertStudentRegistration_Core(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
                     [
                         studentId,
                         app.passport_name || '',
@@ -400,14 +448,54 @@ const saveStudentRegistration = (studentId, data) => {
                         app.second_passport_country || '',
                         app.highest_education || '',
                         app.education_field || '',
-                        app.spouse_age || null
+                        app.spouse_age || null,
+                        toBoolInt(app.contact1_whatsapp),
+                        toBoolInt(app.contact1_bot),
+                        toBoolInt(app.contact1_telegram),
+                        toBoolInt(app.contact2_whatsapp),
+                        toBoolInt(app.contact2_bot),
+                        toBoolInt(app.contact2_telegram),
+                        toBoolInt(app.has_skill_assessment),
+                        toBoolInt(app.skill_assessment_interest),
+                        toBoolInt(app.interested_in_lang_coaching),
+                        toBoolInt(app.interested_in_admission_coaching)
                     ]
                 );
 
                 const registrationId = results[0][0].reg_id;
 
-                // 2. Clear existing children and suggested programs (Full Cleanup)
+                // 2. Clear existing children, programs, skills, and interests (Full Cleanup)
                 await pConn.query('CALL sp_DeleteRegistrationChildrenFull(?)', [registrationId]);
+                await pConn.query('CALL sp_DeleteRegistrationSkillsFull(?)', [registrationId]);
+                await pConn.query('CALL sp_DeleteRegistrationLangInterestFull(?)', [registrationId]);
+                await pConn.query('CALL sp_DeleteRegistrationAdmInterestFull(?)', [registrationId]);
+
+                // 3. Insert Modular Child Records
+                
+                // Interests
+                if (app.interested_in_lang_coaching) {
+                    await pConn.query('CALL sp_AddRegistrationLangInterest(?, ?, ?, ?)', 
+                    [registrationId, app.lang_coaching_course || '', normalizeDate(app.expected_lang_coaching_date), 0]);
+                }
+                if (app.spouse_interested_in_lang_coaching) {
+                    await pConn.query('CALL sp_AddRegistrationLangInterest(?, ?, ?, ?)', 
+                    [registrationId, app.spouse_lang_coaching_course || '', normalizeDate(app.spouse_expected_lang_coaching_date), 1]);
+                }
+                if (app.interested_in_admission_coaching) {
+                    await pConn.query('CALL sp_AddRegistrationAdmInterest(?, ?, ?)', 
+                    [registrationId, app.admission_coaching_course || '', normalizeDate(app.expected_admission_coaching_date)]);
+                }
+
+                // 3. Insert Modular Child Records
+                
+                // Skill Assessments
+                if (app.skill_assessment_list && app.skill_assessment_list.length > 0) {
+                    const isInterest = toBoolInt(app.skill_assessment_interest);
+                    for (const skill of app.skill_assessment_list) {
+                        await pConn.query('CALL sp_AddRegistrationSkill(?, ?, ?, ?, ?, ?)', 
+                        [registrationId, skill.country, skill.authority, skill.status, skill.sub_status, isInterest]);
+                    }
+                }
 
                 // 3. Insert Modular Child Records (Looping in Backend)
                 
@@ -422,8 +510,8 @@ const saveStudentRegistration = (studentId, data) => {
                 // Work Experience
                 if (work_experience_list && work_experience_list.length > 0) {
                     for (const work of work_experience_list) {
-                        await pConn.query('CALL sp_AddRegistrationWork(?, ?, ?, ?, ?, ?, ?)', 
-                        [registrationId, work.country, work.job_title, work.work_years || 0, work.work_months || 0, work.type || 'previous', work.work_type || 'curr_country']);
+                        await pConn.query('CALL sp_AddRegistrationWork(?, ?, ?, ?, ?, ?, ?, ?, ?)', 
+                        [registrationId, work.country, work.job_title, work.status || 'Completed', normalizeDate(work.start_date), work.work_years || 0, work.work_months || 0, work.type || 'previous', work.work_type || 'curr_country']);
                     }
                 }
 
@@ -454,8 +542,8 @@ const saveStudentRegistration = (studentId, data) => {
                 // Spouse Work
                 if (spouse_work && spouse_work.length > 0) {
                     for (const work of spouse_work) {
-                        await pConn.query('CALL sp_AddRegistrationSpouseWork(?, ?, ?, ?, ?, ?)', 
-                        [registrationId, work.country, work.job_title, work.work_years || 0, work.work_months || 0, work.work_type || 'other']);
+                        await pConn.query('CALL sp_AddRegistrationSpouseWork(?, ?, ?, ?, ?, ?, ?, ?)', 
+                        [registrationId, work.country, work.job_title, work.status || 'Completed', normalizeDate(work.start_date), work.work_years || 0, work.work_months || 0, work.work_type || 'other']);
                     }
                 }
 
@@ -470,33 +558,27 @@ const saveStudentRegistration = (studentId, data) => {
                 // Legacy Children (Accompanying)
                 if (children && children.length > 0) {
                     for (const child of children) {
-                        await new Promise((res, rej) => {
-                            connection.query('INSERT INTO registration_children (registration_id, age, is_accompanying) VALUES (?, ?, ?)',
-                            [registrationId, child.age, toBoolInt(child.is_accompanying)],
-                            err => err ? rej(err) : res());
-                        });
+                        await pConn.query('INSERT INTO registration_children (registration_id, age, is_accompanying) VALUES (?, ?, ?)',
+                        [registrationId, child.age, toBoolInt(child.is_accompanying)]);
                     }
                 }
 
                 // Suggested Programs
                 if (suggestedPrograms && suggestedPrograms.length > 0) {
                     for (const prog of suggestedPrograms) {
-                        await new Promise((res, rej) => {
-                            connection.query(
-                                'INSERT INTO registration_suggested_programs (registration_id, program_type, program, details, status, sub_status, remarks, is_selected, branch_id, department_id, assigned_to) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                                [registrationId, prog.type || 'OTHER', prog.program, prog.details, prog.status, prog.sub_status, prog.remarks, toBoolInt(prog.is_selected), prog.branch_id || null, prog.department_id || null, prog.assigned_to || null],
-                                err => err ? rej(err) : res()
-                            );
-                        });
+                        await pConn.query(
+                            'INSERT INTO registration_suggested_programs (registration_id, program_type, program, details, status, sub_status, remarks, is_selected, branch_id, department_id, assigned_to) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                            [registrationId, prog.type || 'OTHER', prog.program, prog.details, prog.status, prog.sub_status, prog.remarks, toBoolInt(prog.is_selected), prog.branch_id || null, prog.department_id || null, prog.assigned_to || null]
+                        );
                     }
                 }
 
-                await new Promise((res, rej) => connection.commit(err => err ? rej(err) : res()));
+                await pConn.commit();
                 resolve({ message: 'Registration saved successfully', registrationId });
 
             } catch (error) {
                 console.error('SERVER ERROR IN saveStudentRegistration:', error);
-                await new Promise((res) => connection.rollback(() => res()));
+                await pConn.rollback();
                 reject(error);
             } finally {
                 connection.release();

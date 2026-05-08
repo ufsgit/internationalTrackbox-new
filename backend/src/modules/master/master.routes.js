@@ -23,7 +23,10 @@ const getLookups = () => {
                 enquirySources: results[7],
                 visaCategories: results[8],
                 workCategories: results[9],
-                coachingCourses: results[10]
+                coachingCourses: results[10],
+                admissionCourses: results[11],
+                languageCourses: results[12],
+                boardAuthorities: results[13]
             });
         });
     });
@@ -408,5 +411,8 @@ genericCrud('migration_categories', 'migration_categories', 'migration_cat_id', 
 genericCrud('work_categories', 'work_categories', 'work_cat_id', 'Work Category');
 genericCrud('visa_categories', 'visa_categories', 'visa_cat_id', 'Visa Category');
 genericCrud('coaching_courses', 'coaching_courses', 'course_id', 'Coaching Course');
+genericCrud('course_admission', 'course_admission', 'id', 'Admission Course');
+genericCrud('course_language', 'course_language', 'id', 'Language Course');
+genericCrud('board_authorities', 'board_authorities', 'id', 'Board / Authority');
 
 module.exports = router;

@@ -38,6 +38,12 @@ export class AppComponent {
         event instanceof NavigationError
       ) {
         setTimeout(() => this.loadingService.hide(), 200); // Small delay for smoothness
+        
+        // Reset scroll position of the content area
+        const contentArea = document.querySelector('.content-area');
+        if (contentArea) {
+          contentArea.scrollTo(0, 0);
+        }
       }
     });
 

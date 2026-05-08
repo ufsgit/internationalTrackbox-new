@@ -1,4 +1,16 @@
 DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddApplicationAdmInterest`(
+                    IN p_id INT,
+                    IN p_course VARCHAR(255),
+                    IN p_expected_date DATE
+                )
+BEGIN
+                    INSERT INTO application_adm_interest (application_id, course, expected_date)
+                    VALUES (p_id, p_course, p_expected_date);
+                END$$
+DELIMITER ;
+
+DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddApplicationAdmTest`(
       IN p_application_id INT,
       IN p_test_type VARCHAR(50),
@@ -25,6 +37,19 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddApplicationEducation`(
 BEGIN
                 INSERT INTO application_education (application_id, country, level, field, status, expected_completion, is_highest, edu_type)
                 VALUES (p_application_id, p_country, p_level, p_field, p_status, p_expected_completion, p_is_highest, p_edu_type);
+            END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddApplicationLangInterest`(
+                IN p_application_id INT,
+                IN p_course VARCHAR(255),
+                IN p_expected_date DATE,
+                IN p_is_spouse TINYINT(1)
+            )
+BEGIN
+                INSERT INTO application_lang_interest (application_id, course, expected_date, is_spouse)
+                VALUES (p_application_id, p_course, p_expected_date, p_is_spouse);
             END$$
 DELIMITER ;
 
@@ -59,6 +84,21 @@ END$$
 DELIMITER ;
 
 DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddApplicationSkill`(
+                IN p_application_id INT,
+                IN p_country VARCHAR(100),
+                IN p_authority VARCHAR(255),
+                IN p_status VARCHAR(100),
+                IN p_sub_status VARCHAR(100),
+                IN p_is_interest TINYINT(1)
+            )
+BEGIN
+                INSERT INTO application_skill (application_id, country, authority, status, sub_status, is_interest)
+                VALUES (p_application_id, p_country, p_authority, p_status, p_sub_status, p_is_interest);
+            END$$
+DELIMITER ;
+
+DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddApplicationSpouseEdu`(
         IN p_app_id INT,
         IN p_country VARCHAR(100),
@@ -76,28 +116,26 @@ DELIMITER ;
 
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddApplicationSpouseWork`(
-        IN p_app_id INT,
-        IN p_country VARCHAR(100),
-        IN p_job_title VARCHAR(255),
-        IN p_work_years INT,
-        IN p_work_months INT,
-        IN p_work_type VARCHAR(20)
-    )
+                IN p_app_id INT, IN p_country VARCHAR(100), IN p_job_title VARCHAR(255), 
+                IN p_status VARCHAR(50), IN p_start_date DATE,
+                IN p_work_years INT, IN p_work_months INT, IN p_work_type VARCHAR(20)
+            )
 BEGIN
-        INSERT INTO application_spouse_work (application_id, country, job_title, work_years, work_months, work_type)
-        VALUES (p_app_id, p_country, p_job_title, p_work_years, p_work_months, p_work_type);
-    END$$
+                INSERT INTO application_spouse_work (application_id, country, job_title, status, start_date, work_years, work_months, work_type)
+                VALUES (p_app_id, p_country, p_job_title, p_status, p_start_date, p_work_years, p_work_months, p_work_type);
+            END$$
 DELIMITER ;
 
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddApplicationWork`(
-                IN p_application_id INT, IN p_country VARCHAR(100), IN p_job_title VARCHAR(100), 
+                IN p_application_id INT, IN p_country VARCHAR(100), IN p_job_title VARCHAR(255), 
+                IN p_status VARCHAR(50), IN p_start_date DATE,
                 IN p_work_years INT, IN p_work_months INT, IN p_is_current TINYINT(1),
                 IN p_work_type VARCHAR(20)
             )
 BEGIN
-                INSERT INTO application_work_experience (application_id, country, job_title, work_years, work_months, is_current, work_type)
-                VALUES (p_application_id, p_country, p_job_title, p_work_years, p_work_months, p_is_current, p_work_type);
+                INSERT INTO application_work_experience (application_id, country, job_title, status, start_date, work_years, work_months, is_current, work_type)
+                VALUES (p_application_id, p_country, p_job_title, p_status, p_start_date, p_work_years, p_work_months, p_is_current, p_work_type);
             END$$
 DELIMITER ;
 
@@ -131,6 +169,18 @@ END$$
 DELIMITER ;
 
 DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddRegistrationAdmInterest`(
+                    IN p_id INT,
+                    IN p_course VARCHAR(255),
+                    IN p_expected_date DATE
+                )
+BEGIN
+                    INSERT INTO registration_adm_interest (registration_id, course, expected_date)
+                    VALUES (p_id, p_course, p_expected_date);
+                END$$
+DELIMITER ;
+
+DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddRegistrationAdmissionTest`(
     IN p_registration_id INT, 
     IN p_type VARCHAR(50), 
@@ -158,6 +208,19 @@ BEGIN
 DELIMITER ;
 
 DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddRegistrationLangInterest`(
+                IN p_registration_id INT,
+                IN p_course VARCHAR(255),
+                IN p_expected_date DATE,
+                IN p_is_spouse TINYINT(1)
+            )
+BEGIN
+                INSERT INTO registration_lang_interest (registration_id, course, expected_date, is_spouse)
+                VALUES (p_registration_id, p_course, p_expected_date, p_is_spouse);
+            END$$
+DELIMITER ;
+
+DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddRegistrationLangTest`(
                 IN p_registration_id INT, IN p_type VARCHAR(50), IN p_reading VARCHAR(20), 
                 IN p_writing VARCHAR(20), IN p_speaking VARCHAR(20), IN p_listening VARCHAR(20), 
@@ -166,6 +229,21 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddRegistrationLangTest`(
 BEGIN
                 INSERT INTO registration_language_tests (registration_id, test_type, reading, writing, speaking, listening, overall, is_spouse)
                 VALUES (p_registration_id, p_type, p_reading, p_writing, p_speaking, p_listening, p_overall, p_is_spouse);
+            END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddRegistrationSkill`(
+                IN p_registration_id INT,
+                IN p_country VARCHAR(100),
+                IN p_authority VARCHAR(255),
+                IN p_status VARCHAR(100),
+                IN p_sub_status VARCHAR(100),
+                IN p_is_interest TINYINT(1)
+            )
+BEGIN
+                INSERT INTO registration_skill (registration_id, country, authority, status, sub_status, is_interest)
+                VALUES (p_registration_id, p_country, p_authority, p_status, p_sub_status, p_is_interest);
             END$$
 DELIMITER ;
 
@@ -187,35 +265,27 @@ DELIMITER ;
 
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddRegistrationSpouseWork`(
-        IN p_reg_id INT,
-        IN p_country VARCHAR(100),
-        IN p_job_title VARCHAR(255),
-        IN p_work_years INT,
-        IN p_work_months INT,
-        IN p_work_type VARCHAR(20)
-    )
+                IN p_reg_id INT, IN p_country VARCHAR(100), IN p_job_title VARCHAR(255), 
+                IN p_status VARCHAR(50), IN p_start_date DATE,
+                IN p_work_years INT, IN p_work_months INT, IN p_work_type VARCHAR(20)
+            )
 BEGIN
-        INSERT INTO registration_spouse_work (registration_id, country, job_title, work_years, work_months, work_type)
-        VALUES (p_reg_id, p_country, p_job_title, p_work_years, p_work_months, p_work_type);
-    END$$
+                INSERT INTO registration_spouse_work (registration_id, country, job_title, status, start_date, work_years, work_months, work_type)
+                VALUES (p_reg_id, p_country, p_job_title, p_status, p_start_date, p_work_years, p_work_months, p_work_type);
+            END$$
 DELIMITER ;
 
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddRegistrationWork`(
-    IN p_registration_id INT,
-    IN p_country VARCHAR(100),
-    IN p_job_title VARCHAR(100),
-    IN p_work_years INT,
-    IN p_work_months INT,
-    IN p_type VARCHAR(20),
-    IN p_work_type VARCHAR(20)
-)
+                IN p_registration_id INT, IN p_country VARCHAR(100), IN p_job_title VARCHAR(255), 
+                IN p_status VARCHAR(50), IN p_start_date DATE,
+                IN p_work_years INT, IN p_work_months INT, IN p_type VARCHAR(20),
+                IN p_work_type VARCHAR(20)
+            )
 BEGIN
-    INSERT INTO registration_work_experience 
-        (registration_id, country, job_title, work_years, work_months, type, work_type)
-    VALUES 
-        (p_registration_id, p_country, p_job_title, p_work_years, p_work_months, p_type, p_work_type);
-END$$
+                INSERT INTO registration_work_experience (registration_id, country, job_title, status, start_date, work_years, work_months, type, work_type)
+                VALUES (p_registration_id, p_country, p_job_title, p_status, p_start_date, p_work_years, p_work_months, p_type, p_work_type);
+            END$$
 DELIMITER ;
 
 DELIMITER $$
@@ -257,6 +327,13 @@ END$$
 DELIMITER ;
 
 DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_DeleteApplicationAdmInterestFull`(IN p_id INT)
+BEGIN
+                    DELETE FROM application_adm_interest WHERE application_id = p_id;
+                END$$
+DELIMITER ;
+
+DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_DeleteApplicationChildren`(IN p_application_id INT)
 BEGIN
     DELETE FROM application_education WHERE application_id = p_application_id;
@@ -281,6 +358,27 @@ END$$
 DELIMITER ;
 
 DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_DeleteApplicationLangInterestFull`(IN p_id INT)
+BEGIN
+                    DELETE FROM application_lang_interest WHERE application_id = p_id;
+                END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_DeleteApplicationSkillsFull`(IN p_application_id INT)
+BEGIN
+                DELETE FROM application_skill WHERE application_id = p_application_id;
+            END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_DeleteRegistrationAdmInterestFull`(IN p_id INT)
+BEGIN
+                    DELETE FROM registration_adm_interest WHERE registration_id = p_id;
+                END$$
+DELIMITER ;
+
+DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_DeleteRegistrationChildrenFull`(IN p_registration_id INT)
 BEGIN
     DELETE FROM registration_education WHERE registration_id = p_registration_id;
@@ -293,6 +391,20 @@ BEGIN
     DELETE FROM registration_children WHERE registration_id = p_registration_id;
     DELETE FROM registration_suggested_programs WHERE registration_id = p_registration_id;
 END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_DeleteRegistrationLangInterestFull`(IN p_id INT)
+BEGIN
+                    DELETE FROM registration_lang_interest WHERE registration_id = p_id;
+                END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_DeleteRegistrationSkillsFull`(IN p_registration_id INT)
+BEGIN
+                DELETE FROM registration_skill WHERE registration_id = p_registration_id;
+            END$$
 DELIMITER ;
 
 DELIMITER $$
@@ -395,14 +507,11 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetEnquiryReport`(
     IN p_staff_id INT
 )
 BEGIN
-    -- Common CTE or just multiple SELECTs UNIONed 
-    -- We select fields to match the report columns:
-    -- Date, Student, Mobile, Type, Country, Program/Details, Intake/Batch, Status, Remark, AssignedTo, AssignedBy, Department
-
     SELECT * FROM (
-        -- 1. Study
+        
         SELECT 
             DATE(s.created_at) as created_date,
+            s.student_id,
             s.student_name,
             CONCAT(s.mobile_country_code, ' ', s.mobile_number) as mobile,
             'Study' as enquiry_type,
@@ -425,14 +534,15 @@ BEGIN
 
         UNION ALL
 
-        -- 2. Migration
+        
         SELECT 
             DATE(s.created_at),
+            s.student_id,
             s.student_name,
             CONCAT(s.mobile_country_code, ' ', s.mobile_number),
             'Migration',
             sm.country,
-            sm.category as program_details, -- e.g. Express Entry
+            sm.category as program_details,
             '' as intake_or_batch,
             s.current_status,
             s.last_remark,
@@ -450,9 +560,10 @@ BEGIN
 
         UNION ALL
 
-        -- 3. Visa
+        
         SELECT 
             DATE(s.created_at),
+            s.student_id,
             s.student_name,
             CONCAT(s.mobile_country_code, ' ', s.mobile_number),
             'Visa',
@@ -475,9 +586,10 @@ BEGIN
 
         UNION ALL
 
-        -- 4. Work
+        
         SELECT 
             DATE(s.created_at),
+            s.student_id,
             s.student_name,
             CONCAT(s.mobile_country_code, ' ', s.mobile_number),
             'Work',
@@ -500,13 +612,14 @@ BEGIN
         
         UNION ALL
 
-        -- 5. Coaching
+        
         SELECT 
             DATE(s.created_at),
+            s.student_id,
             s.student_name,
             CONCAT(s.mobile_country_code, ' ', s.mobile_number),
             'Coaching',
-            sc.course, -- e.g. IELTS
+            sc.course,
             '' as program_details,
             sc.batch as intake_or_batch,
             s.current_status,
@@ -544,39 +657,21 @@ DELIMITER ;
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetMasterLookups`()
 BEGIN
-    -- 0: Countries
-    SELECT * FROM countries ORDER BY name;
-    
-    -- 1: Levels
-    SELECT * FROM educational_levels ORDER BY name;
-    
-    -- 2: Intakes
-    SELECT * FROM study_intakes ORDER BY name;
-    
-    -- 3: Occupations (Used in Work and Migration)
-    SELECT * FROM occupations ORDER BY name;
-    
-    -- 4: Fields (Used in Study and Coaching)
-    SELECT * FROM study_fields ORDER BY name;
-    
-    -- 5: Categories (Used primarily for Migration categories)
-    SELECT * FROM migration_categories ORDER BY name;
-    
-    -- 6: Years (Static list)
-    SELECT '2024' as name UNION SELECT '2025' UNION SELECT '2026' UNION SELECT '2027' UNION SELECT '2028' UNION SELECT '2029' UNION SELECT '2030';
-    
-    -- 7: Enquiry Sources
-    SELECT * FROM enquiry_sources ORDER BY source_name;
-    
-    -- 8: Visa Categories
-    SELECT * FROM visa_categories ORDER BY name;
-    
-    -- 9: Work Categories
-    SELECT * FROM work_categories ORDER BY name;
-    
-    -- 10: Coaching Courses
-    SELECT * FROM coaching_courses ORDER BY name;
-END$$
+                SELECT * FROM countries ORDER BY name;
+                SELECT * FROM educational_levels ORDER BY name;
+                SELECT * FROM study_intakes ORDER BY name;
+                SELECT * FROM occupations ORDER BY name;
+                SELECT * FROM study_fields ORDER BY name;
+                SELECT * FROM migration_categories ORDER BY name;
+                SELECT (SELECT 2024) as id UNION SELECT (SELECT 2025) UNION SELECT (SELECT 2026); -- Years dummy
+                SELECT * FROM enquiry_sources ORDER BY source_name;
+                SELECT * FROM visa_categories ORDER BY name;
+                SELECT * FROM work_categories ORDER BY name;
+                SELECT * FROM coaching_courses ORDER BY name;
+                SELECT * FROM course_admission ORDER BY name;
+                SELECT * FROM course_language ORDER BY name;
+                SELECT * FROM board_authorities ORDER BY name;
+            END$$
 DELIMITER ;
 
 DELIMITER $$
@@ -589,54 +684,69 @@ DELIMITER ;
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetStudentApplication`(IN p_student_id INT)
 BEGIN
-    -- Result 1: Core Application Data
-    SELECT * FROM student_applications WHERE student_id = p_student_id LIMIT 1;
-    
-    -- Result 2: Education
-    SELECT e.* FROM application_education e
-    JOIN student_applications a ON e.application_id = a.application_id
-    WHERE a.student_id = p_student_id;
-    
-    -- Result 3: Work Experience
-    SELECT w.* FROM application_work_experience w
-    JOIN student_applications a ON w.application_id = a.application_id
-    WHERE a.student_id = p_student_id;
-    
-    -- Result 4: Language Tests
-    SELECT t.* FROM application_language_tests t
-    JOIN student_applications a ON t.application_id = a.application_id
-    WHERE a.student_id = p_student_id;
-    
-    -- Result 5: Admission Tests
-    SELECT t.* FROM application_admission_tests t
-    JOIN student_applications a ON t.application_id = a.application_id
-    WHERE a.student_id = p_student_id;
-    
-    -- Result 6: Spouse Education
-    SELECT e.* FROM application_spouse_education e
-    JOIN student_applications a ON e.application_id = a.application_id
-    WHERE a.student_id = p_student_id;
-    
-    -- Result 7: Spouse Work
-    SELECT w.* FROM application_spouse_work w
-    JOIN student_applications a ON w.application_id = a.application_id
-    WHERE a.student_id = p_student_id;
-    
-    -- Result 8: Relatives
-    SELECT r.* FROM application_relatives r
-    JOIN student_applications a ON r.application_id = a.application_id
-    WHERE a.student_id = p_student_id;
-    
-    -- Result 9: Children
-    SELECT c.* FROM application_children c
-    JOIN student_applications a ON c.application_id = a.application_id
-    WHERE a.student_id = p_student_id;
-    
-    -- Result 10: Suggested Programs
-    SELECT s.* FROM suggested_programs s
-    JOIN student_applications a ON s.application_id = a.application_id
-    WHERE a.student_id = p_student_id;
-END$$
+                -- Result 1: Core Application Data
+                SELECT * FROM student_applications WHERE student_id = p_student_id LIMIT 1;
+                
+                -- Result 2: Education
+                SELECT e.* FROM application_education e
+                JOIN student_applications a ON e.application_id = a.application_id
+                WHERE a.student_id = p_student_id;
+                
+                -- Result 3: Work Experience
+                SELECT w.* FROM application_work_experience w
+                JOIN student_applications a ON w.application_id = a.application_id
+                WHERE a.student_id = p_student_id;
+                
+                -- Result 4: Language Tests
+                SELECT t.* FROM application_language_tests t
+                JOIN student_applications a ON t.application_id = a.application_id
+                WHERE a.student_id = p_student_id;
+                
+                -- Result 5: Admission Tests
+                SELECT t.* FROM application_admission_tests t
+                JOIN student_applications a ON t.application_id = a.application_id
+                WHERE a.student_id = p_student_id;
+                
+                -- Result 6: Spouse Education
+                SELECT e.* FROM application_spouse_education e
+                JOIN student_applications a ON e.application_id = a.application_id
+                WHERE a.student_id = p_student_id;
+                
+                -- Result 7: Spouse Work
+                SELECT w.* FROM application_spouse_work w
+                JOIN student_applications a ON w.application_id = a.application_id
+                WHERE a.student_id = p_student_id;
+                
+                -- Result 8: Relatives
+                SELECT r.* FROM application_relatives r
+                JOIN student_applications a ON r.application_id = a.application_id
+                WHERE a.student_id = p_student_id;
+                
+                -- Result 9: Children
+                SELECT c.* FROM application_children c
+                JOIN student_applications a ON c.application_id = a.application_id
+                WHERE a.student_id = p_student_id;
+                
+                -- Result 10: Suggested Programs
+                SELECT s.* FROM suggested_programs s
+                JOIN student_applications a ON s.application_id = a.application_id
+                WHERE a.student_id = p_student_id;
+
+                -- Result 11: Skill Assessments
+                SELECT sk.* FROM application_skill sk
+                JOIN student_applications a ON sk.application_id = a.application_id
+                WHERE a.student_id = p_student_id;
+
+                -- Result 12: Lang Interest
+                SELECT li.* FROM application_lang_interest li
+                JOIN student_applications a ON li.application_id = a.application_id
+                WHERE a.student_id = p_student_id;
+
+                -- Result 13: Adm Interest
+                SELECT ai.* FROM application_adm_interest ai
+                JOIN student_applications a ON ai.application_id = a.application_id
+                WHERE a.student_id = p_student_id;
+            END$$
 DELIMITER ;
 
 DELIMITER $$
@@ -658,7 +768,7 @@ BEGIN
     
     SELECT branch_id, role INTO v_branch_id, v_role FROM users WHERE user_id = p_logged_user_id;
 
-    -- Return total count first
+    
     SELECT COUNT(*) as total
     FROM students s
     LEFT JOIN users at ON s.assigned_to = at.user_id
@@ -670,13 +780,14 @@ BEGIN
       AND (p_use_date = FALSE OR 
           EXISTS (SELECT 1 FROM follow_ups WHERE student_id = s.student_id AND follow_up_date BETWEEN p_from_date AND p_to_date));
 
-    -- Return records
+    
     SELECT 
         s.student_id,
         s.is_registered,
         (SELECT MAX(created_at) FROM follow_ups WHERE student_id = s.student_id) as follow_up_entry_on,
         (SELECT MAX(follow_up_date) FROM follow_ups WHERE student_id = s.student_id) as follow_up_on,
         s.student_name,
+        s.mobile_country_code,
         s.mobile_number,
         s.enquiry_source,
         s.last_remark as remark,
@@ -706,48 +817,49 @@ DELIMITER ;
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetStudentRegistration`(IN p_student_id INT)
 BEGIN
-                -- Result 1: Core Registration Data
-                SELECT * FROM student_registrations WHERE student_id = p_student_id LIMIT 1;
-                
-                -- Result 2: Education
-                SELECT e.* FROM registration_education e
-                JOIN student_registrations r ON e.registration_id = r.registration_id
-                WHERE r.student_id = p_student_id;
-                
-                -- Result 3: Work Experience
-                SELECT w.* FROM registration_work_experience w
-                JOIN student_registrations r ON w.registration_id = r.registration_id
-                WHERE r.student_id = p_student_id;
-                
-                -- Result 4: Language Tests
-                SELECT t.* FROM registration_language_tests t
-                JOIN student_registrations r ON t.registration_id = r.registration_id
-                WHERE r.student_id = p_student_id;
-                
-                -- Result 5: Children
-                SELECT c.* FROM registration_children c
-                JOIN student_registrations r ON c.registration_id = r.registration_id
-                WHERE r.student_id = p_student_id;
-                
-                -- Result 6: Suggested Programs
-                SELECT s.* FROM registration_suggested_programs s
-                JOIN student_registrations r ON s.registration_id = r.registration_id
-                WHERE r.student_id = p_student_id;
+                -- Find the latest registration ID for this student
+                DECLARE v_registration_id INT;
+                SELECT registration_id INTO v_registration_id 
+                FROM student_registrations 
+                WHERE student_id = p_student_id 
+                ORDER BY created_at DESC LIMIT 1;
 
-                -- Result 7: Spouse Education
-                SELECT e.* FROM registration_spouse_education e
-                JOIN student_registrations r ON e.registration_id = r.registration_id
-                WHERE r.student_id = p_student_id;
+                -- 1. Core Registration Data
+                SELECT * FROM student_registrations 
+                WHERE registration_id = v_registration_id;
+                
+                -- 2. Education List
+                SELECT * FROM registration_education WHERE registration_id = v_registration_id;
+                
+                -- 3. Work Experience List
+                SELECT * FROM registration_work_experience WHERE registration_id = v_registration_id;
+                
+                -- 4. Language Tests
+                SELECT * FROM registration_language_tests WHERE registration_id = v_registration_id;
+                
+                -- 5. Children
+                SELECT * FROM registration_children WHERE registration_id = v_registration_id;
+                
+                -- 6. Suggested Programs
+                SELECT * FROM registration_suggested_programs WHERE registration_id = v_registration_id;
 
-                -- Result 8: Spouse Work
-                SELECT w.* FROM registration_spouse_work w
-                JOIN student_registrations r ON w.registration_id = r.registration_id
-                WHERE r.student_id = p_student_id;
+                -- 7. Spouse Education
+                SELECT * FROM registration_spouse_education WHERE registration_id = v_registration_id;
 
-                -- Result 9: Relatives
-                SELECT rel.* FROM registration_relatives rel
-                JOIN student_registrations r ON rel.registration_id = r.registration_id
-                WHERE r.student_id = p_student_id;
+                -- 8. Spouse Work
+                SELECT * FROM registration_spouse_work WHERE registration_id = v_registration_id;
+
+                -- 9. Relatives
+                SELECT * FROM registration_relatives WHERE registration_id = v_registration_id;
+
+                -- 10. Skill Assessments
+                SELECT * FROM registration_skill WHERE registration_id = v_registration_id;
+
+                -- 11. Language Interest
+                SELECT * FROM registration_lang_interest WHERE registration_id = v_registration_id;
+
+                -- 12. Admission Interest
+                SELECT * FROM registration_adm_interest WHERE registration_id = v_registration_id;
             END$$
 DELIMITER ;
 
@@ -1110,70 +1222,92 @@ DELIMITER ;
 
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_UpsertStudentApplication_Core`(
-    IN p_student_id INT,
-    IN p_passport_name VARCHAR(255),
-    IN p_age INT,
-    IN p_dob DATE,
-    IN p_gender ENUM('Male','Female','Other'),
-    IN p_marital_status VARCHAR(50),
-    IN p_spouse_accompanying TINYINT(1),
-    IN p_address_country VARCHAR(100),
-    IN p_address_state VARCHAR(100),
-    IN p_address_suburb VARCHAR(100),
-    IN p_contact1_code VARCHAR(10),
-    IN p_contact1 VARCHAR(50),
-    IN p_contact2_code VARCHAR(10),
-    IN p_contact2 VARCHAR(50),
-    IN p_email VARCHAR(100),
-    IN p_citizenship_country VARCHAR(100),
-    IN p_passport_country VARCHAR(100),
-    IN p_has_second_passport TINYINT(1),
-    IN p_second_passport_country VARCHAR(100),
-    IN p_highest_education VARCHAR(100),
-    IN p_education_field VARCHAR(100),
-    IN p_spouse_age INT
-)
+                IN p_student_id INT,
+                IN p_passport_name VARCHAR(255),
+                IN p_age INT,
+                IN p_dob DATE,
+                IN p_gender VARCHAR(50),
+                IN p_marital_status VARCHAR(50),
+                IN p_spouse_accompanying TINYINT(1),
+                IN p_address_country VARCHAR(255),
+                IN p_address_state VARCHAR(255),
+                IN p_address_suburb VARCHAR(255),
+                IN p_contact1_code VARCHAR(10),
+                IN p_contact1 VARCHAR(50),
+                IN p_contact2_code VARCHAR(10),
+                IN p_contact2 VARCHAR(50),
+                IN p_email VARCHAR(255),
+                IN p_citizenship_country VARCHAR(255),
+                IN p_passport_country VARCHAR(255),
+                IN p_has_second_passport TINYINT(1),
+                IN p_second_passport_country VARCHAR(255),
+                IN p_highest_education VARCHAR(255),
+                IN p_education_field VARCHAR(255),
+                IN p_spouse_age INT,
+                IN p_c1_whatsapp TINYINT(1), IN p_c1_bot TINYINT(1), IN p_c1_telegram TINYINT(1),
+                IN p_c2_whatsapp TINYINT(1), IN p_c2_bot TINYINT(1), IN p_c2_telegram TINYINT(1),
+                IN p_has_skill_assessment TINYINT(1),
+                IN p_skill_assessment_interest TINYINT(1),
+                IN p_has_language_interest TINYINT(1),
+                IN p_has_admission_interest TINYINT(1)
+            )
 BEGIN
-    INSERT INTO student_applications (
-        student_id, passport_name, age, dob, gender, marital_status, spouse_accompanying,
-        address_country, address_state, address_suburb, contact1_code, contact1,
-        contact2_code, contact2, email, citizenship_country, passport_country,
-        has_second_passport, second_passport_country, highest_education, education_field,
-        spouse_age
-    )
-    VALUES (
-        p_student_id, p_passport_name, p_age, p_dob, p_gender, p_marital_status, p_spouse_accompanying,
-        p_address_country, p_address_state, p_address_suburb, p_contact1_code, p_contact1,
-        p_contact2_code, p_contact2, p_email, p_citizenship_country, p_passport_country,
-        p_has_second_passport, p_second_passport_country, p_highest_education, p_education_field,
-        p_spouse_age
-    )
-    ON DUPLICATE KEY UPDATE
-        passport_name = VALUES(passport_name),
-        age = VALUES(age),
-        dob = VALUES(dob),
-        gender = VALUES(gender),
-        marital_status = VALUES(marital_status),
-        spouse_accompanying = VALUES(spouse_accompanying),
-        address_country = VALUES(address_country),
-        address_state = VALUES(address_state),
-        address_suburb = VALUES(address_suburb),
-        contact1_code = VALUES(contact1_code),
-        contact1 = VALUES(contact1),
-        contact2_code = VALUES(contact2_code),
-        contact2 = VALUES(contact2),
-        email = VALUES(email),
-        citizenship_country = VALUES(citizenship_country),
-        passport_country = VALUES(passport_country),
-        has_second_passport = VALUES(has_second_passport),
-        second_passport_country = VALUES(second_passport_country),
-        highest_education = VALUES(highest_education),
-        education_field = VALUES(education_field),
-        spouse_age = VALUES(spouse_age),
-        updated_at = CURRENT_TIMESTAMP;
-    
-    SELECT application_id AS app_id FROM student_applications WHERE student_id = p_student_id ORDER BY created_at DESC LIMIT 1;
-END$$
+                INSERT INTO student_applications (
+                    student_id, passport_name, age, dob, gender, marital_status, spouse_accompanying,
+                    address_country, address_state, address_suburb, contact1_code, contact1,
+                    contact2_code, contact2, email, citizenship_country, passport_country,
+                    has_second_passport, second_passport_country, highest_education, education_field,
+                    spouse_age, contact1_whatsapp, contact1_bot, contact1_telegram,
+                    contact2_whatsapp, contact2_bot, contact2_telegram,
+                    has_skill_assessment, skill_assessment_interest,
+                    has_language_interest, has_admission_interest
+                )
+                VALUES (
+                    p_student_id, p_passport_name, p_age, p_dob, p_gender, p_marital_status, p_spouse_accompanying,
+                    p_address_country, p_address_state, p_address_suburb, p_contact1_code, p_contact1,
+                    p_contact2_code, p_contact2, p_email, p_citizenship_country, p_passport_country,
+                    p_has_second_passport, p_second_passport_country, p_highest_education, p_education_field,
+                    p_spouse_age, p_c1_whatsapp, p_c1_bot, p_c1_telegram,
+                    p_c2_whatsapp, p_c2_bot, p_c2_telegram,
+                    p_has_skill_assessment, p_skill_assessment_interest,
+                    p_has_language_interest, p_has_admission_interest
+                )
+                ON DUPLICATE KEY UPDATE
+                    passport_name = VALUES(passport_name),
+                    age = VALUES(age),
+                    dob = VALUES(dob),
+                    gender = VALUES(gender),
+                    marital_status = VALUES(marital_status),
+                    spouse_accompanying = VALUES(spouse_accompanying),
+                    address_country = VALUES(address_country),
+                    address_state = VALUES(address_state),
+                    address_suburb = VALUES(address_suburb),
+                    contact1_code = VALUES(contact1_code),
+                    contact1 = VALUES(contact1),
+                    contact1_whatsapp = VALUES(contact1_whatsapp),
+                    contact1_bot = VALUES(contact1_bot),
+                    contact1_telegram = VALUES(contact1_telegram),
+                    contact2_code = VALUES(contact2_code),
+                    contact2 = VALUES(contact2),
+                    contact2_whatsapp = VALUES(contact2_whatsapp),
+                    contact2_bot = VALUES(contact2_bot),
+                    contact2_telegram = VALUES(contact2_telegram),
+                    email = VALUES(email),
+                    citizenship_country = VALUES(citizenship_country),
+                    passport_country = VALUES(passport_country),
+                    has_second_passport = VALUES(has_second_passport),
+                    second_passport_country = VALUES(second_passport_country),
+                    highest_education = VALUES(highest_education),
+                    education_field = VALUES(education_field),
+                    spouse_age = VALUES(spouse_age),
+                    has_skill_assessment = VALUES(has_skill_assessment),
+                    skill_assessment_interest = VALUES(skill_assessment_interest),
+                    has_language_interest = VALUES(has_language_interest),
+                    has_admission_interest = VALUES(has_admission_interest),
+                    updated_at = CURRENT_TIMESTAMP;
+                
+                SELECT application_id AS app_id FROM student_applications WHERE student_id = p_student_id ORDER BY created_at DESC LIMIT 1;
+            END$$
 DELIMITER ;
 
 DELIMITER $$
@@ -1271,68 +1405,98 @@ DELIMITER ;
 
 DELIMITER $$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_UpsertStudentRegistration_Core`(
-    IN p_student_id INT,
-    IN p_passport_name VARCHAR(255),
-    IN p_first_name VARCHAR(100),
-    IN p_last_name VARCHAR(100),
-    IN p_age INT,
-    IN p_dob DATE,
-    IN p_gender ENUM('Male','Female','Other'),
-    IN p_marital_status VARCHAR(50),
-    IN p_spouse_accompanying TINYINT(1),
-    IN p_address_country VARCHAR(100),
-    IN p_address_state VARCHAR(100),
-    IN p_address_suburb VARCHAR(100),
-    IN p_address_postcode VARCHAR(20),
-    IN p_contact1_code VARCHAR(10),
-    IN p_contact1 VARCHAR(50),
-    IN p_contact2_code VARCHAR(10),
-    IN p_contact2 VARCHAR(50),
-    IN p_email VARCHAR(100),
-    IN p_citizenship_country VARCHAR(100),
-    IN p_passport_country VARCHAR(100),
-    IN p_has_second_passport TINYINT(1),
-    IN p_second_passport_country VARCHAR(100),
-    IN p_highest_education VARCHAR(100),
-    IN p_education_field VARCHAR(100),
-    IN p_spouse_age INT
-)
+                IN p_student_id INT,
+                IN p_passport_name VARCHAR(255),
+                IN p_first_name VARCHAR(255),
+                IN p_last_name VARCHAR(255),
+                IN p_age INT,
+                IN p_dob DATE,
+                IN p_gender VARCHAR(50),
+                IN p_marital_status VARCHAR(50),
+                IN p_spouse_accompanying TINYINT(1),
+                IN p_address_country VARCHAR(255),
+                IN p_address_state VARCHAR(255),
+                IN p_address_suburb VARCHAR(255),
+                IN p_address_postcode VARCHAR(20),
+                IN p_contact1_code VARCHAR(10),
+                IN p_contact1 VARCHAR(50),
+                IN p_contact2_code VARCHAR(10),
+                IN p_contact2 VARCHAR(50),
+                IN p_email VARCHAR(255),
+                IN p_citizenship_country VARCHAR(255),
+                IN p_passport_country VARCHAR(255),
+                IN p_has_second_passport TINYINT(1),
+                IN p_second_passport_country VARCHAR(255),
+                IN p_highest_education VARCHAR(255),
+                IN p_education_field VARCHAR(255),
+                IN p_spouse_age INT,
+                IN p_c1_whatsapp TINYINT(1), IN p_c1_bot TINYINT(1), IN p_c1_telegram TINYINT(1),
+                IN p_c2_whatsapp TINYINT(1), IN p_c2_bot TINYINT(1), IN p_c2_telegram TINYINT(1),
+                IN p_has_skill_assessment TINYINT(1),
+                IN p_skill_assessment_interest TINYINT(1),
+                IN p_has_language_interest TINYINT(1),
+                IN p_has_admission_interest TINYINT(1)
+            )
 BEGIN
-    INSERT INTO student_registrations (
-        student_id, passport_name, first_name, last_name, age, dob, gender, marital_status, spouse_accompanying,
-        address_country, address_state, address_suburb, address_postcode, contact1_code, contact1,
-        contact2_code, contact2, email, citizenship_country, passport_country,
-        has_second_passport, second_passport_country, highest_education, education_field,
-        spouse_age
-    )
-    VALUES (
-        p_student_id, p_passport_name, p_first_name, p_last_name, p_age, p_dob, p_gender, p_marital_status, p_spouse_accompanying,
-        p_address_country, p_address_state, p_address_suburb, p_address_postcode, p_contact1_code, p_contact1,
-        p_contact2_code, p_contact2, p_email, p_citizenship_country, p_passport_country,
-        p_has_second_passport, p_second_passport_country, p_highest_education, p_education_field,
-        p_spouse_age
-    )
-    ON DUPLICATE KEY UPDATE
-        passport_name = VALUES(passport_name),
-        first_name = VALUES(first_name),
-        last_name = VALUES(last_name),
-        age = VALUES(age),
-        dob = VALUES(dob),
-        gender = VALUES(gender),
-        marital_status = VALUES(marital_status),
-        spouse_accompanying = VALUES(spouse_accompanying),
-        address_country = VALUES(address_country),
-        address_state = VALUES(address_state),
-        address_suburb = VALUES(address_suburb),
-        address_postcode = VALUES(address_postcode),
-        contact1 = VALUES(contact1),
-        contact2 = VALUES(contact2),
-        email = VALUES(email),
-        spouse_age = VALUES(spouse_age),
-        updated_at = CURRENT_TIMESTAMP;
-    
-    SELECT registration_id AS reg_id FROM student_registrations WHERE student_id = p_student_id ORDER BY created_at DESC LIMIT 1;
-END$$
+                INSERT INTO student_registrations (
+                    student_id, passport_name, first_name, last_name, age, dob, gender, marital_status, spouse_accompanying,
+                    address_country, address_state, address_suburb, address_postcode, contact1_code, contact1,
+                    contact2_code, contact2, email, citizenship_country, passport_country,
+                    has_second_passport, second_passport_country, highest_education, education_field,
+                    spouse_age, contact1_whatsapp, contact1_bot, contact1_telegram,
+                    contact2_whatsapp, contact2_bot, contact2_telegram,
+                    has_skill_assessment, skill_assessment_interest,
+                    has_language_interest, has_admission_interest
+                )
+                VALUES (
+                    p_student_id, p_passport_name, p_first_name, p_last_name, p_age, p_dob, p_gender, p_marital_status, p_spouse_accompanying,
+                    p_address_country, p_address_state, p_address_suburb, p_address_postcode, p_contact1_code, p_contact1,
+                    p_contact2_code, p_contact2, p_email, p_citizenship_country, p_passport_country,
+                    p_has_second_passport, p_second_passport_country, p_highest_education, p_education_field,
+                    p_spouse_age, p_c1_whatsapp, p_c1_bot, p_c1_telegram,
+                    p_c2_whatsapp, p_c2_bot, p_c2_telegram,
+                    p_has_skill_assessment, p_skill_assessment_interest,
+                    p_has_language_interest, p_has_admission_interest
+                )
+                ON DUPLICATE KEY UPDATE
+                    passport_name = VALUES(passport_name),
+                    first_name = VALUES(first_name),
+                    last_name = VALUES(last_name),
+                    age = VALUES(age),
+                    dob = VALUES(dob),
+                    gender = VALUES(gender),
+                    marital_status = VALUES(marital_status),
+                    spouse_accompanying = VALUES(spouse_accompanying),
+                    address_country = VALUES(address_country),
+                    address_state = VALUES(address_state),
+                    address_suburb = VALUES(address_suburb),
+                    address_postcode = VALUES(address_postcode),
+                    contact1_code = VALUES(contact1_code),
+                    contact1 = VALUES(contact1),
+                    contact1_whatsapp = VALUES(contact1_whatsapp),
+                    contact1_bot = VALUES(contact1_bot),
+                    contact1_telegram = VALUES(contact1_telegram),
+                    contact2_code = VALUES(contact2_code),
+                    contact2 = VALUES(contact2),
+                    contact2_whatsapp = VALUES(contact2_whatsapp),
+                    contact2_bot = VALUES(contact2_bot),
+                    contact2_telegram = VALUES(contact2_telegram),
+                    email = VALUES(email),
+                    citizenship_country = VALUES(citizenship_country),
+                    passport_country = VALUES(passport_country),
+                    has_second_passport = VALUES(has_second_passport),
+                    second_passport_country = VALUES(second_passport_country),
+                    highest_education = VALUES(highest_education),
+                    education_field = VALUES(education_field),
+                    spouse_age = VALUES(spouse_age),
+                    has_skill_assessment = VALUES(has_skill_assessment),
+                    skill_assessment_interest = VALUES(skill_assessment_interest),
+                    has_language_interest = VALUES(has_language_interest),
+                    has_admission_interest = VALUES(has_admission_interest),
+                    updated_at = CURRENT_TIMESTAMP;
+                
+                SELECT registration_id AS reg_id FROM student_registrations WHERE student_id = p_student_id ORDER BY created_at DESC LIMIT 1;
+            END$$
 DELIMITER ;
 
 DELIMITER $$
