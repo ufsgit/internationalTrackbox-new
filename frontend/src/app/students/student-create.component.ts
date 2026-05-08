@@ -68,6 +68,12 @@ export class StudentCreateComponent implements OnInit {
     filteredDepartments: any[] = [];
     filteredStatuses: any[] = [];
     users: any[] = [];
+    
+    // Static Year Options for dropdowns
+    yearOptions = Array.from({length: 8}, (_, i) => {
+        const y = String(new Date().getFullYear() - 1 + i);
+        return { label: y, value: y };
+    });
 
     // Master Data Lookups
     lookups = {
@@ -75,7 +81,7 @@ export class StudentCreateComponent implements OnInit {
         levels: [] as any[],
         intakes: [] as any[],
         occupations: [] as any[],
-        years: [] as any[],
+        years: Array.from({length: 8}, (_, i) => ({ name: String(new Date().getFullYear() - 1 + i) })),
         fields: [] as any[],
         categories: [] as any[],
         visaCategories: [] as any[],
@@ -107,7 +113,11 @@ export class StudentCreateComponent implements OnInit {
     ) { }
 
     formatLookup(items: any[]): { label: string, value: string }[] {
-        return items.map(i => ({ label: i.name, value: i.name }));
+        if (!items || !Array.isArray(items)) return [];
+        return items.map(i => {
+            const val = (i && typeof i === 'object') ? i.name : i;
+            return { label: String(val || ''), value: String(val || '') };
+        });
     }
 
     onNumberInput(event: any, field: 'mobile_number' | 'phone_number') {
@@ -117,6 +127,7 @@ export class StudentCreateComponent implements OnInit {
     }
 
     ngOnInit() {
+        this.refreshFormattedLookups(); // Populate initial local data (like years)
         this.loadInitialData();
         this.route.params.subscribe(params => {
             if (params['id']) {
@@ -156,7 +167,11 @@ export class StudentCreateComponent implements OnInit {
         this.loadingService.show();
         this.studentService.getLookups().subscribe({
             next: (data) => {
+                const generatedYears = this.lookups.years;
                 this.lookups = data;
+                if (!this.lookups.years || this.lookups.years.length === 0) {
+                    this.lookups.years = generatedYears;
+                }
                 this.refreshFormattedLookups();
                 this.loadingService.hide();
             },
@@ -169,7 +184,14 @@ export class StudentCreateComponent implements OnInit {
         this.formattedLookups.levels = this.formatLookup(this.lookups.levels);
         this.formattedLookups.intakes = this.formatLookup(this.lookups.intakes);
         this.formattedLookups.occupations = this.formatLookup(this.lookups.occupations);
-        this.formattedLookups.years = this.formatLookup(this.lookups.years);
+        
+        // Year options - prefer generated list for reliability
+        const yearList = (this.lookups.years && this.lookups.years.length > 0) 
+            ? this.lookups.years 
+            : Array.from({length: 8}, (_, i) => String(new Date().getFullYear() - 1 + i));
+            
+        this.formattedLookups.years = this.formatLookup(yearList);
+        
         this.formattedLookups.fields = this.formatLookup(this.lookups.fields);
         this.formattedLookups.categories = this.formatLookup(this.lookups.categories);
         this.formattedLookups.visaCategories = this.formatLookup(this.lookups.visaCategories);

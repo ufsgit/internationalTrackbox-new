@@ -246,3 +246,204 @@ h4,
 .t-muted { color: var(--text-muted); font-size: 0.85em; }
 .font-bold { font-weight: 600; }
 .mt-05 { margin-top: 2px; }
+
+/* ============================================
+   NG-SELECT — Global Styling Fix
+   Matches existing form input height/border/radius
+   ============================================ */
+
+/* Container wrapper */
+.ng-select {
+    width: 100%;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-size: 0.875rem;
+}
+
+/* The visible input box */
+.ng-select .ng-select-container {
+    min-height: 38px !important;
+    height: 38px !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 6px !important;
+    background-color: #ffffff !important;
+    font-size: 0.875rem !important;
+    color: #1e293b !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 10px !important;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+    box-shadow: none !important;
+    cursor: pointer;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Focus state */
+.ng-select.ng-select-focused .ng-select-container {
+    border-color: #2563eb !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12) !important;
+    outline: none !important;
+}
+
+/* The inner value area */
+.ng-select .ng-value-container {
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 !important;
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+    flex: 1;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+/* Selected value text */
+.ng-select .ng-value {
+    display: flex !important;
+    align-items: center !important;
+    font-size: 0.875rem !important;
+    color: #1e293b !important;
+    margin-left: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Placeholder — only visible when nothing selected */
+.ng-select .ng-placeholder {
+    color: #94a3b8 !important;
+    font-size: 0.875rem !important;
+    position: static !important;
+    padding-left: 2px;
+    /* prevent overlap with value */
+    display: none;
+}
+
+.ng-select.ng-select-clearable .ng-select-container:not(.ng-has-value) .ng-placeholder,
+.ng-select:not(.ng-select-clearable) .ng-select-container:not(.ng-has-value) .ng-placeholder {
+    display: block !important;
+}
+
+/* Arrow icon */
+.ng-select .ng-arrow-wrapper {
+    width: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+    flex-shrink: 0;
+}
+
+.ng-select .ng-arrow {
+    border-color: #64748b transparent transparent !important;
+    border-width: 5px 4px 0 !important;
+}
+
+/* Clear button */
+.ng-select .ng-clear-wrapper {
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+}
+
+/* ---- Dropdown Panel ---- */
+.ng-dropdown-panel {
+    z-index: 99999 !important;
+    position: absolute !important;
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 6px !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+    margin-top: 2px;
+    overflow: hidden;
+}
+
+.ng-dropdown-panel .ng-dropdown-panel-items {
+    max-height: 220px !important;
+    overflow-y: auto !important;
+}
+
+/* Inline search input inside dropdown */
+.ng-dropdown-panel .ng-dropdown-header {
+    border-bottom: 1px solid #e2e8f0;
+    padding: 6px 10px;
+    background: #f8fafc;
+}
+
+/* Each option row */
+.ng-dropdown-panel .ng-option {
+    padding: 9px 12px !important;
+    font-size: 0.875rem !important;
+    color: #1e293b !important;
+    background-color: #ffffff !important;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: background 0.1s;
+}
+
+.ng-dropdown-panel .ng-option:hover,
+.ng-dropdown-panel .ng-option.ng-option-marked {
+    background-color: #eff6ff !important;
+    color: #2563eb !important;
+}
+
+.ng-dropdown-panel .ng-option.ng-option-selected {
+    background-color: #dbeafe !important;
+    color: #1d4ed8 !important;
+    font-weight: 500;
+}
+
+.ng-dropdown-panel .ng-option.ng-option-disabled {
+    color: #94a3b8 !important;
+    cursor: not-allowed;
+}
+
+/* Search box inside the dropdown */
+.ng-dropdown-panel input.ng-input {
+    padding: 4px 8px !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 4px !important;
+    font-size: 0.85rem !important;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Input inside ng-select container (typing filter) */
+.ng-select .ng-input {
+    position: absolute !important;
+    left: 14px !important;
+    right: 38px !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 !important;
+    padding-left: 4px !important;
+}
+
+.ng-select .ng-input > input {
+    font-size: 0.875rem !important;
+    color: #1e293b !important;
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+    width: 100% !important;
+    padding: 0 !important;
+    padding-left: 4px !important;
+    line-height: 38px !important;
+}
+
+/* Fix for value container height when inside a flex row */
+.ng-select.ng-select-single .ng-select-container .ng-value-container {
+    align-items: center !important;
+}
+
+/* Prevent overflow issues in table rows */
+ng-select {
+    display: block;
+    position: relative;
+}
+

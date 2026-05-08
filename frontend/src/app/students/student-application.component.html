@@ -91,10 +91,7 @@
                 <div class="form-row">
                     <div class="form-group flex-1">
                         <label>Country <span class="required" *ngIf="isAddressCountryMandatory">*</span></label>
-                        <select [(ngModel)]="application.address_country">
-                            <option value="">Select Country</option>
-                            <option *ngFor="let c of lookups.countries" [value]="c.name">{{c.name}}</option>
-                        </select>
+                        <ng-select appendTo="body" [items]="lookups.countries" bindLabel="name" bindValue="name" placeholder="Select Country" [searchable]="true" [clearable]="true" [(ngModel)]="application.address_country"></ng-select>
                     </div>
                     <div class="form-group flex-1">
                         <label>State / Territory <span class="required" *ngIf="isAddressStateMandatory">*</span></label>
@@ -178,10 +175,7 @@
                 <div class="form-row">
                     <div class="form-group flex-1">
                         <label>Select Country</label>
-                        <select [(ngModel)]="application.citizenship_country">
-                            <option value="">Select Country</option>
-                            <option *ngFor="let c of lookups.countries" [value]="c.name">{{c.name}}</option>
-                        </select>
+                        <ng-select appendTo="body" [items]="lookups.countries" bindLabel="name" bindValue="name" placeholder="Select Country" [searchable]="true" [clearable]="true" [(ngModel)]="application.citizenship_country"></ng-select>
                     </div>
                 </div>
             </section>
@@ -203,18 +197,9 @@
                                         <div style="width: 34px;"></div>
                                     </div>
                                     <div *ngFor="let q of application.education_data?.additional; let i = index" style="display: flex; align-items: center; gap: 10px; width: 100%; margin-top: 5px;">
-                                        <select [(ngModel)]="q.country" style="flex: 0 0 20%; min-width: 0;">
-                                            <option value="">Country</option>
-                                            <option *ngFor="let c of lookups.countries" [value]="c.name">{{c.name}}</option>
-                                        </select>
-                                        <select [(ngModel)]="q.level" style="flex: 0 0 20%; min-width: 0;">
-                                            <option value="">Level</option>
-                                            <option *ngFor="let l of lookups.levels" [value]="l.name">{{l.name}}</option>
-                                        </select>
-                                        <select [(ngModel)]="q.field" style="flex: 0 0 20%; min-width: 0;">
-                                            <option value="">Field</option>
-                                            <option *ngFor="let f of lookups.fields" [value]="f.name">{{f.name}}</option>
-                                        </select>
+                                        <ng-select appendTo="body" [items]="lookups.countries" bindLabel="name" bindValue="name" placeholder="Country" [searchable]="true" [clearable]="true" [(ngModel)]="q.country" style="flex: 0 0 20%; min-width: 0;"></ng-select>
+                                        <ng-select appendTo="body" [items]="lookups.levels" bindLabel="name" bindValue="name" placeholder="Level" [searchable]="true" [clearable]="true" [(ngModel)]="q.level" style="flex: 0 0 20%; min-width: 0;"></ng-select>
+                                        <ng-select appendTo="body" [items]="lookups.fields" bindLabel="name" bindValue="name" placeholder="Field" [searchable]="true" [clearable]="true" [(ngModel)]="q.field" style="flex: 0 0 20%; min-width: 0;"></ng-select>
                                         <select [(ngModel)]="q.status" style="flex: 0 0 15%; min-width: 0;">
                                             <option value="Completed">Completed</option>
                                             <option value="Not Completed">Not Completed</option>
@@ -258,10 +243,7 @@
                             style="display: flex; flex-wrap: wrap; align-items: flex-start; gap: 15px; margin-top: 10px; padding: 15px; background: #f0f4ff; border-radius: 8px; border: 1px solid #dbeafe; width: 100%; position: relative;">
                             <div style="display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 150px;">
                                 <label style="font-size: 0.85rem; color: #1e40af; font-weight: 600; margin: 0;">Country of Employment</label>
-                                <select [(ngModel)]="exp.employment_country" style="width: 100%;">
-                                    <option value="">Select country</option>
-                                    <option *ngFor="let c of lookups.countries" [value]="c.name">{{c.name}}</option>
-                                </select>
+                                <ng-select appendTo="body" [items]="lookups.countries" bindLabel="name" bindValue="name" placeholder="Select country" [searchable]="true" [clearable]="true" [(ngModel)]="exp.employment_country" style="width: 100%;"></ng-select>
                             </div>
                             <div style="display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 150px;">
                                 <label style="font-size: 0.85rem; color: #1e40af; font-weight: 600; margin: 0;">Job Title</label>
@@ -337,14 +319,8 @@
                                 <div style="width: 34px;"></div>
                             </div>
                             <div *ngFor="let item of application.skill_assessment_list; let i = index" style="display: flex; align-items: center; gap: 10px; width: 100%; margin-top: 5px;">
-                                <select [(ngModel)]="item.country" style="flex: 1;">
-                                    <option value="">Select Country</option>
-                                    <option *ngFor="let c of lookups.countries" [value]="c.name">{{c.name}}</option>
-                                </select>
-                                <select [(ngModel)]="item.authority" style="flex: 1;">
-                                    <option value="">Select Authority</option>
-                                    <option *ngFor="let a of lookups.boardAuthorities" [value]="a.name">{{a.name}}</option>
-                                </select>
+                                <ng-select appendTo="body" [items]="lookups.countries" bindLabel="name" bindValue="name" placeholder="Select Country" [searchable]="true" [clearable]="true" [(ngModel)]="item.country" style="flex: 1;"></ng-select>
+                                <ng-select appendTo="body" [items]="lookups.boardAuthorities" bindLabel="name" bindValue="name" placeholder="Select Authority" [searchable]="true" [clearable]="true" [(ngModel)]="item.authority" style="flex: 1;"></ng-select>
                                 <select [(ngModel)]="item.status" style="flex: 1;">
                                     <option value="">Status</option>
                                     <option value="Completed">Completed</option>
@@ -397,10 +373,7 @@
                              <div *ngIf="application.interested_in_lang_coaching" style="display: flex; align-items: center; gap: 16px; margin-top: 10px;">
                                 <div style="display: flex; align-items: center; gap: 8px;">
                                     <span style="font-size: 0.85rem; font-weight: 600; color: #475569;">Course:</span>
-                                    <select [(ngModel)]="application.lang_coaching_course" style="padding: 4px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.85rem; width: 180px;">
-                                        <option value="">Select Course</option>
-                                        <option *ngFor="let c of lookups.languageCourses" [value]="c.name">{{c.name}}</option>
-                                    </select>
+                                    <ng-select appendTo="body" [items]="lookups.languageCourses" bindLabel="name" bindValue="name" placeholder="Select Course" [searchable]="true" [clearable]="true" [(ngModel)]="application.lang_coaching_course" style="width: 180px;"></ng-select>
                                 </div>
                                 <div style="display: flex; align-items: center; gap: 8px;">
                                     <span style="font-size: 0.85rem; font-weight: 600; color: #475569;">Expected date to join:</span>
@@ -421,10 +394,7 @@
                                 </div>
                                 
                                 <div *ngFor="let test of application.language_test_list; let i = index" style="display: flex; align-items: center; gap: 10px; width: 100%;">
-                                    <select [(ngModel)]="test.type" style="flex: 1;">
-                                        <option value="">Select Test</option>
-                                        <option *ngFor="let c of lookups.languageCourses" [value]="c.name">{{c.name}}</option>
-                                    </select>
+                                    <ng-select appendTo="body" [items]="lookups.languageCourses" bindLabel="name" bindValue="name" placeholder="Select Test" [searchable]="true" [clearable]="true" [(ngModel)]="test.type" style="flex: 1;"></ng-select>
                                     <input type="text" [(ngModel)]="test.writing" style="flex: 1;">
                                     <input type="text" [(ngModel)]="test.listening" style="flex: 1;">
                                     <input type="text" [(ngModel)]="test.speaking" style="flex: 1;">
@@ -473,10 +443,7 @@
                              <div *ngIf="application.interested_in_admission_coaching" style="display: flex; align-items: center; gap: 16px; margin-top: 10px;">
                                 <div style="display: flex; align-items: center; gap: 8px;">
                                     <span style="font-size: 0.85rem; font-weight: 600; color: #475569;">Course:</span>
-                                    <select [(ngModel)]="application.admission_coaching_course" style="padding: 4px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.85rem; width: 180px;">
-                                        <option value="">Select Course</option>
-                                        <option *ngFor="let c of lookups.admissionCourses" [value]="c.name">{{c.name}}</option>
-                                    </select>
+                                    <ng-select appendTo="body" [items]="lookups.admissionCourses" bindLabel="name" bindValue="name" placeholder="Select Course" [searchable]="true" [clearable]="true" [(ngModel)]="application.admission_coaching_course" style="width: 180px;"></ng-select>
                                 </div>
                                 <div style="display: flex; align-items: center; gap: 8px;">
                                     <span style="font-size: 0.85rem; font-weight: 600; color: #475569;">Expected date to join:</span>
@@ -496,10 +463,7 @@
                                 </div>
                                 
                                 <div *ngFor="let test of application.admission_test_list; let i = index" style="display: flex; align-items: center; gap: 10px; width: 100%;">
-                                    <select [(ngModel)]="test.type" style="flex: 1;">
-                                        <option value="">Select Test</option>
-                                        <option *ngFor="let c of lookups.admissionCourses" [value]="c.name">{{c.name}}</option>
-                                    </select>
+                                    <ng-select appendTo="body" [items]="lookups.admissionCourses" bindLabel="name" bindValue="name" placeholder="Select Test" [searchable]="true" [clearable]="true" [(ngModel)]="test.type" style="flex: 1;"></ng-select>
                                     <input type="text" [(ngModel)]="test.quant" style="flex: 1;">
                                     <input type="text" [(ngModel)]="test.verbal" style="flex: 1;">
                                     <input type="text" [(ngModel)]="test.data_insights" style="flex: 1;">
@@ -553,18 +517,9 @@
                                         <div style="width: 34px;"></div>
                                     </div>
                                     <div *ngFor="let q of application.spouse_education; let i = index" style="display: flex; align-items: center; gap: 10px; width: 100%; margin-top: 5px;">
-                                        <select [(ngModel)]="q.country" style="flex: 0 0 20%; min-width: 0;">
-                                            <option value="">Country</option>
-                                            <option *ngFor="let c of lookups.countries" [value]="c.name">{{c.name}}</option>
-                                        </select>
-                                        <select [(ngModel)]="q.level" style="flex: 0 0 20%; min-width: 0;">
-                                            <option value="">Level</option>
-                                            <option *ngFor="let l of lookups.levels" [value]="l.name">{{l.name}}</option>
-                                        </select>
-                                        <select [(ngModel)]="q.field" style="flex: 0 0 20%; min-width: 0;">
-                                            <option value="">Field</option>
-                                            <option *ngFor="let f of lookups.fields" [value]="f.name">{{f.name}}</option>
-                                        </select>
+                                        <ng-select appendTo="body" [items]="lookups.countries" bindLabel="name" bindValue="name" placeholder="Country" [searchable]="true" [clearable]="true" [(ngModel)]="q.country" style="flex: 0 0 20%; min-width: 0;"></ng-select>
+                                        <ng-select appendTo="body" [items]="lookups.levels" bindLabel="name" bindValue="name" placeholder="Level" [searchable]="true" [clearable]="true" [(ngModel)]="q.level" style="flex: 0 0 20%; min-width: 0;"></ng-select>
+                                        <ng-select appendTo="body" [items]="lookups.fields" bindLabel="name" bindValue="name" placeholder="Field" [searchable]="true" [clearable]="true" [(ngModel)]="q.field" style="flex: 0 0 20%; min-width: 0;"></ng-select>
                                         <select [(ngModel)]="q.status" style="flex: 0 0 15%; min-width: 0;">
                                             <option value="Completed">Completed</option>
                                             <option value="Not Completed">Not Completed</option>
@@ -614,10 +569,7 @@
                             style="display: flex; flex-wrap: wrap; align-items: flex-start; gap: 15px; margin-top: 10px; padding: 15px; background: white; border-radius: 8px; border: 1px solid #e2e8f0; width: 100%; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
                             <div style="display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 150px;">
                                 <label style="font-size: 0.85rem; color: #1e40af; font-weight: 600; margin: 0;">Country of Employment</label>
-                                <select [(ngModel)]="exp.employment_country" style="width: 100%;">
-                                    <option value="">Select country</option>
-                                    <option *ngFor="let c of lookups.countries" [value]="c.name">{{c.name}}</option>
-                                </select>
+                                <ng-select appendTo="body" [items]="lookups.countries" bindLabel="name" bindValue="name" placeholder="Select country" [searchable]="true" [clearable]="true" [(ngModel)]="exp.employment_country" style="width: 100%;"></ng-select>
                             </div>
                             <div style="display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 150px;">
                                 <label style="font-size: 0.85rem; color: #1e40af; font-weight: 600; margin: 0;">Job Title</label>
@@ -680,10 +632,7 @@
                             <div *ngIf="application.spouse_interested_in_lang_coaching" style="display: flex; align-items: center; gap: 16px; margin-top: 10px;">
                                 <div style="display: flex; align-items: center; gap: 8px;">
                                     <span style="font-size: 0.85rem; font-weight: 600; color: #475569;">Course:</span>
-                                    <select [(ngModel)]="application.spouse_lang_coaching_course" style="padding: 4px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.85rem; width: 180px;">
-                                        <option value="">Select Course</option>
-                                        <option *ngFor="let c of lookups.languageCourses" [value]="c.name">{{c.name}}</option>
-                                    </select>
+                                    <ng-select appendTo="body" [items]="lookups.languageCourses" bindLabel="name" bindValue="name" placeholder="Select Course" [searchable]="true" [clearable]="true" [(ngModel)]="application.spouse_lang_coaching_course" style="width: 180px;"></ng-select>
                                 </div>
                                 <div style="display: flex; align-items: center; gap: 8px;">
                                     <span style="font-size: 0.85rem; font-weight: 600; color: #475569;">Expected date to join:</span>
@@ -704,10 +653,7 @@
                                 </div>
                                 
                                 <div *ngFor="let test of application.spouse_language_test_list; let i = index" style="display: flex; align-items: center; gap: 10px; width: 100%;">
-                                    <select [(ngModel)]="test.type" style="flex: 1;">
-                                        <option value="">Select Test</option>
-                                        <option *ngFor="let c of lookups.languageCourses" [value]="c.name">{{c.name}}</option>
-                                    </select>
+                                    <ng-select appendTo="body" [items]="lookups.languageCourses" bindLabel="name" bindValue="name" placeholder="Select Test" [searchable]="true" [clearable]="true" [(ngModel)]="test.type" style="flex: 1;"></ng-select>
                                     <input type="text" [(ngModel)]="test.writing" style="flex: 1;">
                                     <input type="text" [(ngModel)]="test.listening" style="flex: 1;">
                                     <input type="text" [(ngModel)]="test.speaking" style="flex: 1;">
@@ -779,23 +725,9 @@
                                 <div style="width: 34px;"></div>
                             </div>
                             <div *ngFor="let rel of application.relatives_list; let i = index" style="display: flex; align-items: center; gap: 10px; width: 100%; margin-top: 5px;">
-                                <select [(ngModel)]="rel.country" style="flex: 1;">
-                                    <option value="">Select Country</option>
-                                    <option *ngFor="let c of interestedCountries" [value]="c">{{c}}</option>
-                                    <option *ngIf="interestedCountries.length === 0" disabled>No interests added yet</option>
-                                </select>
-                                <select [(ngModel)]="rel.relationship" style="flex: 1;">
-                                    <option value="">Relationship</option>
-                                    <option value="Parent">Parent</option>
-                                    <option value="Sibling">Sibling</option>
-                                    <option value="Uncle/Aunty">Uncle/Aunty</option>
-                                    <option value="Cousin">Cousin</option>
-                                    <option value="Friend">Friend</option>
-                                </select>
-                                <select [(ngModel)]="rel.related_to" style="flex: 1;">
-                                    <option value="Applicant">Related to Applicant</option>
-                                    <option value="Spouse">Related to Spouse</option>
-                                </select>
+                                <ng-select appendTo="body" [items]="interestedCountries" placeholder="Select Country" [searchable]="true" [clearable]="true" [(ngModel)]="rel.country" style="flex: 1;"></ng-select>
+                                <ng-select appendTo="body" [items]="relationshipOptions" placeholder="Relationship" [searchable]="true" [clearable]="true" [(ngModel)]="rel.relationship" style="flex: 1;"></ng-select>
+                                <ng-select appendTo="body" [items]="relatedToOptions" bindLabel="label" bindValue="value" placeholder="Related To" [searchable]="true" [clearable]="true" [(ngModel)]="rel.related_to" style="flex: 1;"></ng-select>
                                 <button type="button" class="btn btn-sm" (click)="removeRelative(i)"
                                     style="background: #fdf2f2; color: #e74c3c; border: 1px solid #fee2e2; height: 34px; width: 34px; padding: 0; display: flex; align-items: center; justify-content: center; font-size: 20px; border-radius: 50%;">
                                     &times;
@@ -926,7 +858,7 @@
                                         <input type="text" placeholder="Employer (Optional)">
                                     </div>
                                     <div *ngSwitchCase="'COACHING'" class="details-row-inputs">
-                                        <select [(ngModel)]="p.course" (change)="syncSuggestedProgStrings(p)" style="flex: 0 0 55%; min-width: 0;">
+                                        <select [(ngModel)]="p.course" (change)="syncSuggestedProgStrings(p)" style="flex: 0 0 50%; min-width: 0;">
                                             <option value="">-- Select Course --</option>
                                             <option *ngFor="let c of lookups.coachingCourses" [value]="c.name">{{c.name}}</option>
                                         </select>
@@ -1005,7 +937,7 @@
     <option *ngFor="let f of lookups.fields" [value]="f.name"></option>
 </datalist>
 <datalist id="yearList">
-    <option *ngFor="let y of lookups.years" [value]="y.name"></option>
+    <option *ngFor="let y of yearOptions" [value]="y"></option>
 </datalist>
 <datalist id="categoryList">
     <option *ngFor="let c of lookups.categories" [value]="c.name"></option>

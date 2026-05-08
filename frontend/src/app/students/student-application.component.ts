@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { NgSelectModule } from '@ng-select/ng-select';
 import { StudentService } from '../shared/student.service';
 import { UserService } from '../shared/user.service';
 import { DialogService } from '../shared/dialog.service';
@@ -12,7 +13,7 @@ import { LoadingService } from '../shared/loading.service';
 @Component({
     selector: 'app-student-application',
     standalone: true,
-    imports: [CommonModule, RouterModule, FormsModule],
+    imports: [CommonModule, RouterModule, FormsModule, NgSelectModule],
     templateUrl: './student-application.component.html',
     styleUrls: ['./student-application.component.css']
 })
@@ -100,6 +101,15 @@ export class StudentApplicationComponent implements OnInit {
     allAppStatuses: any[] = [];
     appSubStatuses: { [key: number]: any[] } = {};
 
+    // Year options for intake year datalist - generated locally, independent of API
+    yearOptions: string[] = Array.from({length: 8}, (_, i) => String(new Date().getFullYear() - 1 + i));
+
+    relationshipOptions = ['Parent', 'Sibling', 'Uncle/Aunty', 'Cousin', 'Friend'];
+    relatedToOptions = [
+        { label: 'Related to Applicant', value: 'Applicant' },
+        { label: 'Related to Spouse', value: 'Spouse' }
+    ];
+
     lookups: any = {
         countries: [],
         levels: [],
@@ -108,7 +118,13 @@ export class StudentApplicationComponent implements OnInit {
         coachingCourses: [],
         admissionCourses: [],
         languageCourses: [],
-        boardAuthorities: []
+        boardAuthorities: [],
+        intakes: [],
+        occupations: [],
+        years: ((): {name: string}[] => {
+            const currentYear = new Date().getFullYear();
+            return Array.from({length: 8}, (_, i) => ({ name: String(currentYear - 1 + i) }));
+        })()
     };
 
     constructor(
@@ -184,7 +200,14 @@ export class StudentApplicationComponent implements OnInit {
         this.loadingService.show();
         this.studentService.getLookups().subscribe({
             next: (data: any) => {
+                // Preserve the generated years list if API doesn't return one
+                const generatedYears = this.lookups.years;
                 this.lookups = data;
+                if (!this.lookups.years || this.lookups.years.length === 0) {
+                    this.lookups.years = generatedYears;
+                }
+                if (!this.lookups.intakes) this.lookups.intakes = [];
+                if (!this.lookups.occupations) this.lookups.occupations = [];
                 this.loadingService.hide();
             },
             error: () => this.loadingService.hide()
@@ -848,6 +871,7 @@ export class StudentApplicationComponent implements OnInit {
         return !this.suggestedPrograms.some(p => p.type.toUpperCase() === 'MIGRATION');
     }
 
+    private _lastInterestedCountries: string[] = [];
     get interestedCountries(): string[] {
         const countries: string[] = [];
         
@@ -873,7 +897,7 @@ export class StudentApplicationComponent implements OnInit {
         
         const unique = [...new Set(countries)];
         const order = ['Canada', 'Australia', 'New Zealand'];
-        return unique.sort((a, b) => {
+        const current = unique.sort((a, b) => {
             const idxA = order.indexOf(a);
             const idxB = order.indexOf(b);
             if (idxA !== -1 && idxB !== -1) return idxA - idxB;
@@ -881,6 +905,12 @@ export class StudentApplicationComponent implements OnInit {
             if (idxB !== -1) return 1;
             return a.localeCompare(b);
         });
+
+        if (JSON.stringify(current) === JSON.stringify(this._lastInterestedCountries)) {
+            return this._lastInterestedCountries;
+        }
+        this._lastInterestedCountries = current;
+        return current;
     }
 
     get migrationCountries(): string[] {

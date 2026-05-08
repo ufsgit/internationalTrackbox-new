@@ -2,6 +2,7 @@ import { Component, OnInit, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { NgSelectModule } from '@ng-select/ng-select';
 import { StudentService } from '../shared/student.service';
 import { UserService } from '../shared/user.service';
 import { DialogService } from '../shared/dialog.service';
@@ -12,7 +13,7 @@ import { LoadingService } from '../shared/loading.service';
 @Component({
     selector: 'app-student-registration',
     standalone: true,
-    imports: [CommonModule, RouterModule, FormsModule],
+    imports: [CommonModule, RouterModule, FormsModule, NgSelectModule],
     templateUrl: './student-registration.component.html',
     styleUrls: ['./student-registration.component.css']
 })
@@ -132,6 +133,15 @@ export class StudentRegistrationComponent implements OnInit {
     allAppStatuses: any[] = [];
     appSubStatuses: { [key: number]: any[] } = {};
 
+    // Year options for intake year datalist - generated locally, independent of API
+    yearOptions: string[] = Array.from({length: 8}, (_, i) => String(new Date().getFullYear() - 1 + i));
+
+    relationshipOptions = ['Parent', 'Sibling', 'Uncle/Aunty', 'Cousin', 'Friend'];
+    relatedToOptions = [
+        { label: 'Related to Applicant', value: 'Applicant' },
+        { label: 'Related to Spouse', value: 'Spouse' }
+    ];
+
     lookups: any = {
         countries: [],
         levels: [],
@@ -140,7 +150,13 @@ export class StudentRegistrationComponent implements OnInit {
         coachingCourses: [],
         admissionCourses: [],
         languageCourses: [],
-        boardAuthorities: []
+        boardAuthorities: [],
+        intakes: [],
+        occupations: [],
+        years: ((): {name: string}[] => {
+            const currentYear = new Date().getFullYear();
+            return Array.from({length: 8}, (_, i) => ({ name: String(currentYear - 1 + i) }));
+        })()
     };
 
     constructor(
@@ -256,7 +272,14 @@ export class StudentRegistrationComponent implements OnInit {
         this.studentService.getLookups().subscribe({
             next: (data: any) => {
                 this.loadingService.hide();
+                // Preserve the generated years list if API doesn't return one
+                const generatedYears = this.lookups.years;
                 this.lookups = data;
+                if (!this.lookups.years || this.lookups.years.length === 0) {
+                    this.lookups.years = generatedYears;
+                }
+                if (!this.lookups.intakes) this.lookups.intakes = [];
+                if (!this.lookups.occupations) this.lookups.occupations = [];
             },
             error: () => this.loadingService.hide()
         });
@@ -852,6 +875,7 @@ export class StudentRegistrationComponent implements OnInit {
         return [...new Set(countries)].sort();
     }
 
+    private _lastInterestedCountries: string[] = [];
     get interestedCountries(): string[] {
         const countries: string[] = [];
         
@@ -871,7 +895,12 @@ export class StudentRegistrationComponent implements OnInit {
             });
         }
         
-        return [...new Set(countries)].sort();
+        const current = [...new Set(countries)].sort();
+        if (JSON.stringify(current) === JSON.stringify(this._lastInterestedCountries)) {
+            return this._lastInterestedCountries;
+        }
+        this._lastInterestedCountries = current;
+        return current;
     }
 
     get educationCountries(): string[] {

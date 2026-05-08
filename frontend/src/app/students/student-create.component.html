@@ -107,7 +107,7 @@
                                 <td><app-searchable-dropdown [options]="formattedLookups.levels" [allowEmpty]="false" placeholder="Level" [(ngModel)]="p.level"></app-searchable-dropdown></td>
                                 <td><app-searchable-dropdown [options]="formattedLookups.fields" [allowEmpty]="false" placeholder="Field" [(ngModel)]="p.field"></app-searchable-dropdown></td>
                                 <td><app-searchable-dropdown [options]="formattedLookups.intakes" [allowEmpty]="false" placeholder="Intake" [(ngModel)]="p.intake"></app-searchable-dropdown></td>
-                                <td><app-searchable-dropdown [options]="formattedLookups.years" [allowEmpty]="false" placeholder="Year" [(ngModel)]="p.year"></app-searchable-dropdown></td>
+                                <td><app-searchable-dropdown [options]="yearOptions" [allowEmpty]="false" placeholder="Year" [(ngModel)]="p.year"></app-searchable-dropdown></td>
                                 <td class="action-cell"><button class="btn-delete-icon"
                                         (click)="removeProgramRow('study', i)" title="Remove">×</button></td>
                             </tr>
