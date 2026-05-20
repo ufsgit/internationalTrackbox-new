@@ -209,4 +209,15 @@ export class SettingsService {
     deleteBoardAuthority(id: number): Observable<any> {
         return this.http.delete(`${this.apiUrl}/board_authorities/${id}`);
     }
+
+    // Other Type Management
+    getOtherTypes(): Observable<any[]> {
+        return this.http.get<any[]>(`${this.apiUrl}/other_types`);
+    }
+    saveOtherType(data: any): Observable<any> {
+        return this.http.post(`${this.apiUrl}/other_types`, data);
+    }
+    deleteOtherType(id: number): Observable<any> {
+        return this.http.delete(`${this.apiUrl}/other_types/${id}`);
+    }
 }

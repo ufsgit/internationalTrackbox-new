@@ -19,6 +19,7 @@ import { MigrationCategoryListComponent } from './settings/migration-category-li
 import { WorkCategoryListComponent } from './settings/work-category-list.component';
 import { VisaCategoryListComponent } from './settings/visa-category-list.component';
 import { CoachingCourseListComponent } from './settings/coaching-course-list.component';
+import { OtherTypeListComponent } from './settings/other-type-list.component';
 import { EnquiryReportComponent } from './reports/enquiry-report.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { authGuard } from './shared/auth.guard';
@@ -55,6 +56,7 @@ export const routes: Routes = [
             { path: 'settings/course-admission', component: CoachingCourseListComponent },
             { path: 'settings/course-language', component: CoachingCourseListComponent },
             { path: 'settings/board-authorities', loadComponent: () => import('./settings/board-authority-list.component').then(m => m.BoardAuthorityListComponent) },
+            { path: 'settings/other-types', component: OtherTypeListComponent },
             { path: 'reports/enquiry', component: EnquiryReportComponent },
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
         ]

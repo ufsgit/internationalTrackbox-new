@@ -1,22 +1,19 @@
-const mysql = require('mysql2');
-const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'root123',
-    database: 'internationaldb'
-});
+require('dotenv').config();
+const db = require('../src/config/db');
 
-db.connect(err => {
-    if (err) {
-        console.error(err);
-        process.exit(1);
-    }
-    db.query('SHOW PROCEDURE STATUS WHERE Db = "internationaldb"', (err, rows) => {
-        if (err) {
-            console.error(err);
+async function main() {
+    try {
+        console.log('--- STORED PROCEDURES CONTAINING suggested OR program ---');
+        const [rows] = await db.promise().query("SHOW PROCEDURE STATUS WHERE Db = DATABASE() AND (Name LIKE '%suggested%' OR Name LIKE '%program%')");
+        if (rows.length === 0) {
+            console.log('No matching stored procedures found.');
         } else {
-            console.log(rows.filter(r => r.Name.includes('Registration')).map(r => r.Name));
+            rows.forEach(r => console.log(`- ${r.Name}`));
         }
-        db.end();
-    });
-});
+    } catch (err) {
+        console.error('Error fetching SP list:', err);
+    }
+    process.exit(0);
+}
+
+main();

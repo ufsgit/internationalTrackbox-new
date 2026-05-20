@@ -853,3 +853,56 @@ input[type="radio"] {
     transform: scale(1.1);
     filter: brightness(1.1);
 }
+
+/* Button & Badge styling for Education Loan, Ticketing, Forex */
+.btn-type.loan {
+    background: #0284c7;
+}
+.btn-type.ticketing {
+    background: #ec4899;
+}
+.btn-type.forex {
+    background: #14b8a6;
+}
+
+.type-badge.education.loan,
+.type-badge.education_loan,
+.type-badge.education-loan,
+.type-badge.loan {
+    background-color: #0284c7;
+}
+
+.type-badge.ticketing {
+    background-color: #ec4899;
+}
+
+.type-badge.forex {
+    background-color: #14b8a6;
+}
+
+/* Unique Colors for Language, Admission, Spouse Language, and Skill Assessment buttons and badges */
+.btn-type.language {
+    background: #0f766e;
+}
+.btn-type.admission {
+    background: #ea580c;
+}
+.btn-type.spouse-language {
+    background: #8b5cf6;
+}
+.btn-type.skill-assessment {
+    background: #3b82f6;
+}
+
+.type-badge.language {
+    background-color: #0f766e;
+}
+.type-badge.admission {
+    background-color: #ea580c;
+}
+.type-badge.spouse-language {
+    background-color: #8b5cf6;
+}
+.type-badge.skill-assessment {
+    background-color: #3b82f6;
+}

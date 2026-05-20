@@ -224,7 +224,7 @@ const saveStudentApplication = (studentId, data) => {
 
                 // 1. Upsert Application Details (Core)
                 const [results] = await pConn.query(
-                    'CALL sp_UpsertStudentApplication_Core(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                    'CALL sp_UpsertStudentApplication_Core(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
                     [
                         studentId,
                         application.passport_name || '',
@@ -248,6 +248,7 @@ const saveStudentApplication = (studentId, data) => {
                         application.highest_education || '',
                         application.education_field || '',
                         application.spouse_age || null,
+                        toBoolInt(application.spouse_has_language_test),
                         toBoolInt(application.contact1_whatsapp),
                         toBoolInt(application.contact1_bot),
                         toBoolInt(application.contact1_telegram),
@@ -291,8 +292,8 @@ const saveStudentApplication = (studentId, data) => {
                 if (application.skill_assessment_list && application.skill_assessment_list.length > 0) {
                     const isInterest = toBoolInt(application.skill_assessment_interest);
                     for (const skill of application.skill_assessment_list) {
-                        await pConn.query('CALL sp_AddApplicationSkill(?, ?, ?, ?, ?, ?)', 
-                        [applicationId, skill.country, skill.authority, skill.status, skill.sub_status, isInterest]);
+                        await pConn.query('CALL sp_AddApplicationSkill(?, ?, ?, ?, ?, ?, ?)', 
+                        [applicationId, skill.country, skill.authority, skill.status, skill.sub_status, isInterest, skill.remarks || null]);
                     }
                 }
 
@@ -366,8 +367,8 @@ const saveStudentApplication = (studentId, data) => {
                 if (suggestedPrograms && suggestedPrograms.length > 0) {
                     for (const prog of suggestedPrograms) {
                         await pConn.query(
-                            'INSERT INTO suggested_programs (application_id, program_type, program, details, status, sub_status, remarks, is_selected, branch_id, department_id, assigned_to) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                            [applicationId, prog.type || 'OTHER', prog.program, prog.details, prog.status, prog.sub_status, prog.remarks, toBoolInt(prog.is_selected), prog.branch_id || null, prog.department_id || null, prog.assigned_to || null]
+                            'INSERT INTO suggested_programs (application_id, issystem, program_type, program, applied_for, details, details2, details3, status, sub_status, remarks, is_selected, branch_id, department_id, assigned_to) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                            [applicationId, toBoolInt(prog.issystem !== undefined ? prog.issystem : prog._isSystem), prog.type || 'OTHER', prog.program, prog.applied_for || null, prog.details || null, prog.details2 || null, prog.details3 || null, prog.status || null, prog.sub_status || null, prog.remarks || null, toBoolInt(prog.is_selected), prog.branch_id || null, prog.department_id || null, prog.assigned_to || null]
                         );
                     }
                 }
@@ -422,7 +423,7 @@ const saveStudentRegistration = (studentId, data) => {
 
                 // 1. Upsert Registration Details (Core)
                 const [results] = await pConn.query(
-                    'CALL sp_UpsertStudentRegistration_Core(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                    'CALL sp_UpsertStudentRegistration_Core(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
                     [
                         studentId,
                         app.passport_name || '',
@@ -449,6 +450,7 @@ const saveStudentRegistration = (studentId, data) => {
                         app.highest_education || '',
                         app.education_field || '',
                         app.spouse_age || null,
+                        toBoolInt(app.spouse_has_language_test),
                         toBoolInt(app.contact1_whatsapp),
                         toBoolInt(app.contact1_bot),
                         toBoolInt(app.contact1_telegram),
@@ -458,7 +460,9 @@ const saveStudentRegistration = (studentId, data) => {
                         toBoolInt(app.has_skill_assessment),
                         toBoolInt(app.skill_assessment_interest),
                         toBoolInt(app.interested_in_lang_coaching),
-                        toBoolInt(app.interested_in_admission_coaching)
+                        toBoolInt(app.interested_in_admission_coaching),
+                        toBoolInt(app.has_language_test),
+                        toBoolInt(app.has_admission_test)
                     ]
                 );
 
@@ -492,8 +496,8 @@ const saveStudentRegistration = (studentId, data) => {
                 if (app.skill_assessment_list && app.skill_assessment_list.length > 0) {
                     const isInterest = toBoolInt(app.skill_assessment_interest);
                     for (const skill of app.skill_assessment_list) {
-                        await pConn.query('CALL sp_AddRegistrationSkill(?, ?, ?, ?, ?, ?)', 
-                        [registrationId, skill.country, skill.authority, skill.status, skill.sub_status, isInterest]);
+                        await pConn.query('CALL sp_AddRegistrationSkill(?, ?, ?, ?, ?, ?, ?)', 
+                        [registrationId, skill.country, skill.authority, skill.status, skill.sub_status, isInterest, skill.remarks || null]);
                     }
                 }
 
@@ -567,8 +571,8 @@ const saveStudentRegistration = (studentId, data) => {
                 if (suggestedPrograms && suggestedPrograms.length > 0) {
                     for (const prog of suggestedPrograms) {
                         await pConn.query(
-                            'INSERT INTO registration_suggested_programs (registration_id, program_type, program, details, status, sub_status, remarks, is_selected, branch_id, department_id, assigned_to) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                            [registrationId, prog.type || 'OTHER', prog.program, prog.details, prog.status, prog.sub_status, prog.remarks, toBoolInt(prog.is_selected), prog.branch_id || null, prog.department_id || null, prog.assigned_to || null]
+                            'INSERT INTO registration_suggested_programs (registration_id, issystem, program_type, program, applied_for, details, details2, details3, status, sub_status, remarks, is_selected, branch_id, department_id, assigned_to) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                            [registrationId, toBoolInt(prog.issystem !== undefined ? prog.issystem : prog._isSystem), prog.type || 'OTHER', prog.program, prog.applied_for || null, prog.details || null, prog.details2 || null, prog.details3 || null, prog.status || null, prog.sub_status || null, prog.remarks || null, toBoolInt(prog.is_selected), prog.branch_id || null, prog.department_id || null, prog.assigned_to || null]
                         );
                     }
                 }

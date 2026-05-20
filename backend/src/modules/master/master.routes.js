@@ -12,21 +12,25 @@ const getLookups = () => {
     return new Promise((resolve, reject) => {
         db.query('CALL sp_GetMasterLookups()', (err, results) => {
             if (err) return reject(err);
-            resolve({
-                countries: results[0],
-                levels: results[1],
-                intakes: results[2],
-                occupations: results[3],
-                fields: results[4],
-                categories: results[5],
-                years: results[6],
-                enquirySources: results[7],
-                visaCategories: results[8],
-                workCategories: results[9],
-                coachingCourses: results[10],
-                admissionCourses: results[11],
-                languageCourses: results[12],
-                boardAuthorities: results[13]
+            db.query('SELECT * FROM other_types ORDER BY name', (err2, otherTypes) => {
+                if (err2) return reject(err2);
+                resolve({
+                    countries: results[0],
+                    levels: results[1],
+                    intakes: results[2],
+                    occupations: results[3],
+                    fields: results[4],
+                    categories: results[5],
+                    years: results[6],
+                    enquirySources: results[7],
+                    visaCategories: results[8],
+                    workCategories: results[9],
+                    coachingCourses: results[10],
+                    admissionCourses: results[11],
+                    languageCourses: results[12],
+                    boardAuthorities: results[13],
+                    otherTypes: otherTypes
+                });
             });
         });
     });
@@ -414,5 +418,6 @@ genericCrud('coaching_courses', 'coaching_courses', 'course_id', 'Coaching Cours
 genericCrud('course_admission', 'course_admission', 'id', 'Admission Course');
 genericCrud('course_language', 'course_language', 'id', 'Language Course');
 genericCrud('board_authorities', 'board_authorities', 'id', 'Board / Authority');
+genericCrud('other_types', 'other_types', 'other_type_id', 'Other Type');
 
 module.exports = router;

@@ -54,8 +54,8 @@ export class StudentRegistrationComponent implements OnInit {
         has_work_experience: false,
         work_experience: '',
         work_experience_list: [],
-        has_language_test: false,
-        has_admission_test: false,
+        has_language_test: null,
+        has_admission_test: null,
         has_relatives: false,
         has_relatives_abroad: false,
         relatives_list: [],
@@ -134,7 +134,7 @@ export class StudentRegistrationComponent implements OnInit {
     appSubStatuses: { [key: number]: any[] } = {};
 
     // Year options for intake year datalist - generated locally, independent of API
-    yearOptions: string[] = Array.from({length: 8}, (_, i) => String(new Date().getFullYear() - 1 + i));
+    yearOptions: string[] = Array.from({ length: 8 }, (_, i) => String(new Date().getFullYear() - 1 + i));
 
     relationshipOptions = ['Parent', 'Sibling', 'Uncle/Aunty', 'Cousin', 'Friend'];
     relatedToOptions = [
@@ -151,11 +151,12 @@ export class StudentRegistrationComponent implements OnInit {
         admissionCourses: [],
         languageCourses: [],
         boardAuthorities: [],
+        otherTypes: [],
         intakes: [],
         occupations: [],
-        years: ((): {name: string}[] => {
+        years: ((): { name: string }[] => {
             const currentYear = new Date().getFullYear();
-            return Array.from({length: 8}, (_, i) => ({ name: String(currentYear - 1 + i) }));
+            return Array.from({ length: 8 }, (_, i) => ({ name: String(currentYear - 1 + i) }));
         })()
     };
 
@@ -232,7 +233,13 @@ export class StudentRegistrationComponent implements OnInit {
     resolveStatusIds() {
         if (!this.allAppStatuses.length || !this.suggestedPrograms.length) return;
         this.suggestedPrograms.forEach(p => {
-            const selected = this.allAppStatuses.find(s => s.name === p.status && (s.categories || []).includes(p.type));
+            let selected = this.allAppStatuses.find(s => s.name === p.status && (s.categories || []).includes(p.type));
+            if (!selected) {
+                selected = this.allAppStatuses.find(s => s.name === p.status && (s.categories || []).includes('OTHER'));
+            }
+            if (!selected) {
+                selected = this.allAppStatuses.find(s => s.name === p.status);
+            }
             p.status_id = selected ? selected.status_id : null;
         });
     }
@@ -241,7 +248,12 @@ export class StudentRegistrationComponent implements OnInit {
         if (!category) return [];
         // Match category with the list of categories in status
         const cat = category.toUpperCase();
-        return this.allAppStatuses.filter(s => (s.categories || []).includes(cat));
+        const filtered = this.allAppStatuses.filter(s => (s.categories || []).includes(cat));
+        if (filtered.length > 0) {
+            return filtered;
+        }
+        const fallback = this.allAppStatuses.filter(s => (s.categories || []).includes('OTHER'));
+        return fallback.length > 0 ? fallback : this.allAppStatuses;
     }
 
     validateNumeric(field: string, event: any) {
@@ -262,7 +274,13 @@ export class StudentRegistrationComponent implements OnInit {
 
     onStatusChange(p: any) {
         // Find the status_id for the selected status name to filter sub-statuses
-        const selected = this.allAppStatuses.find(s => s.name === p.status && (s.categories || []).includes(p.type));
+        let selected = this.allAppStatuses.find(s => s.name === p.status && (s.categories || []).includes(p.type));
+        if (!selected) {
+            selected = this.allAppStatuses.find(s => s.name === p.status && (s.categories || []).includes('OTHER'));
+        }
+        if (!selected) {
+            selected = this.allAppStatuses.find(s => s.name === p.status);
+        }
         p.status_id = selected ? selected.status_id : null;
         p.sub_status = ''; // reset sub-status on main status change
     }
@@ -280,6 +298,7 @@ export class StudentRegistrationComponent implements OnInit {
                 }
                 if (!this.lookups.intakes) this.lookups.intakes = [];
                 if (!this.lookups.occupations) this.lookups.occupations = [];
+                if (!this.lookups.otherTypes) this.lookups.otherTypes = [];
             },
             error: () => this.loadingService.hide()
         });
@@ -314,7 +333,8 @@ export class StudentRegistrationComponent implements OnInit {
 
                 this.initializeMigrationData();
                 this.prePopulateFields();
-                if (this.suggestedPrograms.length === 0) {
+                const hasInterests = this.suggestedPrograms.some(p => ['STUDY', 'MIGRATION', 'VISA', 'WORK', 'COACHING'].includes(p.type));
+                if (!hasInterests) {
                     this.syncSuggestedPrograms();
                 }
             },
@@ -346,10 +366,10 @@ export class StudentRegistrationComponent implements OnInit {
         const isSet = (val: any) => val !== undefined && val !== null;
 
         if (!isSet(this.application.contact1_whatsapp)) this.application.contact1_whatsapp = !!this.student.whatsapp;
-        if (!isSet(this.application.contact1_bot))      this.application.contact1_bot      = !!this.student.botim;
+        if (!isSet(this.application.contact1_bot)) this.application.contact1_bot = !!this.student.botim;
         if (!isSet(this.application.contact1_telegram)) this.application.contact1_telegram = !!this.student.telegram;
         if (!isSet(this.application.contact2_whatsapp)) this.application.contact2_whatsapp = !!this.student.phone_whatsapp;
-        if (!isSet(this.application.contact2_bot))      this.application.contact2_bot      = !!this.student.phone_botim;
+        if (!isSet(this.application.contact2_bot)) this.application.contact2_bot = !!this.student.phone_botim;
         if (!isSet(this.application.contact2_telegram)) this.application.contact2_telegram = !!this.student.phone_telegram;
     }
 
@@ -372,7 +392,11 @@ export class StudentRegistrationComponent implements OnInit {
                         'contact2_whatsapp', 'contact2_bot', 'contact2_telegram',
                         'has_language_interest', 'has_admission_interest',
                         'has_skill_assessment', 'skill_assessment_interest'].forEach(key => {
-                            appObj[key] = !!appObj[key];
+                            if (appObj[key] !== null && appObj[key] !== undefined) {
+                                appObj[key] = !!appObj[key];
+                            } else {
+                                appObj[key] = null;
+                            }
                         });
 
                     // Language Interests
@@ -453,34 +477,25 @@ export class StudentRegistrationComponent implements OnInit {
                     // Sync unmapped education properties
                     this.application.education_country = this.application.education_country || '';
                     this.application.highest_education_status = this.application.highest_education_status || 'Completed';
-                    this.application.spouse_edu_country = this.application.education_data.spouse_edu_country || this.application.spouse_edu_country || '';
-                    this.application.spouse_edu_level = this.application.education_data.spouse_edu_level || this.application.spouse_edu_level || '';
-                    this.application.spouse_edu_field = this.application.education_data.spouse_edu_field || this.application.spouse_edu_field || '';
-                    this.application.spouse_edu_status = this.application.education_data.spouse_edu_status || this.application.spouse_edu_status || 'Completed';
-                    this.application.spouse_edu_expected = formatMonth(this.application.education_data.spouse_edu_expected || this.application.spouse_edu_expected);
-                    
+                    this.application.spouse_edu_country = '';
+                    this.application.spouse_edu_level = '';
+                    this.application.spouse_edu_field = '';
+                    this.application.spouse_edu_status = 'Completed';
+                    this.application.spouse_edu_expected = '';
+
                     this.application.spouse_has_other_country_edu = this.application.education_data.spouse_has_other_country_edu || false;
                     this.application.spouse_education = this.application.education_data.spouse_education || [];
                     this.application.spouse_other_country_edu_list = this.application.education_data.spouse_other_country_edu_list || [];
-                    
-                    // If spouse_education contains ALL entries (legacy/mixed), re-distribute them
-                    const allSpouseEdu = [...this.application.spouse_education];
-                    if (allSpouseEdu.length > 0 && !this.application.spouse_edu_country) {
-                        const highest = allSpouseEdu.filter(e => e.edu_type === 'highest' || !e.edu_type);
-                        if (highest.length > 0) {
-                            const first = highest[0];
-                            this.application.spouse_edu_country = first.country;
-                            this.application.spouse_edu_level = first.level;
-                            this.application.spouse_edu_field = first.field;
-                            this.application.spouse_edu_status = first.status || 'Completed';
-                            this.application.spouse_edu_expected = formatMonth(first.expected_completion);
-                            this.application.spouse_education = highest.slice(1);
-                        }
-                    }
 
                     // Sync unmapped test properties from JSON
                     this.application.language_test_list = this.application.education_data.language_test_list || this.application.language_test_list || [];
-                    this.application.spouse_has_language_test = this.application.education_data.spouse_has_language_test || this.application.spouse_has_language_test || false;
+                    if (this.application.spouse_has_language_test !== undefined && this.application.spouse_has_language_test !== null) {
+                        this.application.spouse_has_language_test = !!this.application.spouse_has_language_test;
+                    } else if (this.application.education_data?.spouse_has_language_test !== undefined && this.application.education_data?.spouse_has_language_test !== null) {
+                        this.application.spouse_has_language_test = !!this.application.education_data.spouse_has_language_test;
+                    } else {
+                        this.application.spouse_has_language_test = null;
+                    }
                     this.application.spouse_language_test_list = this.application.education_data.spouse_language_test_list || this.application.spouse_language_test_list || [];
                     this.application.admission_test_list = this.application.education_data.admission_test_list || this.application.admission_test_list || [];
 
@@ -531,16 +546,18 @@ export class StudentRegistrationComponent implements OnInit {
 
                 this.resolveStatusIds();
 
-                if (this.suggestedPrograms.length === 0) {
-                    this.syncSuggestedPrograms();
-                }
+                const hasInterests = this.suggestedPrograms.some(p => ['STUDY', 'MIGRATION', 'VISA', 'WORK', 'COACHING'].includes(p.type));
+                // Do not auto-sync from student profile to prevent wiping out saved Registration programs
+                // if (!hasInterests) {
+                //     this.syncSuggestedPrograms();
+                // }
 
                 // --- Relational Re-assembly ---
                 // For existing registrations, we only wipe and re-map if we actually have relational data.
                 // Otherwise, we keep the JSON data already loaded into this.application.
-                const hasRelationalData = (data.education_list?.length > 0) || (data.work_experience_list?.length > 0) || 
-                                          (data.spouse_education?.length > 0) || (data.spouse_work?.length > 0) ||
-                                          (data.relatives?.length > 0) || (data.children?.length > 0);
+                const hasRelationalData = (data.education_list?.length > 0) || (data.work_experience_list?.length > 0) ||
+                    (data.spouse_education?.length > 0) || (data.spouse_work?.length > 0) ||
+                    (data.relatives?.length > 0) || (data.children?.length > 0);
 
                 if (!this.registrationLoaded || hasRelationalData) {
                     this.application.education_data = { additional: [] };
@@ -551,11 +568,11 @@ export class StudentRegistrationComponent implements OnInit {
                     // Pre-initialize for all countries to ensure UI toggles work
                     this.migrationCountries.forEach(country => {
                         this.application.education_data[country] = { has_edu: false, additional_entries: [] };
-                        this.application.migration_data[country] = { 
+                        this.application.migration_data[country] = {
                             has_work: false, is_currently_working: false, has_other_work: false,
-                            current_work_experience_list: [], other_work_experience_list: [] 
+                            current_work_experience_list: [], other_work_experience_list: []
                         };
-                        this.application.migration_spouse_data[country] = { 
+                        this.application.migration_spouse_data[country] = {
                             has_edu: false, is_currently_working: false, has_other_work: false,
                             current_work_experience_list: [], other_work_experience_list: [],
                             additional_entries: []
@@ -593,6 +610,8 @@ export class StudentRegistrationComponent implements OnInit {
                     this.patchFromAssessment(assessment);
                 }
 
+                this.onTestCompletionChange();
+
                 this.loadingService.hide();
             },
             error: () => this.loadingService.hide()
@@ -600,10 +619,10 @@ export class StudentRegistrationComponent implements OnInit {
     }
 
     parseSuggestedPrograms(programs: any[]): any[] {
-        return (programs || []).flatMap((p: any) => {
+        return (programs || []).map((p: any) => {
             const upperProg = (p.program || '').toUpperCase();
             let type = p.program_type || 'OTHER';
-            
+
             if (!p.program_type) {
                 if (upperProg.includes('STUDY')) type = 'STUDY';
                 else if (upperProg.includes('MIGRATION')) type = 'MIGRATION';
@@ -612,37 +631,60 @@ export class StudentRegistrationComponent implements OnInit {
                 else if (upperProg.includes('COACHING')) type = 'COACHING';
             }
 
-            let country = '', level = '', field = '', intake = '', year = '', occupation = '', category = '', course = '', batch = '', subType = 'default';
+            // Extract country from program name (e.g., "STUDY Canada" -> "Canada")
+            let country = '';
+            if (type === 'STUDY') country = (p.program || '').replace(/STUDY/i, '').trim();
+            else if (type === 'MIGRATION') country = (p.program || '').replace(/MIGRATION/i, '').trim();
+            else if (type === 'VISA') country = (p.program || '').replace(/VISA/i, '').trim();
+            else if (type === 'WORK') country = (p.program || '').replace(/WORK/i, '').trim();
 
-            if (type === 'STUDY') {
-                country = p.program.replace(/STUDY/i, '').trim();
-                const mainParts = p.details.split(' - ');
-                const courseParts = (mainParts[0] || '').split(' ');
-                const intakeParts = (mainParts[1] || '').split(' ');
+            // Set up structured columns, falling back to old parsing if applied_for is empty/null
+            let applied_for = p.applied_for || '';
+            let details = p.details || '';
+            let details2 = p.details2 || '';
+            let details3 = p.details3 || '';
 
-                level = courseParts[0] || '';
-                field = courseParts.slice(1).join(' ') || '';
-                intake = intakeParts[0] || '';
-                year = intakeParts[1] || '';
-                subType = 'default';
-            } else if (type === 'MIGRATION') {
-                country = p.program.replace('MIGRATION', '').trim();
-                const parts = p.details.split(' - ');
-                occupation = parts[0] || '';
-                category = parts[1] || '';
-            } else if (type === 'VISA') {
-                country = p.program.replace('VISA', '').trim();
-                category = p.details;
-            } else if (type === 'WORK') {
-                country = p.program.replace('WORK', '').trim();
-                occupation = p.details;
-            } else if (type === 'COACHING') {
-                const parts = p.details.split(' - ');
-                course = parts[0] || '';
-                batch = parts[1] || '';
+            if (!applied_for && p.details) {
+                // Fallback parsing for legacy records
+                if (type === 'STUDY') {
+                    const mainParts = p.details.split(' - ');
+                    const courseParts = (mainParts[0] || '').split(' ');
+                    const intakeParts = (mainParts[1] || '').split(' ');
+
+                    applied_for = courseParts[0] || '';
+                    details = courseParts.slice(1).join(' ') || '';
+                    details2 = intakeParts[0] || '';
+                    details3 = intakeParts[1] || '';
+                } else if (type === 'MIGRATION') {
+                    const parts = p.details.split(' - ');
+                    applied_for = parts[0] || '';
+                    details = parts[1] || '';
+                } else if (type === 'VISA') {
+                    const parts = p.details.split(' - ');
+                    applied_for = parts[0] || '';
+                    details = parts.slice(1).join(' - ') || '';
+                } else if (type === 'WORK') {
+                    const parts = p.details.split(' - ');
+                    applied_for = parts[0] || '';
+                    details = parts.slice(1).join(' - ') || '';
+                } else if (type === 'COACHING') {
+                    const parts = p.details.split(' - ');
+                    applied_for = parts[0] || '';
+                    details = parts[1] || '';
+                }
             }
 
-            return [{ ...p, type, subType, country, level, field, intake, year, occupation, category, course, batch }];
+            return {
+                ...p,
+                type,
+                subType: 'default',
+                country,
+                applied_for,
+                details,
+                details2,
+                details3,
+                _isSystem: !!p.issystem
+            };
         });
     }
 
@@ -683,11 +725,37 @@ export class StudentRegistrationComponent implements OnInit {
         }
     }
 
+    getBadgeClass(p: any): string {
+        const type = (p.type || '').toUpperCase();
+        if (type === 'OTHER') {
+            const prog = (p.program || '').toUpperCase();
+            if (prog === 'LANGUAGE TEST') return 'language';
+            if (prog === 'ADMISSION TEST') return 'admission';
+            if (prog === 'SPOUSE LANGUAGE TEST') return 'spouse-language';
+            if (prog === 'SKILL ASSESSMENT') return 'skill-assessment';
+            return 'other';
+        }
+        return type.toLowerCase().replace(/_/g, '-');
+    }
+
+    getBadgeText(p: any): string {
+        const type = (p.type || '').toUpperCase();
+        if (type === 'OTHER') {
+            const prog = (p.program || '').toUpperCase();
+            if (prog === 'LANGUAGE TEST') return 'LANGUAGE';
+            if (prog === 'ADMISSION TEST') return 'ADMISSION';
+            if (prog === 'SPOUSE LANGUAGE TEST') return 'SPOUSE LANGUAGE';
+            if (prog === 'SKILL ASSESSMENT') return 'SKILL ASSESSMENT';
+            return 'OTHER';
+        }
+        return type;
+    }
+
     removeChild(index: number) {
         this.children.splice(index, 1);
     }
 
-    addSuggestedProgram(type: string) {
+    addSuggestedProgram(type: string, programName: string = '', isSystem: boolean = false) {
         if (type === 'STUDY') {
             const common = {
                 type,
@@ -701,14 +769,16 @@ export class StudentRegistrationComponent implements OnInit {
                 department_id: null,
                 assigned_to: null,
                 country: '',
-                level: '', field: '', intake: '', year: '', occupation: '', category: '', course: '', batch: ''
+                applied_for: '',
+                details2: '',
+                details3: ''
             };
-            this.suggestedPrograms.push({ ...common, subType: 'default' });
+            this.suggestedPrograms.push({ ...common, subType: 'default', _isSystem: isSystem });
         } else {
             const newProg: any = {
                 type,
                 subType: 'default',
-                program: type === 'OTHER' ? '' : type,
+                program: programName || (type === 'OTHER' ? '' : type),
                 details: '',
                 status: '',
                 sub_status: '',
@@ -717,7 +787,11 @@ export class StudentRegistrationComponent implements OnInit {
                 branch_id: null,
                 department_id: null,
                 assigned_to: null,
-                country: '', level: '', field: '', intake: '', year: '', occupation: '', category: '', course: '', batch: ''
+                country: '',
+                applied_for: '',
+                details2: '',
+                details3: '',
+                _isSystem: isSystem
             };
             this.suggestedPrograms.push(newProg);
         }
@@ -725,7 +799,17 @@ export class StudentRegistrationComponent implements OnInit {
     }
 
     onCountryChange(p: any) {
-        this.syncSuggestedProgStrings(p);
+        if (p.type === 'STUDY') {
+            p.program = `STUDY ${p.country || ''}`.trim();
+        } else if (p.type === 'MIGRATION') {
+            p.program = `MIGRATION ${p.country || ''}`.trim();
+        } else if (p.type === 'VISA') {
+            p.program = `VISA ${p.country || ''}`.trim();
+        } else if (p.type === 'WORK') {
+            p.program = `WORK ${p.country || ''}`.trim();
+        } else if (p.type === 'COACHING') {
+            p.program = `COACHING`;
+        }
         this.initializeMigrationData();
     }
 
@@ -761,25 +845,7 @@ export class StudentRegistrationComponent implements OnInit {
         });
     }
 
-    syncSuggestedProgStrings(p: any) {
-        if (p.type === 'STUDY') {
-            p.program = `STUDY ${p.country || ''}`.trim();
-            p.details = `${p.level || ''} ${p.field || ''} - ${p.intake || ''} ${p.year || ''}`.trim();
-            if (p.details === '-') p.details = '';
-        } else if (p.type === 'MIGRATION') {
-            p.program = `MIGRATION ${p.country || ''}`.trim();
-            p.details = `${p.occupation || ''} - ${p.category || ''}`.trim();
-        } else if (p.type === 'VISA') {
-            p.program = `VISA ${p.country || ''}`.trim();
-            p.details = `${p.category || ''}`.trim();
-        } else if (p.type === 'WORK') {
-            p.program = `WORK ${p.country || ''}`.trim();
-            p.details = `${p.occupation || ''}`.trim();
-        } else if (p.type === 'COACHING') {
-            p.program = `COACHING`.trim();
-            p.details = `${p.course || ''} - ${p.batch || ''}`.trim();
-        }
-    }
+
 
     removeProgram(index: number) {
         this.suggestedPrograms.splice(index, 1);
@@ -857,7 +923,7 @@ export class StudentRegistrationComponent implements OnInit {
 
     get migrationCountries(): string[] {
         const countries: string[] = [];
-        
+
         // From Student Interests (Only MIGRATION)
         if (this.studentPrograms && this.studentPrograms.migration) {
             this.studentPrograms.migration.forEach((p: any) => {
@@ -871,14 +937,14 @@ export class StudentRegistrationComponent implements OnInit {
                 if (p.type === 'MIGRATION' && p.country) countries.push(p.country);
             });
         }
-        
+
         return [...new Set(countries)].sort();
     }
 
     private _lastInterestedCountries: string[] = [];
     get interestedCountries(): string[] {
         const countries: string[] = [];
-        
+
         // From Suggested Programs (Only STUDY and MIGRATION)
         this.suggestedPrograms.forEach(p => {
             if (p.country && (p.type === 'STUDY' || p.type === 'MIGRATION')) {
@@ -894,7 +960,7 @@ export class StudentRegistrationComponent implements OnInit {
                 });
             });
         }
-        
+
         const current = [...new Set(countries)].sort();
         if (JSON.stringify(current) === JSON.stringify(this._lastInterestedCountries)) {
             return this._lastInterestedCountries;
@@ -932,15 +998,15 @@ export class StudentRegistrationComponent implements OnInit {
 
         this.migrationCountries.forEach(country => {
             if (!this.application.migration_data[country]) {
-                this.application.migration_data[country] = { 
-                    has_edu: false, edu_level: '', edu_field: '', 
-                    has_work: false, work_years: '', work_months: '', job_title: '', work_experience_list: [] 
+                this.application.migration_data[country] = {
+                    has_edu: false, edu_level: '', edu_field: '',
+                    has_work: false, work_years: '', work_months: '', job_title: '', work_experience_list: []
                 };
             }
             if (!this.application.migration_spouse_data[country]) {
-                this.application.migration_spouse_data[country] = { 
-                    has_edu: false, edu_level: '', edu_field: '', 
-                    has_work: false, work_years: '', work_months: '', job_title: '', work_experience_list: [] 
+                this.application.migration_spouse_data[country] = {
+                    has_edu: false, edu_level: '', edu_field: '',
+                    has_work: false, work_years: '', work_months: '', job_title: '', work_experience_list: []
                 };
             }
         });
@@ -986,8 +1052,8 @@ export class StudentRegistrationComponent implements OnInit {
 
     onWorkToggle(country: string | null, target: string, subTarget: string = 'work_experience_list') {
         const list = country ? this.application[target][country][subTarget] : this.application[target];
-        const hasWork = country ? (subTarget === 'current_work_experience_list' ? this.application[target][country].is_currently_working : this.application[target][country].has_other_work) : 
-                       (target === 'work_experience_list' ? this.application.has_work_experience : this.application.spouse_has_work_experience);
+        const hasWork = country ? (subTarget === 'current_work_experience_list' ? this.application[target][country].is_currently_working : this.application[target][country].has_other_work) :
+            (target === 'work_experience_list' ? this.application.has_work_experience : this.application.spouse_has_work_experience);
 
         if (hasWork && (!list || list.length === 0)) {
             this.addWorkExperience(country, target, subTarget);
@@ -1031,6 +1097,106 @@ export class StudentRegistrationComponent implements OnInit {
         this.application.education_field = '';
         this.application.highest_education_status = 'Completed';
         this.application.highest_education_expected = '';
+    }
+
+    markSystemSuggestedPrograms() {
+        if (!this.suggestedPrograms) return;
+        const markFirst = (progName: string) => {
+            const row = this.suggestedPrograms.find(p => p.type === 'OTHER' && p.program === progName);
+            if (row) row._isSystem = true;
+        };
+
+        if (this.application.has_skill_assessment === false) markFirst('Skill Assessment');
+        if (this.application.has_language_test === false) markFirst('Language Test');
+        if (this.application.has_admission_test === false) markFirst('Admission Test');
+        if (this.application.spouse_has_language_test === false) markFirst('Spouse Language Test');
+    }
+
+    checkAndAddOtherSuggestedProgram() {
+        // Evaluate system-controlled tests and inject or remove corresponding 'OTHER' program rows if they don't exist
+
+        // 1. Skill Assessment
+        if (this.application.has_skill_assessment === false) {
+            const exists = this.suggestedPrograms.some(p => p.type === 'OTHER' && p.program === 'Skill Assessment');
+            if (!exists) {
+                this.addSuggestedProgram('OTHER', 'Skill Assessment', true);
+            }
+        } else {
+            const idx = this.suggestedPrograms.findIndex(p => p.type === 'OTHER' && p.program === 'Skill Assessment');
+            if (idx > -1 && this.suggestedPrograms[idx]._isSystem) {
+                this.suggestedPrograms.splice(idx, 1);
+            }
+        }
+
+        // 2. Language Test
+        if (this.application.has_language_test === false) {
+            const exists = this.suggestedPrograms.some(p => p.type === 'OTHER' && p.program === 'Language Test');
+            if (!exists) {
+                this.addSuggestedProgram('OTHER', 'Language Test', true);
+            }
+        } else {
+            const idx = this.suggestedPrograms.findIndex(p => p.type === 'OTHER' && p.program === 'Language Test');
+            if (idx > -1 && this.suggestedPrograms[idx]._isSystem) {
+                this.suggestedPrograms.splice(idx, 1);
+            }
+        }
+
+        // 3. Admission Test
+        if (this.application.has_admission_test === false) {
+            const exists = this.suggestedPrograms.some(p => p.type === 'OTHER' && p.program === 'Admission Test');
+            if (!exists) {
+                this.addSuggestedProgram('OTHER', 'Admission Test', true);
+            }
+        } else {
+            const idx = this.suggestedPrograms.findIndex(p => p.type === 'OTHER' && p.program === 'Admission Test');
+            if (idx > -1 && this.suggestedPrograms[idx]._isSystem) {
+                this.suggestedPrograms.splice(idx, 1);
+            }
+        }
+
+        // 4. Spouse Language Test
+        if (this.application.spouse_has_language_test === false) {
+            const exists = this.suggestedPrograms.some(p => p.type === 'OTHER' && p.program === 'Spouse Language Test');
+            if (!exists) {
+                this.addSuggestedProgram('OTHER', 'Spouse Language Test', true);
+            }
+        } else {
+            const idx = this.suggestedPrograms.findIndex(p => p.type === 'OTHER' && p.program === 'Spouse Language Test');
+            if (idx > -1 && this.suggestedPrograms[idx]._isSystem) {
+                this.suggestedPrograms.splice(idx, 1);
+            }
+        }
+    }
+
+    onLanguageTestChange() {
+        this.checkAndAddOtherSuggestedProgram();
+        this.onTestCompletionChange();
+    }
+
+    onAdmissionTestChange() {
+        this.checkAndAddOtherSuggestedProgram();
+        this.onTestCompletionChange();
+    }
+
+    onSpouseLanguageTestChange() {
+        this.checkAndAddOtherSuggestedProgram();
+    }
+
+    onTestCompletionChange() {
+        const hasLang = !!this.application.has_language_test;
+        const hasAdm = !!this.application.has_admission_test;
+
+        if (!hasLang && !hasAdm) {
+            this.application.interested_in_lang_coaching = false;
+            this.application.lang_coaching_course = '';
+            this.application.expected_lang_coaching_date = '';
+
+            this.application.interested_in_admission_coaching = false;
+            this.application.admission_coaching_course = '';
+            this.application.expected_admission_coaching_date = '';
+        }
+
+        this.checkAndAddOtherSuggestedProgram();
     }
 
 
@@ -1105,12 +1271,14 @@ export class StudentRegistrationComponent implements OnInit {
     }
 
     syncSuggestedPrograms() {
-        if (!this.studentPrograms || this.suggestedPrograms.length > 0) return;
+        const hasInterests = this.suggestedPrograms.some(p => ['STUDY', 'MIGRATION', 'VISA', 'WORK', 'COACHING'].includes(p.type));
+        if (!this.studentPrograms || hasInterests) return;
 
         const interests: any[] = [];
         (this.studentPrograms.study || []).forEach((p: any) => {
-            const common = {
+            interests.push({
                 type: 'STUDY',
+                subType: 'default',
                 program: `STUDY ${p.country || ''}`.trim(),
                 status: '',
                 sub_status: '',
@@ -1120,68 +1288,91 @@ export class StudentRegistrationComponent implements OnInit {
                 department_id: null,
                 assigned_to: null,
                 country: p.country || '',
-                level: p.level || '',
-                field: p.field || '',
-                intake: p.intake || '',
-                year: p.year || ''
-            };
-            interests.push({ ...common, subType: 'default', details: `${p.level || ''} ${p.field || ''} - ${p.intake || ''} ${p.year || ''}`.trim() });
+                applied_for: p.level || '',
+                details: p.field || '',
+                details2: p.intake || '',
+                details3: p.year || '',
+                _isSystem: false
+            });
         });
         (this.studentPrograms.migration || []).forEach((p: any) => {
             interests.push({
                 type: 'MIGRATION',
                 subType: 'default',
-                program: `${p.country || ''}`,
-                details: `${p.occupation || ''} - ${p.category || ''}`,
+                program: `MIGRATION ${p.country || ''}`.trim(),
                 status: '',
                 sub_status: '',
                 remarks: '',
                 is_selected: true,
+                branch_id: null,
+                department_id: null,
+                assigned_to: null,
                 country: p.country || '',
-                occupation: p.occupation || '',
-                category: p.category || ''
+                applied_for: p.occupation || '',
+                details: p.category || '',
+                details2: '',
+                details3: '',
+                _isSystem: false
             });
         });
         (this.studentPrograms.visa || []).forEach((p: any) => {
             interests.push({
                 type: 'VISA',
                 subType: 'default',
-                program: `${p.country || ''}`,
-                details: `${p.category || ''}`,
+                program: `VISA ${p.country || ''}`.trim(),
                 status: '',
                 sub_status: '',
                 remarks: '',
                 is_selected: true,
+                branch_id: null,
+                department_id: null,
+                assigned_to: null,
                 country: p.country || '',
-                category: p.category || ''
+                applied_for: p.category || '',
+                details: '',
+                details2: '',
+                details3: '',
+                _isSystem: false
             });
         });
         (this.studentPrograms.work || []).forEach((p: any) => {
             interests.push({
                 type: 'WORK',
                 subType: 'default',
-                program: `${p.country || ''}`,
-                details: `${p.occupation || ''}`,
+                program: `WORK ${p.country || ''}`.trim(),
                 status: '',
                 sub_status: '',
                 remarks: '',
                 is_selected: true,
+                branch_id: null,
+                department_id: null,
+                assigned_to: null,
                 country: p.country || '',
-                occupation: p.occupation || ''
+                applied_for: p.occupation || '',
+                details: '',
+                details2: '',
+                details3: '',
+                _isSystem: false
             });
         });
         (this.studentPrograms.coaching || []).forEach((p: any) => {
             interests.push({
                 type: 'COACHING',
                 subType: 'default',
-                program: `COACHING`,
-                details: `${p.course || ''} - ${p.batch || ''}`,
+                program: 'COACHING',
                 status: '',
                 sub_status: '',
                 remarks: '',
                 is_selected: true,
-                course: p.course || '',
-                batch: p.batch || ''
+                branch_id: null,
+                department_id: null,
+                assigned_to: null,
+                country: '',
+                applied_for: p.course || '',
+                details: p.batch || '',
+                details2: '',
+                details3: '',
+                _isSystem: false
             });
         });
 
@@ -1210,7 +1401,7 @@ export class StudentRegistrationComponent implements OnInit {
     onSave() {
         // Sync UI phone-code dropdowns → backend field names before saving
         if (this.application.mobile_country_code) this.application.contact1_code = this.application.mobile_country_code;
-        if (this.application.phone_country_code)  this.application.contact2_code = this.application.phone_country_code;
+        if (this.application.phone_country_code) this.application.contact2_code = this.application.phone_country_code;
 
         // Sync JSON data back to flat fields for hardcoded countries (Backward Compatibility)
         const countriesToSync = [
@@ -1241,14 +1432,14 @@ export class StudentRegistrationComponent implements OnInit {
                 this.application[`spouse_${prefix}_work`] = this.application.migration_spouse_data[name].work_years;
             }
         });
-        
+
         // Map UI-only work properties into migration_data JSON for saving
         if (!this.application.migration_data) this.application.migration_data = {};
         if (!this.application.migration_data['General']) this.application.migration_data['General'] = {};
         this.application.migration_data['General'].work_experience_list = this.application.has_work_experience ? this.application.work_experience_list : [];
         this.application.migration_data['General'].has_other_work_experience = this.application.has_other_work_experience;
         this.application.migration_data['General'].other_work_experience_list = this.application.has_other_work_experience ? this.application.other_work_experience_list : [];
-        
+
         // Map UI-only test properties into education_data JSON for saving
         if (!this.application.education_data) this.application.education_data = { additional: [] };
         this.application.education_data.language_test_list = this.application.has_language_test ? this.application.language_test_list : [];
@@ -1261,7 +1452,7 @@ export class StudentRegistrationComponent implements OnInit {
         this.application.education_data.spouse_edu_country = this.application.spouse_edu_country;
         this.application.education_data.spouse_edu_field = this.application.spouse_edu_field;
         this.application.education_data.spouse_education = this.application.spouse_education;
-        
+
         // Validate children if any
         if (this.children && this.children.length > 0) {
             const invalidChild = this.children.find(c => c.age === null || c.age === undefined || c.is_accompanying === null || c.is_accompanying === undefined);
@@ -1315,7 +1506,7 @@ export class StudentRegistrationComponent implements OnInit {
                     }
                     return;
                 }
-                
+
                 const edu = this.application.education_data[country];
                 if (edu && edu.has_edu) {
                     // Primary Entry for fixed countries (Australia/Canada/etc)
@@ -1328,7 +1519,7 @@ export class StudentRegistrationComponent implements OnInit {
                         edu_type: 'country',
                         is_highest: 0
                     });
-                    
+
                     // Additional Entries for this fixed country
                     if (edu.additional_entries && edu.additional_entries.length > 0) {
                         edu.additional_entries.forEach((ae: any) => {
@@ -1637,12 +1828,12 @@ export class StudentRegistrationComponent implements OnInit {
             const isEmpty = currentVal === '' || currentVal === null || currentVal === undefined || currentVal === false || currentVal === 0;
             if (isNew || isEmpty) {
                 let value = app[field];
-                
+
                 // Force boolean conversion for checkboxes/dropdowns
                 const booleanFields = [
                     'spouse_accompanying', 'has_canadian_edu', 'has_australian_edu', 'has_aus_specialised_edu',
-                    'has_nz_edu', 'has_work_experience', 'has_other_work_experience', 'has_language_test', 
-                    'has_admission_test', 'has_relatives', 'spouse_canadian_edu', 'spouse_australian_edu', 
+                    'has_nz_edu', 'has_work_experience', 'has_other_work_experience', 'has_language_test',
+                    'has_admission_test', 'has_relatives', 'spouse_canadian_edu', 'spouse_australian_edu',
                     'spouse_aus_specialised_edu', 'has_second_passport', 'spouse_has_work_experience',
                     'spouse_has_other_work_experience', 'spouse_has_language_test', 'has_skill_assessment',
                     'skill_assessment_interest',
@@ -1798,11 +1989,14 @@ export class StudentRegistrationComponent implements OnInit {
 
         // ─── Suggested Programs ───────────────────────────────────────────────────
         if ((isNew || !this.suggestedPrograms || this.suggestedPrograms.length === 0) && data.suggestedPrograms && data.suggestedPrograms.length > 0) {
-            this.suggestedPrograms = this.parseSuggestedPrograms(JSON.parse(JSON.stringify(data.suggestedPrograms)));
+            const selectedProgs = data.suggestedPrograms.filter((p: any) => !!p.is_selected);
+            this.suggestedPrograms = this.parseSuggestedPrograms(JSON.parse(JSON.stringify(selectedProgs)));
+            this.markSystemSuggestedPrograms();
             this.suggestedPrograms.forEach((p: any, i: number) => {
                 if (p.branch_id) this.loadRowDepartments(i, p.branch_id);
                 if (p.branch_id && p.department_id) this.loadRowStaff(i, p.branch_id, p.department_id);
             });
+            this.resolveStatusIds();
         }
 
         // ─── Coaching Interests ───────────────────────────────────────────────────
@@ -1842,7 +2036,7 @@ export class StudentRegistrationComponent implements OnInit {
             if (!Array.isArray(app.education_data.additional)) {
                 app.education_data.additional = [];
             }
-            
+
             // Clear current list to avoid duplicates on reload
             app.education_data.additional = [];
             this.migrationCountries.forEach((c: string) => {
@@ -1859,7 +2053,7 @@ export class StudentRegistrationComponent implements OnInit {
                         app.highest_education_status = edu.status;
                         app.highest_education_expected = formatMonth(edu.expected_completion);
                     }
-                    
+
                     // Always add to tabular list for registration view
                     if (!app.education_data.additional) app.education_data.additional = [];
                     app.education_data.additional.push({
@@ -1924,7 +2118,7 @@ export class StudentRegistrationComponent implements OnInit {
                         if (!app.migration_data[country].other_work_experience_list) app.migration_data[country].other_work_experience_list = [];
                         app.migration_data[country].other_work_experience_list.push(w);
                     }
-                    
+
                     if (!app.work_experience_list) app.work_experience_list = [];
                     if (w.country && !w.employment_country) w.employment_country = w.country;
                     app.work_experience_list.push(w);
@@ -1932,11 +2126,11 @@ export class StudentRegistrationComponent implements OnInit {
                 } else if (w.work_type === 'other' || w.work_type === 'curr_other' || w.work_type === 'prev_other') {
                     app.has_work_experience = true;
                     const isCurrent = w.type === 'current' || w.is_current === 1 || w.is_current === true;
-                    
+
                     if (!app.work_experience_list) app.work_experience_list = [];
                     if (w.country && !w.employment_country) w.employment_country = w.country;
                     app.work_experience_list.push(w);
-                    
+
                     if (!isCurrent) {
                         app.has_other_work_experience = true;
                         if (!app.other_work_experience_list) app.other_work_experience_list = [];
@@ -1949,7 +2143,7 @@ export class StudentRegistrationComponent implements OnInit {
                 app.has_work_experience = true;
             }
         }
-        
+
         // Final safety check for toggles
         if (app.education_data?.additional?.length > 0) {
             // Logic to ensure main education fields are set if empty
@@ -1983,16 +2177,8 @@ export class StudentRegistrationComponent implements OnInit {
                 };
 
                 if (edu.edu_type === 'highest') {
-                    if (!app.spouse_edu_country) {
-                        app.spouse_edu_country = edu.country;
-                        app.spouse_edu_level = edu.level;
-                        app.spouse_edu_field = edu.field;
-                        app.spouse_edu_status = edu.status;
-                        app.spouse_edu_expected = formatMonth(edu.expected_completion);
-                    } else {
-                        if (!app.spouse_education) app.spouse_education = [];
-                        app.spouse_education.push(formattedEdu);
-                    }
+                    if (!app.spouse_education) app.spouse_education = [];
+                    app.spouse_education.push(formattedEdu);
                 } else if (edu.edu_type === 'country') {
                     const country = (edu.country || '').trim();
                     if (!app.migration_spouse_data[country]) {
@@ -2059,7 +2245,7 @@ export class StudentRegistrationComponent implements OnInit {
                 } else if (w.work_type === 'other' || w.work_type === 'curr_other' || w.work_type === 'prev_other') {
                     app.spouse_has_work_experience = true;
                     const isCurrent = w.type === 'current' || w.is_current === 1 || w.is_current === true;
-                    
+
                     if (!app.spouse_work_experience_list) app.spouse_work_experience_list = [];
                     if (w.country && !w.employment_country) w.employment_country = w.country;
                     app.spouse_work_experience_list.push(w);
@@ -2118,7 +2304,9 @@ export class StudentRegistrationComponent implements OnInit {
             this.application.skill_assessment_interest = null;
         } else if (this.application.has_skill_assessment === false) {
             this.application.skill_assessment_list = [];
+            this.application.skill_assessment_interest = null;
         }
+        this.checkAndAddOtherSuggestedProgram();
     }
 
     onSkillAssessmentInterestToggle() {

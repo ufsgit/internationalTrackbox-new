@@ -47,5 +47,6 @@ genericCrud('work_categories', 'work_cat_id');
 genericCrud('coaching_courses', 'course_id');
 genericCrud('course_admission', 'id');
 genericCrud('course_language', 'id');
+genericCrud('other_types', 'other_type_id');
 
 module.exports = router;
