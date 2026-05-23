@@ -304,6 +304,12 @@ export class StudentApplicationComponent implements OnInit {
                 const formatMonth = (d: string) => d ? d.substring(0, 7) : '';
                 if (res.application) {
                     this.application = res.application;
+                    const toNullableBool = (value: any) => {
+                        if (value === null || value === undefined || value === '') return null;
+                        if (value === true || value === 1 || value === '1') return true;
+                        if (value === false || value === 0 || value === '0') return false;
+                        return null;
+                    };
                     // Ensure boolean types
                     ['spouse_accompanying', 'has_canadian_edu', 'has_australian_edu', 'has_aus_specialised_edu',
                         'has_nz_edu', 'has_work_experience', 'has_language_test', 'has_admission_test', 'has_relatives',
@@ -312,11 +318,7 @@ export class StudentApplicationComponent implements OnInit {
                         'contact2_whatsapp', 'contact2_bot', 'contact2_telegram',
                         'has_language_interest', 'has_admission_interest',
                         'has_skill_assessment', 'skill_assessment_interest'].forEach(key => {
-                            if (this.application[key] !== null && this.application[key] !== undefined) {
-                                this.application[key] = !!this.application[key];
-                            } else {
-                                this.application[key] = null;
-                            }
+                            this.application[key] = toNullableBool(this.application[key]);
                         });
 
                     // Sync DB fields -> UI dropdowns
@@ -639,6 +641,10 @@ export class StudentApplicationComponent implements OnInit {
             if (prog === 'SKILL ASSESSMENT') return 'skill-assessment';
             return 'other';
         }
+        if (type === 'LANGUAGE TEST') return 'language';
+        if (type === 'ADMISSION TEST') return 'admission';
+        if (type === 'SPOUSE LANGUAGE TEST') return 'spouse-language';
+        if (type === 'SKILL ASSESSMENT') return 'skill-assessment';
         return type.toLowerCase().replace(/_/g, '-');
     }
 
@@ -652,7 +658,26 @@ export class StudentApplicationComponent implements OnInit {
             if (prog === 'SKILL ASSESSMENT') return 'SKILL ASSESSMENT';
             return 'OTHER';
         }
+        if (type === 'SPOUSE LANGUAGE TEST') return 'SPOUSE LANGUAGE';
         return type;
+    }
+
+    getProgramColumnType(p: any): string {
+        const type = p.type || '';
+        if (['Admission Test', 'Language Test', 'Spouse Language Test', 'Skill Assessment', 'OTHER'].includes(type)) {
+            return 'OTHER';
+        }
+        return type;
+    }
+
+    isWideRow(p: any): boolean {
+        const type = this.getProgramColumnType(p);
+        return ['OTHER', 'COACHING', 'MIGRATION'].includes(type);
+    }
+
+    isFullWideRow(p: any): boolean {
+        const type = p.type || '';
+        return ['EDUCATION LOAN', 'TICKETING', 'FOREX'].includes(type);
     }
 
     removeChild(index: number) {
@@ -664,12 +689,16 @@ export class StudentApplicationComponent implements OnInit {
             const upperProg = (p.program || '').toUpperCase();
             let type = p.program_type || 'OTHER';
 
-            if (!p.program_type) {
+            if (!p.program_type || p.program_type === 'OTHER') {
                 if (upperProg.includes('STUDY')) type = 'STUDY';
                 else if (upperProg.includes('MIGRATION')) type = 'MIGRATION';
                 else if (upperProg.includes('VISA')) type = 'VISA';
                 else if (upperProg.includes('WORK')) type = 'WORK';
                 else if (upperProg.includes('COACHING')) type = 'COACHING';
+                else if (upperProg === 'LANGUAGE TEST') type = 'Language Test';
+                else if (upperProg === 'ADMISSION TEST') type = 'Admission Test';
+                else if (upperProg === 'SPOUSE LANGUAGE TEST') type = 'Spouse Language Test';
+                else if (upperProg === 'SKILL ASSESSMENT') type = 'Skill Assessment';
             }
 
             // Extract country from program name (e.g., "STUDY Canada" -> "Canada")
@@ -724,7 +753,10 @@ export class StudentApplicationComponent implements OnInit {
                 details,
                 details2,
                 details3,
-                _isSystem: !!p.issystem
+                _isSystem: !!p.issystem,
+                is_selected: (p.is_selected === true || p.is_selected === 1) ? 1 : 
+                             (p.is_selected === 2) ? 2 : 
+                             (p.is_selected === 0 || p.is_selected === false) ? 0 : null
             };
         });
     }
@@ -738,7 +770,7 @@ export class StudentApplicationComponent implements OnInit {
                 status: '',
                 sub_status: '',
                 remarks: '',
-                is_selected: true,
+                is_selected: 2,
                 branch_id: null,
                 department_id: null,
                 assigned_to: null,
@@ -757,7 +789,7 @@ export class StudentApplicationComponent implements OnInit {
                 status: '',
                 sub_status: '',
                 remarks: '',
-                is_selected: true,
+                is_selected: 2,
                 branch_id: null,
                 department_id: null,
                 assigned_to: null,
@@ -774,13 +806,13 @@ export class StudentApplicationComponent implements OnInit {
 
     onCountryChange(p: any) {
         if (p.type === 'STUDY') {
-            p.program = `STUDY ${p.country || ''}`.trim();
+            p.program = `${p.country || ''}`.trim();
         } else if (p.type === 'MIGRATION') {
-            p.program = `MIGRATION ${p.country || ''}`.trim();
+            p.program = `${p.country || ''}`.trim();
         } else if (p.type === 'VISA') {
-            p.program = `VISA ${p.country || ''}`.trim();
+            p.program = `${p.country || ''}`.trim();
         } else if (p.type === 'WORK') {
-            p.program = `WORK ${p.country || ''}`.trim();
+            p.program = `${p.country || ''}`.trim();
         } else if (p.type === 'COACHING') {
             p.program = `COACHING`;
         }
@@ -1110,11 +1142,11 @@ export class StudentApplicationComponent implements OnInit {
             interests.push({
                 type: 'STUDY',
                 subType: 'default',
-                program: `STUDY ${p.country || ''}`.trim(),
+                program: `${p.country || ''}`.trim(),
                 status: '',
                 sub_status: '',
                 remarks: '',
-                is_selected: true,
+                is_selected: 2,
                 branch_id: null,
                 department_id: null,
                 assigned_to: null,
@@ -1130,11 +1162,11 @@ export class StudentApplicationComponent implements OnInit {
             interests.push({
                 type: 'MIGRATION',
                 subType: 'default',
-                program: `MIGRATION ${p.country || ''}`.trim(),
+                program: `${p.country || ''}`.trim(),
                 status: '',
                 sub_status: '',
                 remarks: '',
-                is_selected: true,
+                is_selected: 2,
                 branch_id: null,
                 department_id: null,
                 assigned_to: null,
@@ -1150,11 +1182,11 @@ export class StudentApplicationComponent implements OnInit {
             interests.push({
                 type: 'VISA',
                 subType: 'default',
-                program: `VISA ${p.country || ''}`.trim(),
+                program: `${p.country || ''}`.trim(),
                 status: '',
                 sub_status: '',
                 remarks: '',
-                is_selected: true,
+                is_selected: 2,
                 branch_id: null,
                 department_id: null,
                 assigned_to: null,
@@ -1170,11 +1202,11 @@ export class StudentApplicationComponent implements OnInit {
             interests.push({
                 type: 'WORK',
                 subType: 'default',
-                program: `WORK ${p.country || ''}`.trim(),
+                program: `${p.country || ''}`.trim(),
                 status: '',
                 sub_status: '',
                 remarks: '',
-                is_selected: true,
+                is_selected: 2,
                 branch_id: null,
                 department_id: null,
                 assigned_to: null,
@@ -1194,7 +1226,7 @@ export class StudentApplicationComponent implements OnInit {
                 status: '',
                 sub_status: '',
                 remarks: '',
-                is_selected: true,
+                is_selected: 2,
                 branch_id: null,
                 department_id: null,
                 assigned_to: null,
@@ -1603,12 +1635,12 @@ export class StudentApplicationComponent implements OnInit {
 
         // 1. Skill Assessment (NO -> ensure there is an 'OTHER' row with program = 'Skill Assessment' and _isSystem = true)
         if (this.application.has_skill_assessment === false) {
-            const exists = this.suggestedPrograms.some(p => p.type === 'OTHER' && p.program === 'Skill Assessment' && p._isSystem);
+            const exists = this.suggestedPrograms.some(p => (p.type === 'OTHER' && p.program === 'Skill Assessment' || p.type === 'Skill Assessment') && p._isSystem);
             if (!exists) {
-                this.addSuggestedProgram('OTHER', 'Skill Assessment', true);
+                this.addSuggestedProgram('Skill Assessment', 'Skill Assessment', true);
             }
         } else {
-            const idx = this.suggestedPrograms.findIndex(p => p.type === 'OTHER' && p.program === 'Skill Assessment' && p._isSystem);
+            const idx = this.suggestedPrograms.findIndex(p => (p.type === 'OTHER' && p.program === 'Skill Assessment' || p.type === 'Skill Assessment') && p._isSystem);
             if (idx > -1) {
                 this.suggestedPrograms.splice(idx, 1);
             }
@@ -1616,12 +1648,12 @@ export class StudentApplicationComponent implements OnInit {
 
         // 2. Language Test (NO -> ensure there is an 'OTHER' row with program = 'Language Test' and _isSystem = true)
         if (this.application.has_language_test === false) {
-            const exists = this.suggestedPrograms.some(p => p.type === 'OTHER' && p.program === 'Language Test' && p._isSystem);
+            const exists = this.suggestedPrograms.some(p => (p.type === 'OTHER' && p.program === 'Language Test' || p.type === 'Language Test') && p._isSystem);
             if (!exists) {
-                this.addSuggestedProgram('OTHER', 'Language Test', true);
+                this.addSuggestedProgram('Language Test', 'Language Test', true);
             }
         } else {
-            const idx = this.suggestedPrograms.findIndex(p => p.type === 'OTHER' && p.program === 'Language Test' && p._isSystem);
+            const idx = this.suggestedPrograms.findIndex(p => (p.type === 'OTHER' && p.program === 'Language Test' || p.type === 'Language Test') && p._isSystem);
             if (idx > -1) {
                 this.suggestedPrograms.splice(idx, 1);
             }
@@ -1629,12 +1661,12 @@ export class StudentApplicationComponent implements OnInit {
 
         // 3. Admission Test (NO -> ensure there is an 'OTHER' row with program = 'Admission Test' and _isSystem = true)
         if (this.application.has_admission_test === false) {
-            const exists = this.suggestedPrograms.some(p => p.type === 'OTHER' && p.program === 'Admission Test' && p._isSystem);
+            const exists = this.suggestedPrograms.some(p => (p.type === 'OTHER' && p.program === 'Admission Test' || p.type === 'Admission Test') && p._isSystem);
             if (!exists) {
-                this.addSuggestedProgram('OTHER', 'Admission Test', true);
+                this.addSuggestedProgram('Admission Test', 'Admission Test', true);
             }
         } else {
-            const idx = this.suggestedPrograms.findIndex(p => p.type === 'OTHER' && p.program === 'Admission Test' && p._isSystem);
+            const idx = this.suggestedPrograms.findIndex(p => (p.type === 'OTHER' && p.program === 'Admission Test' || p.type === 'Admission Test') && p._isSystem);
             if (idx > -1) {
                 this.suggestedPrograms.splice(idx, 1);
             }
@@ -1642,12 +1674,12 @@ export class StudentApplicationComponent implements OnInit {
 
         // 4. Spouse Language Test (NO -> ensure there is an 'OTHER' row with program = 'Spouse Language Test' and _isSystem = true)
         if (this.application.spouse_has_language_test === false) {
-            const exists = this.suggestedPrograms.some(p => p.type === 'OTHER' && p.program === 'Spouse Language Test' && p._isSystem);
+            const exists = this.suggestedPrograms.some(p => (p.type === 'OTHER' && p.program === 'Spouse Language Test' || p.type === 'Spouse Language Test') && p._isSystem);
             if (!exists) {
-                this.addSuggestedProgram('OTHER', 'Spouse Language Test', true);
+                this.addSuggestedProgram('Spouse Language Test', 'Spouse Language Test', true);
             }
         } else {
-            const idx = this.suggestedPrograms.findIndex(p => p.type === 'OTHER' && p.program === 'Spouse Language Test' && p._isSystem);
+            const idx = this.suggestedPrograms.findIndex(p => (p.type === 'OTHER' && p.program === 'Spouse Language Test' || p.type === 'Spouse Language Test') && p._isSystem);
             if (idx > -1) {
                 this.suggestedPrograms.splice(idx, 1);
             }
@@ -1720,12 +1752,16 @@ export class StudentApplicationComponent implements OnInit {
         if (type === 'language') {
             const hasKey = target === 'spouse' ? 'spouse_has_language_test' : 'has_language_test';
             const listKey = target === 'spouse' ? 'spouse_language_test_list' : 'language_test_list';
-            if (this.application[hasKey] && (!this.application[listKey] || this.application[listKey].length === 0)) {
+            if (this.application[hasKey] === true && (!this.application[listKey] || this.application[listKey].length === 0)) {
                 this.addLanguageTest(target);
+            } else if (this.application[hasKey] === false) {
+                this.application[listKey] = [];
             }
         } else {
-            if (this.application.has_admission_test && (!this.application.admission_test_list || this.application.admission_test_list.length === 0)) {
+            if (this.application.has_admission_test === true && (!this.application.admission_test_list || this.application.admission_test_list.length === 0)) {
                 this.addAdmissionTest();
+            } else if (this.application.has_admission_test === false) {
+                this.application.admission_test_list = [];
             }
         }
     }

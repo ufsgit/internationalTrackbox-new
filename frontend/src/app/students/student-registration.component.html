@@ -371,7 +371,7 @@
                             <label><input type="radio" name="has_lang" [(ngModel)]="application.has_language_test"
                                     [value]="true" (change)="addLanguageTest(); onLanguageTestChange()"> YES</label>
                             <label><input type="radio" name="has_lang" [(ngModel)]="application.has_language_test"
-                                    [value]="false" (change)="onLanguageTestChange()"> NO</label>
+                                    [value]="false" (change)="onTestToggle('language'); onLanguageTestChange()"> NO</label>
                         </div>
                     </div>
 
@@ -418,7 +418,7 @@
                             <label><input type="radio" name="has_adm" [(ngModel)]="application.has_admission_test"
                                     [value]="true" (change)="addAdmissionTest(); onAdmissionTestChange()"> YES</label>
                             <label><input type="radio" name="has_adm" [(ngModel)]="application.has_admission_test"
-                                    [value]="false" (change)="onAdmissionTestChange()"> NO</label>
+                                    [value]="false" (change)="onTestToggle('admission'); onAdmissionTestChange()"> NO</label>
                         </div>
                     </div>
 
@@ -731,126 +731,152 @@
             <h3 class="section-title">PROGRAM REQUIRED</h3>
 
             <div class="table-actions-modern mb-3">
-                <button class="btn btn-type study" (click)="addSuggestedProgram('STUDY')">+ Study</button>
-                <button class="btn btn-type migration" (click)="addSuggestedProgram('MIGRATION')">+ Migration</button>
-                <button class="btn btn-type visa" (click)="addSuggestedProgram('VISA')">+ Visa</button>
-                <button class="btn btn-type work" (click)="addSuggestedProgram('WORK')">+ Work</button>
-                <button class="btn btn-type coaching" (click)="addSuggestedProgram('COACHING')">+ Coaching</button>
-                <button class="btn btn-type language" (click)="addSuggestedProgram('OTHER', 'Language Test')">+ Language</button>
-                <button class="btn btn-type admission" (click)="addSuggestedProgram('OTHER', 'Admission Test')">+ Admission</button>
-                <button class="btn btn-type spouse-language" (click)="addSuggestedProgram('OTHER', 'Spouse Language Test')">+ Spouse Language</button>
-                <button class="btn btn-type skill-assessment" (click)="addSuggestedProgram('OTHER', 'Skill Assessment')">+ Skill Assessment</button>
-                <button class="btn btn-type loan" (click)="addSuggestedProgram('EDUCATION LOAN')">+ Education Loan</button>
-                <button class="btn btn-type ticketing" (click)="addSuggestedProgram('TICKETING')">+ Ticketing</button>
-                <button class="btn btn-type forex" (click)="addSuggestedProgram('FOREX')">+ Forex</button>
+                <button class="btn btn-type study" (click)="addSuggestedProgram('STUDY')">Study</button>
+                <button class="btn btn-type migration" (click)="addSuggestedProgram('MIGRATION')">Migration</button>
+                <button class="btn btn-type visa" (click)="addSuggestedProgram('VISA')">Visa</button>
+                <button class="btn btn-type work" (click)="addSuggestedProgram('WORK')">Work</button>
+                <button class="btn btn-type coaching" (click)="addSuggestedProgram('COACHING')">Coaching</button>
+                <button class="btn btn-type language" (click)="addSuggestedProgram('Language Test', 'Language Test')">Language</button>
+                <button class="btn btn-type admission" (click)="addSuggestedProgram('Admission Test', 'Admission Test')">Admission</button>
+                <button class="btn btn-type spouse-language" (click)="addSuggestedProgram('Spouse Language Test', 'Spouse Language Test')">Spouse Language</button>
+                <button class="btn btn-type skill-assessment" (click)="addSuggestedProgram('Skill Assessment', 'Skill Assessment')">Skill Assessment</button>
+                <button class="btn btn-type loan" (click)="addSuggestedProgram('EDUCATION LOAN')">Education Loan</button>
+                <button class="btn btn-type ticketing" (click)="addSuggestedProgram('TICKETING')">Ticketing</button>
+                <button class="btn btn-type forex" (click)="addSuggestedProgram('FOREX')">Forex</button>
             </div>
             <div class="table-responsive">
                 <table class="app-table">
                     <thead>
                         <tr>
-                            <th width="40px">ACTION</th>
-                            <th width="40px">SEL</th>
                             <th width="4%">TYPE</th>
-                            <th width="15%">PROGRAM</th>
-                            <th width="23%">APPLIED FOR</th>
-                            <th width="10%">APPLIED DETAILS</th>
-                            <th width="8%">STATUS</th>
-                            <th width="6%">SUB STATUS</th>
-                            <th width="8%">REMARKS</th>
+                            <th width="12%">PROGRAM</th>
+                            <th width="21%">APPLIED FOR</th>
+                            <th width="15%">APPLIED DETAILS</th>
+                            <th width="9%">STATUS</th>
+                            <th width="8%">SUB STATUS</th>
+                            <th width="7%">REMARKS</th>
                             <th width="8%">Branch</th>
-                            <th width="9%">Department</th>
-                            <th width="9%">To Staff</th>
+                            <th width="8%">Department</th>
+                            <th width="8%">To Staff</th>
+                            <th width="40px">SEL</th>
+                            <th width="40px">ACTION</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let p of suggestedPrograms; let i = index">
-                            <td><button type="button" class="btn btn-sm" (click)="removeProgram(i)" title="Remove" style="background: #fdf2f2; color: #e74c3c; border: 1px solid #fee2e2; height: 34px; width: 34px; padding: 0; display: flex; align-items: center; justify-content: center; font-size: 20px; border-radius: 50%; cursor: pointer;">&times;</button></td>
-                            <td><input type="checkbox" [(ngModel)]="p.is_selected"></td>
+                        <tr *ngFor="let p of suggestedPrograms; let i = index" [class.system-row]="p._isSystem">
+                            
                             <td>
                                 <span class="type-badge" [ngClass]="getBadgeClass(p)">{{getBadgeText(p)}}</span>
                             </td>
                             <td class="prog-cell">
-                                <ng-container [ngSwitch]="p.type">
+                                <ng-container [ngSwitch]="getProgramColumnType(p)">
                                     <div *ngSwitchDefault class="flex-inputs">
-                                        <input type="text" [(ngModel)]="p.country" list="countryList"
-                                            (ngModelChange)="onCountryChange(p)" placeholder="Country">
+                                        <ng-select [items]="lookups.countries" bindLabel="name" bindValue="name"
+                                            placeholder="Country" [searchable]="true" [clearable]="true"
+                                            [(ngModel)]="p.country" (ngModelChange)="onCountryChange(p)"
+                                            class="suggested-program-select no-dropdown-btn"></ng-select>
                                     </div>
                                     <div *ngSwitchCase="'OTHER'">
-                                        <ng-container *ngIf="p._isSystem; else otherSelect">
-                                            <input type="text" [value]="p.program" readonly disabled class="static-input">
+                                        <ng-container [ngSwitch]="p.type">
+                                            <ng-select *ngSwitchCase="'Admission Test'" [items]="lookups.admissionCourses" bindLabel="name" bindValue="name" placeholder="Select Test" [searchable]="true" [clearable]="true" [(ngModel)]="p.program" class="suggested-program-select no-dropdown-btn"></ng-select>
+                                            <ng-select *ngSwitchCase="'Language Test'" [items]="lookups.languageCourses" bindLabel="name" bindValue="name" placeholder="Select Test" [searchable]="true" [clearable]="true" [(ngModel)]="p.program" class="suggested-program-select no-dropdown-btn"></ng-select>
+                                            <ng-select *ngSwitchCase="'Spouse Language Test'" [items]="lookups.languageCourses" bindLabel="name" bindValue="name" placeholder="Select Test" [searchable]="true" [clearable]="true" [(ngModel)]="p.program" class="suggested-program-select no-dropdown-btn"></ng-select>
+                                            <ng-select *ngSwitchCase="'Skill Assessment'" [items]="lookups.boardAuthorities" bindLabel="name" bindValue="name" placeholder="Select Board/Authority" [searchable]="true" [clearable]="true" [(ngModel)]="p.program" class="suggested-program-select no-dropdown-btn"></ng-select>
+                                            <input *ngSwitchDefault type="text" [(ngModel)]="p.program" placeholder="Program Name">
                                         </ng-container>
-                                        <ng-template #otherSelect>
-                                            <select [(ngModel)]="p.program" style="width: 100%; height: 34px; padding: 4px; border: 1px solid #cbd5e1; border-radius: 4px;">
-                                                <option value="">-- Select Program --</option>
-                                                <option *ngFor="let ot of lookups.otherTypes" [value]="ot.name">{{ot.name}}</option>
-                                            </select>
-                                        </ng-template>
                                     </div>
                                     <div *ngSwitchCase="'COACHING'">
-                                        <input type="text" value="COACHING" readonly disabled class="static-input">
+                                        <ng-select [items]="lookups.coachingCourses" bindLabel="name" bindValue="name" placeholder="Select Course" [searchable]="true" [clearable]="true" [(ngModel)]="p.program" class="suggested-program-select no-dropdown-btn"></ng-select>
                                     </div>
                                     <div *ngSwitchCase="'EDUCATION LOAN'">
-                                        <input type="text" value="EDUCATION LOAN" readonly disabled class="static-input">
+                                        <input type="text" [(ngModel)]="p.program" placeholder="Program Name" style="width:100%;">
                                     </div>
                                     <div *ngSwitchCase="'TICKETING'">
-                                        <input type="text" value="TICKETING" readonly disabled class="static-input">
+                                        <input type="text" [(ngModel)]="p.program" placeholder="Program Name" style="width:100%;">
                                     </div>
                                     <div *ngSwitchCase="'FOREX'">
-                                        <input type="text" value="FOREX" readonly disabled class="static-input">
+                                        <input type="text" [(ngModel)]="p.program" placeholder="Program Name" style="width:100%;">
                                     </div>
                                 </ng-container>
                             </td>
                             <td class="details-cell">
-                                <ng-container [ngSwitch]="p.type">
-                                    <div *ngSwitchCase="'STUDY'" class="details-row-inputs">
-                                        <input type="text" [(ngModel)]="p.applied_for" list="levelList"
-                                            placeholder="Level">
-                                        <input type="text" [(ngModel)]="p.details" list="fieldList"
-                                            placeholder="Field">
+                                <ng-container [ngSwitch]="getProgramColumnType(p)">
+                                    <div *ngSwitchCase="'STUDY'" class="details-row-inputs two-col-equal">
+                                        <ng-select [items]="lookups.levels" bindLabel="name" bindValue="name"
+                                            placeholder="Level" [searchable]="true" [clearable]="true"
+                                            [(ngModel)]="p.applied_for"
+                                            class="suggested-program-select no-dropdown-btn"></ng-select>
+                                        <ng-select [items]="lookups.fields" bindLabel="name" bindValue="name"
+                                            placeholder="Field" [searchable]="true" [clearable]="true"
+                                            [(ngModel)]="p.details"
+                                            class="suggested-program-select no-dropdown-btn"></ng-select>
                                     </div>
-                                    <div *ngSwitchCase="'MIGRATION'" class="details-row-inputs">
-                                        <input type="text" [(ngModel)]="p.applied_for" list="occList"
-                                            placeholder="Occupation">
-                                        <input type="text" [(ngModel)]="p.details" list="categoryList"
-                                            placeholder="Category">
+                                    <div *ngSwitchCase="'MIGRATION'" class="details-row-inputs two-col-equal">
+                                        <ng-select [items]="lookups.occupations" bindLabel="name" bindValue="name"
+                                            placeholder="Occupation" [searchable]="true" [clearable]="true"
+                                            [(ngModel)]="p.applied_for"
+                                            class="suggested-program-select no-dropdown-btn"></ng-select>
+                                        <ng-select [items]="lookups.categories" bindLabel="name" bindValue="name"
+                                            placeholder="Details" [searchable]="true" [clearable]="true"
+                                            [(ngModel)]="p.details"
+                                            class="suggested-program-select no-dropdown-btn"></ng-select>
                                     </div>
-                                    <div *ngSwitchCase="'VISA'" class="details-row-inputs">
-                                        <input type="text" [(ngModel)]="p.applied_for" list="categoryList"
-                                            placeholder="Category">
+                                    <div *ngSwitchCase="'VISA'" class="details-row-inputs two-col-equal">
+                                        <ng-select [items]="lookups.categories" bindLabel="name" bindValue="name"
+                                            placeholder="Category" [searchable]="true" [clearable]="true"
+                                            [(ngModel)]="p.applied_for"
+                                            class="suggested-program-select no-dropdown-btn"></ng-select>
+                                        <input type="text" [(ngModel)]="p.details" placeholder="Details">
                                     </div>
-                                    <div *ngSwitchCase="'WORK'" class="details-row-inputs">
-                                        <input type="text" [(ngModel)]="p.applied_for" list="occList"
-                                            placeholder="Occupation">
+                                    <div *ngSwitchCase="'WORK'" class="details-row-inputs two-col-equal">
+                                        <ng-select [items]="lookups.occupations" bindLabel="name" bindValue="name"
+                                            placeholder="Occupation" [searchable]="true" [clearable]="true"
+                                            [(ngModel)]="p.applied_for"
+                                            class="suggested-program-select no-dropdown-btn"></ng-select>
+                                        <input type="text" [(ngModel)]="p.details" placeholder="Details">
                                     </div>
                                     <div *ngSwitchCase="'COACHING'" class="details-row-inputs">
-                                        <select [(ngModel)]="p.applied_for" style="flex: 0 0 55%; min-width: 0;">
-                                            <option value="">-- Select Course --</option>
-                                            <option *ngFor="let c of lookups.coachingCourses" [value]="c.name">{{c.name}}</option>
-                                        </select>
-                                        <input type="text" [(ngModel)]="p.details"
+                                        <input type="text" [(ngModel)]="p.applied_for"
                                             placeholder="Batch" style="flex: 1; min-width: 0;">
+                                        <input type="text" [(ngModel)]="p.details" placeholder="Details">
+                                    </div>
+                                    <div *ngSwitchCase="'OTHER'" class="details-row-inputs">
+                                        <input type="text" [(ngModel)]="p.applied_for" placeholder="Details">
+                                        <input type="text" [(ngModel)]="p.details" placeholder="Details">
                                     </div>
                                     <div *ngSwitchDefault class="details-row-inputs">
+                                        <input type="text" [(ngModel)]="p.applied_for" placeholder="Details">
                                         <input type="text" [(ngModel)]="p.details" placeholder="Details">
                                     </div>
                                 </ng-container>
                             </td>
                             <td>
-                                <ng-container [ngSwitch]="p.type">
-                                    <div *ngSwitchCase="'STUDY'" class="details-row-inputs">
-                                        <input type="text" [(ngModel)]="p.details2" list="intakeList"
-                                            placeholder="Intake">
-                                        <input type="text" [(ngModel)]="p.details3" list="yearList"
-                                            placeholder="Year">
+                                <ng-container [ngSwitch]="getProgramColumnType(p)">
+                                    <div *ngSwitchCase="'STUDY'" class="details-row-inputs two-col-equal">
+                                        <ng-select [items]="lookups.intakes" bindLabel="name" bindValue="name"
+                                            placeholder="Intake" [searchable]="true" [clearable]="true"
+                                            [(ngModel)]="p.details2"
+                                            class="suggested-program-select no-dropdown-btn"></ng-select>
+                                        <ng-select [items]="lookups.years"
+                                            placeholder="Year" [searchable]="true" [clearable]="true"
+                                            [(ngModel)]="p.details3"
+                                            class="suggested-program-select no-dropdown-btn"></ng-select>
                                     </div>
-                                    <div *ngSwitchCase="'VISA'" class="details-row-inputs">
-                                        <input type="text" [(ngModel)]="p.details" placeholder="Extra Details (Optional)">
+                                    <div *ngSwitchCase="'MIGRATION'" class="details-row-inputs two-col-equal">
+                                        <input type="text" [(ngModel)]="p.details2" placeholder="Details" style="flex: 1">
+                                        <input type="text" [(ngModel)]="p.details3" placeholder="Details" style="flex: 1">
                                     </div>
-                                    <div *ngSwitchCase="'WORK'" class="details-row-inputs">
-                                        <input type="text" [(ngModel)]="p.details" placeholder="Employer (Optional)">
+                                    <div *ngSwitchCase="'VISA'" class="details-row-inputs two-col-equal">
+                                        <input type="text" [(ngModel)]="p.details2" placeholder="Extra Details" style="flex: 1">
+                                        <input type="text" [(ngModel)]="p.details3" placeholder="More Details" style="flex: 1">
                                     </div>
-                                    <div *ngSwitchDefault>
-                                        <input type="text" placeholder="Details" style="visibility: hidden;">
+                                    <div *ngSwitchCase="'WORK'" class="details-row-inputs two-col-equal">
+                                        <input type="text" [(ngModel)]="p.details2" placeholder="Employer" style="flex: 1">
+                                        <input type="text" [(ngModel)]="p.details3" placeholder="Details" style="flex: 1">
+                                    </div>
+                                    <div *ngSwitchDefault class="details-row-inputs two-col-equal">
+                                        <input type="text" [(ngModel)]="p.details2" placeholder="Details" style="flex: 1">
+                                        <input type="text" [(ngModel)]="p.details3" placeholder="More Details" style="flex: 1">
                                     </div>
                                 </ng-container>
                             </td>
@@ -888,7 +914,14 @@
                                     <option *ngFor="let s of rowStaff[i]" [value]="s.user_id">{{s.username}}</option>
                                 </select>
                             </td>
-                            
+                            <td>
+                                <select [(ngModel)]="p.is_selected" style="min-width: 90px;">
+                                    <option [ngValue]="0">Unchecked</option>
+                                    <option [ngValue]="1">Paid</option>
+                                    <option [ngValue]="2">Unpaid</option>
+                                </select>
+                            </td>
+                            <td><button type="button" class="btn btn-sm" (click)="removeProgram(i)" title="Remove" style="background: #fdf2f2; color: #e74c3c; border: 1px solid #fee2e2; height: 34px; width: 34px; padding: 0; display: flex; align-items: center; justify-content: center; font-size: 20px; border-radius: 50%; cursor: pointer;">&times;</button></td>
                             
                         </tr>
                     </tbody>

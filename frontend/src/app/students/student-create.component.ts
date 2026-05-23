@@ -259,6 +259,8 @@ export class StudentCreateComponent implements OnInit {
     onProgramToggle(type: keyof typeof this.programs, isChecked: boolean) {
         if (isChecked && this.programs[type].length === 0) {
             this.addProgramRow(type);
+        } else if (!isChecked) {
+            this.programs[type] = [];
         }
     }
 
@@ -287,14 +289,103 @@ export class StudentCreateComponent implements OnInit {
     }
 
     onSave() {
-        if (!this.student.student_name || !this.student.mobile_number) {
-            this.dialogService.warn('Student Name and Mobile Number are required!');
+        let missingFieldMsg = '';
+        let targetSelector = '';
+
+        if (!this.student.student_name?.trim()) {
+            missingFieldMsg = 'Student Name is required!';
+            targetSelector = '#input-student-name';
+        } else if (!this.student.mobile_number?.trim()) {
+            missingFieldMsg = 'Mobile Number is required!';
+            targetSelector = '#input-mobile-number';
+        }
+
+        if (!missingFieldMsg && this.student.study_interested) {
+            for (let i = 0; i < this.programs.study.length; i++) {
+                const p = this.programs.study[i];
+                if (!p.country || !p.level || !p.field || !p.intake || !p.year) {
+                    missingFieldMsg = `Please fill all fields in Study row ${i + 1}`;
+                    targetSelector = '#section-study';
+                    break;
+                }
+            }
+        }
+
+        if (!missingFieldMsg && this.student.migration_interested) {
+            for (let i = 0; i < this.programs.migration.length; i++) {
+                const p = this.programs.migration[i];
+                if (!p.country || !p.occupation || !p.category) {
+                    missingFieldMsg = `Please fill all fields in Migration row ${i + 1}`;
+                    targetSelector = '#section-migration';
+                    break;
+                }
+            }
+        }
+
+        if (!missingFieldMsg && this.student.coaching_interested) {
+            for (let i = 0; i < this.programs.coaching.length; i++) {
+                const p = this.programs.coaching[i];
+                if (!p.course || !p.batch) {
+                    missingFieldMsg = `Please fill all fields in Coaching row ${i + 1}`;
+                    targetSelector = '#section-coaching';
+                    break;
+                }
+            }
+        }
+
+        if (!missingFieldMsg && this.student.visa_interested) {
+            for (let i = 0; i < this.programs.visa.length; i++) {
+                const p = this.programs.visa[i];
+                if (!p.country || !p.category) {
+                    missingFieldMsg = `Please fill all fields in Visa row ${i + 1}`;
+                    targetSelector = '#section-visa';
+                    break;
+                }
+            }
+        }
+
+        if (!missingFieldMsg && this.student.work_interested) {
+            for (let i = 0; i < this.programs.work.length; i++) {
+                const p = this.programs.work[i];
+                if (!p.country || !p.occupation) {
+                    missingFieldMsg = `Please fill all fields in Work row ${i + 1}`;
+                    targetSelector = '#section-work';
+                    break;
+                }
+            }
+        }
+
+        if (missingFieldMsg) {
+            this.dialogService.warn(missingFieldMsg, 'Warning', () => {
+                if (targetSelector) {
+                    setTimeout(() => {
+                        const el = document.querySelector(targetSelector) as HTMLElement;
+                        if (el) {
+                            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            
+                            let focusEl = el;
+                            if (el.tagName.toLowerCase() === 'section') {
+                                const firstInput = el.querySelector('input, select') as HTMLElement;
+                                if (firstInput) focusEl = firstInput;
+                            }
+                            
+                            setTimeout(() => focusEl.focus({ preventScroll: true }), 300);
+                        }
+                    }, 50);
+                }
+            });
             return;
         }
 
         const payload = {
             student: this.student,
-            programs: this.programs
+            programs: {
+                study: this.student.study_interested ? this.programs.study : [],
+                migration: this.student.migration_interested ? this.programs.migration : [],
+                coaching: this.student.coaching_interested ? this.programs.coaching : [],
+                visa: this.student.visa_interested ? this.programs.visa : [],
+                work: this.student.work_interested ? this.programs.work : []
+            }
         };
 
         this.loadingService.show();

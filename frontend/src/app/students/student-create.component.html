@@ -11,7 +11,7 @@
             <div class="form-row">
                 <div class="form-group flex-2">
                     <label>Student Name <span class="required">*</span></label>
-                    <input type="text" [(ngModel)]="student.student_name" placeholder="Enter Student Name">
+                    <input type="text" id="input-student-name" [(ngModel)]="student.student_name" placeholder="Enter Student Name">
                 </div>
                 <div class="form-group flex-1">
                     <label>Enquiry Source</label>
@@ -29,7 +29,7 @@
                                 <option value="+971">+971 (UAE)</option>
                                 <option value="+1">+1 (US)</option>
                             </select>
-                            <input type="tel" [(ngModel)]="student.mobile_number" maxlength="10" (input)="onNumberInput($event, 'mobile_number')" placeholder="Mobile Number">
+                            <input type="tel" id="input-mobile-number" [(ngModel)]="student.mobile_number" maxlength="10" (input)="onNumberInput($event, 'mobile_number')" placeholder="Mobile Number">
                         </div>
                         <div class="social-checks-inline">
                             <label title="Whatsapp"><input type="checkbox" [(ngModel)]="student.whatsapp"> <i
@@ -94,7 +94,7 @@
         <!-- Dynamic Program Sections -->
         <div class="dynamic-programs">
             <!-- Study Details -->
-            <section class="program-section" *ngIf="student.study_interested">
+            <section class="program-section" *ngIf="student.study_interested" id="section-study">
                 <div class="section-header">
                     <h4>STUDY</h4>
                     <button class="btn-add" (click)="addProgramRow('study')">Add Row+</button>
@@ -117,7 +117,7 @@
             </section>
 
             <!-- Migration Details -->
-            <section class="program-section" *ngIf="student.migration_interested">
+            <section class="program-section" *ngIf="student.migration_interested" id="section-migration">
                 <div class="section-header">
                     <h4>MIGRATION</h4>
                     <button class="btn-add" (click)="addProgramRow('migration')">Add Row+</button>
@@ -138,7 +138,7 @@
             </section>
 
             <!-- Coaching Details -->
-            <section class="program-section" *ngIf="student.coaching_interested">
+            <section class="program-section" *ngIf="student.coaching_interested" id="section-coaching">
                 <div class="section-header">
                     <h4>COACHING</h4>
                     <button class="btn-add" (click)="addProgramRow('coaching')">Add Row+</button>
@@ -158,7 +158,7 @@
             </section>
 
             <!-- Visa Details -->
-            <section class="program-section" *ngIf="student.visa_interested">
+            <section class="program-section" *ngIf="student.visa_interested" id="section-visa">
                 <div class="section-header">
                     <h4>VISA</h4>
                     <button class="btn-add" (click)="addProgramRow('visa')">Add Row+</button>
@@ -178,7 +178,7 @@
             </section>
 
             <!-- Work Details -->
-            <section class="program-section" *ngIf="student.work_interested">
+            <section class="program-section" *ngIf="student.work_interested" id="section-work">
                 <div class="section-header">
                     <h4>WORK</h4>
                     <button class="btn-add" (click)="addProgramRow('work')">Add Row+</button>

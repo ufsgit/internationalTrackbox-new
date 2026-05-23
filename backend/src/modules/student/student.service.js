@@ -5,6 +5,13 @@ const toBoolInt = (val) => {
     return 0;
 };
 
+const toNullableBoolInt = (val) => {
+    if (val === null || val === undefined || val === '') return null;
+    if (val === true || val === 'true' || val === 1 || val === '1') return 1;
+    if (val === false || val === 'false' || val === 0 || val === '0') return 0;
+    return null;
+};
+
 const normalizeDate = (d) => {
     if (!d) return null;
     if (typeof d === 'string') {
@@ -248,14 +255,14 @@ const saveStudentApplication = (studentId, data) => {
                         application.highest_education || '',
                         application.education_field || '',
                         application.spouse_age || null,
-                        toBoolInt(application.spouse_has_language_test),
+                        toNullableBoolInt(application.spouse_has_language_test),
                         toBoolInt(application.contact1_whatsapp),
                         toBoolInt(application.contact1_bot),
                         toBoolInt(application.contact1_telegram),
                         toBoolInt(application.contact2_whatsapp),
                         toBoolInt(application.contact2_bot),
                         toBoolInt(application.contact2_telegram),
-                        toBoolInt(application.has_skill_assessment),
+                        toNullableBoolInt(application.has_skill_assessment),
                         toBoolInt(application.skill_assessment_interest),
                         toBoolInt(application.interested_in_lang_coaching),
                         toBoolInt(application.interested_in_admission_coaching)
@@ -263,6 +270,12 @@ const saveStudentApplication = (studentId, data) => {
                 );
 
                 const applicationId = results[0][0].app_id;
+
+                // Keep application-level test flags in sync with UI selection (YES/NO/empty).
+                await pConn.query(
+                    'UPDATE student_applications SET has_language_test = ?, has_admission_test = ? WHERE application_id = ?',
+                    [toNullableBoolInt(application.has_language_test), toNullableBoolInt(application.has_admission_test), applicationId]
+                );
 
                 // 2. Clear existing children, programs, skills, and interests (Full Cleanup)
                 await pConn.query('CALL sp_DeleteApplicationChildrenFull(?)', [applicationId]);
@@ -368,7 +381,7 @@ const saveStudentApplication = (studentId, data) => {
                     for (const prog of suggestedPrograms) {
                         await pConn.query(
                             'INSERT INTO suggested_programs (application_id, issystem, program_type, program, applied_for, details, details2, details3, status, sub_status, remarks, is_selected, branch_id, department_id, assigned_to) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                            [applicationId, toBoolInt(prog.issystem !== undefined ? prog.issystem : prog._isSystem), prog.type || 'OTHER', prog.program, prog.applied_for || null, prog.details || null, prog.details2 || null, prog.details3 || null, prog.status || null, prog.sub_status || null, prog.remarks || null, toBoolInt(prog.is_selected), prog.branch_id || null, prog.department_id || null, prog.assigned_to || null]
+                            [applicationId, toBoolInt(prog.issystem !== undefined ? prog.issystem : prog._isSystem), prog.type || 'OTHER', prog.program, prog.applied_for || null, prog.details || null, prog.details2 || null, prog.details3 || null, prog.status || null, prog.sub_status || null, prog.remarks || null, (prog.is_selected !== undefined && prog.is_selected !== null && prog.is_selected !== '') ? parseInt(prog.is_selected) : null, prog.branch_id || null, prog.department_id || null, prog.assigned_to || null]
                         );
                     }
                 }
@@ -450,23 +463,29 @@ const saveStudentRegistration = (studentId, data) => {
                         app.highest_education || '',
                         app.education_field || '',
                         app.spouse_age || null,
-                        toBoolInt(app.spouse_has_language_test),
+                        toNullableBoolInt(app.spouse_has_language_test),
                         toBoolInt(app.contact1_whatsapp),
                         toBoolInt(app.contact1_bot),
                         toBoolInt(app.contact1_telegram),
                         toBoolInt(app.contact2_whatsapp),
                         toBoolInt(app.contact2_bot),
                         toBoolInt(app.contact2_telegram),
-                        toBoolInt(app.has_skill_assessment),
+                        toNullableBoolInt(app.has_skill_assessment),
                         toBoolInt(app.skill_assessment_interest),
                         toBoolInt(app.interested_in_lang_coaching),
                         toBoolInt(app.interested_in_admission_coaching),
-                        toBoolInt(app.has_language_test),
-                        toBoolInt(app.has_admission_test)
+                        toNullableBoolInt(app.has_language_test),
+                        toNullableBoolInt(app.has_admission_test)
                     ]
                 );
 
                 const registrationId = results[0][0].reg_id;
+
+                // Keep registration-level test flags in sync with UI selection (YES/NO/empty).
+                await pConn.query(
+                    'UPDATE student_registrations SET has_language_test = ?, has_admission_test = ? WHERE registration_id = ?',
+                    [toNullableBoolInt(app.has_language_test), toNullableBoolInt(app.has_admission_test), registrationId]
+                );
 
                 // 2. Clear existing children, programs, skills, and interests (Full Cleanup)
                 await pConn.query('CALL sp_DeleteRegistrationChildrenFull(?)', [registrationId]);
@@ -572,7 +591,7 @@ const saveStudentRegistration = (studentId, data) => {
                     for (const prog of suggestedPrograms) {
                         await pConn.query(
                             'INSERT INTO registration_suggested_programs (registration_id, issystem, program_type, program, applied_for, details, details2, details3, status, sub_status, remarks, is_selected, branch_id, department_id, assigned_to) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                            [registrationId, toBoolInt(prog.issystem !== undefined ? prog.issystem : prog._isSystem), prog.type || 'OTHER', prog.program, prog.applied_for || null, prog.details || null, prog.details2 || null, prog.details3 || null, prog.status || null, prog.sub_status || null, prog.remarks || null, toBoolInt(prog.is_selected), prog.branch_id || null, prog.department_id || null, prog.assigned_to || null]
+                            [registrationId, toBoolInt(prog.issystem !== undefined ? prog.issystem : prog._isSystem), prog.type || 'OTHER', prog.program, prog.applied_for || null, prog.details || null, prog.details2 || null, prog.details3 || null, prog.status || null, prog.sub_status || null, prog.remarks || null, (prog.is_selected !== undefined && prog.is_selected !== null && prog.is_selected !== '') ? parseInt(prog.is_selected) : null, prog.branch_id || null, prog.department_id || null, prog.assigned_to || null]
                         );
                     }
                 }

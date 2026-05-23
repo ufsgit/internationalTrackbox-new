@@ -285,7 +285,8 @@ input[type="radio"] {
 
 .app-table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
     min-width: 1600px;
 }
 
@@ -301,6 +302,33 @@ input[type="radio"] {
 .app-table td {
     padding: 2px 4px;
     border-bottom: 1px solid #f1f5f9;
+    border-top: 1px solid transparent;
+}
+
+.app-table tbody tr:hover td {
+    background-color: #e8f0fe;
+    transition: background-color 0.15s ease;
+}
+
+.app-table tbody tr.system-row:hover td {
+    background-color: #bfdbfe;
+}
+
+/* System-suggested row: blue rounded outline via per-cell borders */
+.app-table tr.system-row td {
+    border-top: 2px solid #2563eb;
+    border-bottom: 2px solid #2563eb;
+    background-color: #f0f6ff;
+}
+
+.app-table tr.system-row td:first-child {
+    border-left: 2px solid #2563eb;
+    border-radius: 8px 0 0 8px;
+}
+
+.app-table tr.system-row td:last-child {
+    border-right: 2px solid #2563eb;
+    border-radius: 0 8px 8px 0;
 }
 
 .application-footer {
@@ -602,7 +630,7 @@ input[type="radio"] {
 }
 
 .btn-type {
-    padding: 8px 16px;
+    padding: 8px 10px;
     border-radius: 10px;
     font-size: 0.85rem;
     font-weight: 700;
@@ -693,6 +721,17 @@ input[type="radio"] {
     gap: 6px;
 }
 
+.details-row-inputs.two-col-equal > * {
+    width: 100%;
+    min-width: 0;
+}
+
+.details-row-inputs.two-col-equal {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 6px;
+}
+
 .details-row-inputs input {
     flex: 1;
     min-width: 0;
@@ -705,11 +744,17 @@ input[type="radio"] {
     box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
+.details-row-inputs ng-select.suggested-program-select {
+    flex: 1;
+    min-width: 0;
+}
+
 .details-row-inputs input:focus {
     border-color: #3b82f6;
     outline: none;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), inset 0 1px 2px rgba(0, 0, 0, 0.05);
 }
+
 
 .app-table td select,
 .app-table td input[type="text"] {
@@ -731,6 +776,26 @@ input[type="radio"] {
 
 .prog-cell input {
     font-weight: 500;
+}
+
+.app-table ::ng-deep ng-select.suggested-program-select .ng-select-container {
+    min-height: 42px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+}
+
+.app-table ::ng-deep ng-select.no-dropdown-btn .ng-arrow-wrapper {
+    display: none;
+}
+
+.app-table ::ng-deep ng-select.no-dropdown-btn .ng-clear-wrapper {
+    opacity: 1;
+    display: flex;
+    align-items: center;
+}
+
+.app-table ::ng-deep ng-select.no-dropdown-btn .ng-select-container .ng-value-container {
+    padding-right: 6px;
 }
 
 

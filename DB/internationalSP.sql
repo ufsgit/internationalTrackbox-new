@@ -1,4 +1,5 @@
 DELIMITER $$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddApplicationAdmInterest`(
                     IN p_id INT,
                     IN p_course VARCHAR(255),
