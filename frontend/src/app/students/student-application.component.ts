@@ -127,6 +127,7 @@ export class StudentApplicationComponent implements OnInit {
             return Array.from({length: 8}, (_, i) => ({ name: String(currentYear - 1 + i) }));
         })()
     };
+    private lastSavedSnapshot: string = '';
 
     constructor(
         private route: ActivatedRoute,
@@ -611,10 +612,28 @@ export class StudentApplicationComponent implements OnInit {
                     }
                 }
                 this.onTestCompletionChange();
+                this.captureSnapshot();
                 this.loadingService.hide();
             },
             error: () => this.loadingService.hide()
         });
+    }
+
+    private buildSnapshot(): string {
+        return JSON.stringify({
+            application: this.application,
+            children: this.children,
+            suggestedPrograms: this.suggestedPrograms
+        });
+    }
+
+    private captureSnapshot() {
+        this.lastSavedSnapshot = this.buildSnapshot();
+    }
+
+    private hasUnsavedChanges(): boolean {
+        if (!this.lastSavedSnapshot) return false;
+        return this.buildSnapshot() !== this.lastSavedSnapshot;
     }
 
     addChild() {
@@ -1261,7 +1280,7 @@ export class StudentApplicationComponent implements OnInit {
             work.some((p: any) => p.country === countryName);
     }
 
-    onSave() {
+    onSave(navigateAfterSave: boolean = false, silent: boolean = false) {
         // Sync UI phone-code dropdowns → backend field names before saving
         if (this.application.mobile_country_code) this.application.contact1_code = this.application.mobile_country_code;
         if (this.application.phone_country_code)  this.application.contact2_code = this.application.phone_country_code;
@@ -1574,7 +1593,13 @@ export class StudentApplicationComponent implements OnInit {
         this.loadingService.show();
         this.studentService.saveStudentApplication(this.studentId, data).subscribe({
             next: () => {
-                this.dialogService.success('Application saved successfully');
+                this.captureSnapshot();
+                if (!silent) {
+                    this.dialogService.success('Application saved successfully');
+                }
+                if (navigateAfterSave) {
+                    this.router.navigate(['/students/registration', this.studentId]);
+                }
                 this.loadingService.hide();
             },
             error: (err) => {
@@ -1587,6 +1612,18 @@ export class StudentApplicationComponent implements OnInit {
     onRegisterNow() {
         if (!this.suggestedPrograms.some(p => p.is_selected)) {
             this.dialogService.warn('Please select at least one program to register.');
+            return;
+        }
+        if (this.hasUnsavedChanges()) {
+            this.dialogService
+                .confirm('You have unsaved changes. Press OK to save and go to Registration, or Cancel to go without saving.')
+                .subscribe((saveAndGo: boolean) => {
+                    if (saveAndGo) {
+                        this.onSave(true, true);
+                    } else {
+                        this.router.navigate(['/students/registration', this.studentId]);
+                    }
+                });
             return;
         }
         this.router.navigate(['/students/registration', this.studentId]);

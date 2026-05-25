@@ -130,7 +130,7 @@
 
 .btn-search {
     height: 38px;
-    padding: 0 1.5rem;
+    padding: 5px 5px 5px 5px;
     font-weight: 600;
     letter-spacing: 0.5px;
     display: flex;
@@ -270,4 +270,97 @@
     border-radius: 10px;
     font-size: 0.75rem;
     font-weight: 600;
+}
+
+
+
+/* Prevent flex overflow */
+.filter-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+/* Important fix */
+.filter-group {
+    min-width: 0;
+}
+
+/* Make inputs properly shrink */
+.form-control {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+/* Date range responsive fix */
+.date-inputs {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: nowrap;
+    width: 100%;
+}
+
+.date-inputs .form-control {
+    min-width: 0;
+}
+
+/* Prevent table breaking */
+.table-container {
+    overflow-x: auto;
+    width: 100%;
+}
+
+/* Prevent text crossing */
+.report-table td,
+.report-table th {
+    white-space: nowrap;
+}
+
+/* Proper truncation */
+.text-truncate {
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+
+    .report-container {
+        padding: 1rem;
+    }
+
+    .filter-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filter-group,
+    .filter-group.student-search,
+    .filter-group.date-group {
+        width: 100%;
+        min-width: 100%;
+    }
+
+    .filter-actions {
+        width: 100%;
+    }
+
+    .btn-search {
+        width: 100%;
+    }
+
+    .date-inputs {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 0.5rem;
+    }
+
+    .separator {
+        display: none;
+    }
 }
