@@ -8,13 +8,13 @@ import { UserService } from '../shared/user.service';
 import { LoadingService } from '../shared/loading.service';
 
 @Component({
-    selector: 'app-enquiry-report',
+    selector: 'app-registration-report',
     standalone: true,
     imports: [CommonModule, FormsModule, RouterModule],
-    templateUrl: './enquiry-report.component.html',
-    styleUrls: ['./enquiry-report.component.css']
+    templateUrl: './registration-report.component.html',
+    styleUrls: ['./registration-report.component.css']
 })
-export class EnquiryReportComponent implements OnInit {
+export class RegistrationReportComponent implements OnInit {
 
     // Pagination
     currentPage = 1;
@@ -70,58 +70,43 @@ export class EnquiryReportComponent implements OnInit {
     }
 
     runReport(page: number = 1) {
+        this.currentPage = page;
 
-    this.currentPage = page;
+        const payload = {
+            ...this.filters,
+            page: this.currentPage,
+            limit: this.pageSize
+        };
 
-    const payload = {
-        ...this.filters,
-        page: this.currentPage,
-        limit: this.pageSize
-    };
+        this.loadingService.show();
 
-    this.loadingService.show();
+        this.studentService.getRegistrationReport(payload).subscribe({
+            next: (res: any) => {
+                this.reportData = res.data || [];
+                this.totalRecords = res.total || 0;
+                this.totalPages = Math.ceil(this.totalRecords / this.pageSize);
+                this.loadingService.hide();
+            },
+            error: (err) => {
+                console.error('Report Error:', err);
+                this.loadingService.hide();
+            }
+        });
+    }
 
-    this.studentService.getEnquiryReport(payload).subscribe({
-        next: (res: any) => {
-
-            // Backend response format
-            this.reportData = res.data || [];
-
-            this.totalRecords = res.total || 0;
-
-            this.totalPages = Math.ceil(
-                this.totalRecords / this.pageSize
-            );
-
-            this.loadingService.hide();
-        },
-        error: (err) => {
-            console.error('Report Error:', err);
-            this.loadingService.hide();
+    nextPage() {
+        if (this.currentPage < this.totalPages) {
+            this.runReport(this.currentPage + 1);
         }
-    });
-}
-
-nextPage() {
-    if (this.currentPage < this.totalPages) {
-        this.runReport(this.currentPage + 1);
     }
-}
 
-prevPage() {
-    if (this.currentPage > 1) {
-        this.runReport(this.currentPage - 1);
+    prevPage() {
+        if (this.currentPage > 1) {
+            this.runReport(this.currentPage - 1);
+        }
     }
-}
 
-goToPage(page: number) {
-    this.runReport(page);
-}
-
-    onExport() {
-        // Basic CSV export logic can be added here later or now
-        // For now just console log
-        console.log('Exporting data...');
-        // Implementation for CSV export if requested
+    goToPage(page: number) {
+        this.runReport(page);
     }
 }

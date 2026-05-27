@@ -1,5 +1,4 @@
 DELIMITER $$
-
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddApplicationAdmInterest`(
                     IN p_id INT,
                     IN p_course VARCHAR(255),
@@ -511,13 +510,18 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetEnquiryReport`(
     IN p_to_date DATE,
     IN p_search VARCHAR(100),
     IN p_branch_id INT,
-    IN p_staff_id INT
+    IN p_staff_id INT,
+    IN p_limit INT,
+    IN p_offset INT
 )
 BEGIN
+
+    -- PAGINATED DATA
     SELECT * FROM (
-        
+
+        -- STUDY
         SELECT 
-            DATE(s.created_at) as created_date,
+            DATE(ss.created_at) as created_date,
             s.student_id,
             s.student_name,
             CONCAT(s.mobile_country_code, ' ', s.mobile_number) as mobile,
@@ -529,128 +533,275 @@ BEGIN
             s.last_remark,
             u_to.username as assigned_to,
             u_by.username as created_by,
-           
             b.branch_id,
             s.assigned_to as assigned_to_id
+
         FROM students s
-        JOIN student_study_programs ss ON s.student_id = ss.student_id
-        LEFT JOIN users u_to ON s.assigned_to = u_to.user_id
-        LEFT JOIN users u_by ON s.created_by = u_by.user_id
-        
-        LEFT JOIN branches b ON s.branch_id = b.branch_id
+        JOIN student_study_programs ss 
+            ON s.student_id = ss.student_id
+
+        LEFT JOIN users u_to 
+            ON s.assigned_to = u_to.user_id
+
+        LEFT JOIN users u_by 
+            ON s.created_by = u_by.user_id
+
+        LEFT JOIN branches b 
+            ON s.branch_id = b.branch_id
+
 
         UNION ALL
 
-        
+        -- MIGRATION
         SELECT 
-            DATE(s.created_at),
+            DATE(sm.created_at),
             s.student_id,
             s.student_name,
             CONCAT(s.mobile_country_code, ' ', s.mobile_number),
             'Migration',
             sm.country,
-            sm.category as program_details,
-            '' as intake_or_batch,
+            sm.category,
+            '',
             s.current_status,
             s.last_remark,
             u_to.username,
             u_by.username,
-         
             b.branch_id,
-            s.assigned_to as assigned_to_id
+            s.assigned_to
+
         FROM students s
-        JOIN student_migration sm ON s.student_id = sm.student_id
-        LEFT JOIN users u_to ON s.assigned_to = u_to.user_id
-        LEFT JOIN users u_by ON s.created_by = u_by.user_id
-     
-        LEFT JOIN branches b ON s.branch_id = b.branch_id
+        JOIN student_migration sm 
+            ON s.student_id = sm.student_id
+
+        LEFT JOIN users u_to 
+            ON s.assigned_to = u_to.user_id
+
+        LEFT JOIN users u_by 
+            ON s.created_by = u_by.user_id
+
+        LEFT JOIN branches b 
+            ON s.branch_id = b.branch_id
+
 
         UNION ALL
 
-        
+        -- VISA
         SELECT 
-            DATE(s.created_at),
+            DATE(sv.created_at),
             s.student_id,
             s.student_name,
             CONCAT(s.mobile_country_code, ' ', s.mobile_number),
             'Visa',
             sv.country,
             sv.category,
-            '' as intake_or_batch,
+            '',
             s.current_status,
             s.last_remark,
             u_to.username,
             u_by.username,
-           
             b.branch_id,
-            s.assigned_to as assigned_to_id
+            s.assigned_to
+
         FROM students s
-        JOIN student_visa sv ON s.student_id = sv.student_id
-        LEFT JOIN users u_to ON s.assigned_to = u_to.user_id
-        LEFT JOIN users u_by ON s.created_by = u_by.user_id
-   
-        LEFT JOIN branches b ON s.branch_id = b.branch_id
+        JOIN student_visa sv 
+            ON s.student_id = sv.student_id
+
+        LEFT JOIN users u_to 
+            ON s.assigned_to = u_to.user_id
+
+        LEFT JOIN users u_by 
+            ON s.created_by = u_by.user_id
+
+        LEFT JOIN branches b 
+            ON s.branch_id = b.branch_id
+
 
         UNION ALL
 
-        
+        -- WORK
         SELECT 
-            DATE(s.created_at),
+            DATE(sw.created_at),
             s.student_id,
             s.student_name,
             CONCAT(s.mobile_country_code, ' ', s.mobile_number),
             'Work',
             sw.country,
             sw.occupation,
-            '' as intake_or_batch,
+            '',
             s.current_status,
             s.last_remark,
             u_to.username,
             u_by.username,
-            
             b.branch_id,
-            s.assigned_to as assigned_to_id
+            s.assigned_to
+
         FROM students s
-        JOIN student_work sw ON s.student_id = sw.student_id
-        LEFT JOIN users u_to ON s.assigned_to = u_to.user_id
-        LEFT JOIN users u_by ON s.created_by = u_by.user_id
-        
-        LEFT JOIN branches b ON s.branch_id = b.branch_id
-        
+        JOIN student_work sw 
+            ON s.student_id = sw.student_id
+
+        LEFT JOIN users u_to 
+            ON s.assigned_to = u_to.user_id
+
+        LEFT JOIN users u_by 
+            ON s.created_by = u_by.user_id
+
+        LEFT JOIN branches b 
+            ON s.branch_id = b.branch_id
+
+
         UNION ALL
 
-        
+        -- COACHING
         SELECT 
-            DATE(s.created_at),
+            DATE(sc.created_at),
             s.student_id,
             s.student_name,
             CONCAT(s.mobile_country_code, ' ', s.mobile_number),
             'Coaching',
             sc.course,
-            '' as program_details,
-            sc.batch as intake_or_batch,
+            '',
+            sc.batch,
             s.current_status,
             s.last_remark,
             u_to.username,
             u_by.username,
-           
             b.branch_id,
-            s.assigned_to as assigned_to_id
+            s.assigned_to
+
         FROM students s
-        JOIN student_coaching sc ON s.student_id = sc.student_id
-        LEFT JOIN users u_to ON s.assigned_to = u_to.user_id
-        LEFT JOIN users u_by ON s.created_by = u_by.user_id
-  
-        LEFT JOIN branches b ON s.branch_id = b.branch_id
+        JOIN student_coaching sc 
+            ON s.student_id = sc.student_id
+
+        LEFT JOIN users u_to 
+            ON s.assigned_to = u_to.user_id
+
+        LEFT JOIN users u_by 
+            ON s.created_by = u_by.user_id
+
+        LEFT JOIN branches b 
+            ON s.branch_id = b.branch_id
 
     ) AS combined_report
+
     WHERE 
-        (p_from_date IS NULL OR created_date >= p_from_date) AND
-        (p_to_date IS NULL OR created_date <= p_to_date) AND
-        (p_branch_id IS NULL OR branch_id = p_branch_id) AND
-        (p_staff_id IS NULL OR assigned_to_id = p_staff_id) AND
-        (p_search IS NULL OR student_name LIKE CONCAT('%', p_search, '%') OR mobile LIKE CONCAT('%', p_search, '%'))
-    ORDER BY created_date DESC, student_name;
+        (p_from_date IS NULL OR created_date >= p_from_date)
+        AND
+        (p_to_date IS NULL OR created_date <= p_to_date)
+        AND
+        (p_branch_id IS NULL OR branch_id = p_branch_id)
+        AND
+        (p_staff_id IS NULL OR assigned_to_id = p_staff_id)
+        AND
+        (
+            p_search IS NULL
+            OR student_name LIKE CONCAT('%', p_search, '%')
+            OR mobile LIKE CONCAT('%', p_search, '%')
+        )
+
+    ORDER BY created_date DESC, student_name
+
+    LIMIT p_limit OFFSET p_offset;
+
+
+    -- TOTAL COUNT
+    SELECT COUNT(*) AS total
+    FROM (
+
+        -- STUDY
+        SELECT 
+            DATE(ss.created_at) as created_date,
+            s.student_name,
+            CONCAT(s.mobile_country_code, ' ', s.mobile_number) as mobile,
+            b.branch_id,
+            s.assigned_to as assigned_to_id
+
+        FROM students s
+        JOIN student_study_programs ss 
+            ON s.student_id = ss.student_id
+        LEFT JOIN branches b 
+            ON s.branch_id = b.branch_id
+
+        UNION ALL
+
+        -- MIGRATION
+        SELECT 
+            DATE(sm.created_at),
+            s.student_name,
+            CONCAT(s.mobile_country_code, ' ', s.mobile_number),
+            b.branch_id,
+            s.assigned_to
+
+        FROM students s
+        JOIN student_migration sm 
+            ON s.student_id = sm.student_id
+        LEFT JOIN branches b 
+            ON s.branch_id = b.branch_id
+
+        UNION ALL
+
+        -- VISA
+        SELECT 
+            DATE(sv.created_at),
+            s.student_name,
+            CONCAT(s.mobile_country_code, ' ', s.mobile_number),
+            b.branch_id,
+            s.assigned_to
+
+        FROM students s
+        JOIN student_visa sv 
+            ON s.student_id = sv.student_id
+        LEFT JOIN branches b 
+            ON s.branch_id = b.branch_id
+
+        UNION ALL
+
+        -- WORK
+        SELECT 
+            DATE(sw.created_at),
+            s.student_name,
+            CONCAT(s.mobile_country_code, ' ', s.mobile_number),
+            b.branch_id,
+            s.assigned_to
+
+        FROM students s
+        JOIN student_work sw 
+            ON s.student_id = sw.student_id
+        LEFT JOIN branches b 
+            ON s.branch_id = b.branch_id
+
+        UNION ALL
+
+        -- COACHING
+        SELECT 
+            DATE(sc.created_at),
+            s.student_name,
+            CONCAT(s.mobile_country_code, ' ', s.mobile_number),
+            b.branch_id,
+            s.assigned_to
+
+        FROM students s
+        JOIN student_coaching sc 
+            ON s.student_id = sc.student_id
+        LEFT JOIN branches b 
+            ON s.branch_id = b.branch_id
+
+    ) AS count_report
+
+    WHERE 
+        (p_from_date IS NULL OR created_date >= p_from_date)
+        AND
+        (p_to_date IS NULL OR created_date <= p_to_date)
+        AND
+        (p_branch_id IS NULL OR branch_id = p_branch_id)
+        AND
+        (p_staff_id IS NULL OR assigned_to_id = p_staff_id)
+        AND
+        (
+            p_search IS NULL
+            OR student_name LIKE CONCAT('%', p_search, '%')
+            OR mobile LIKE CONCAT('%', p_search, '%')
+        );
+
 END$$
 DELIMITER ;
 

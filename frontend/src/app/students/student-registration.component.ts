@@ -796,7 +796,7 @@ export class StudentRegistrationComponent implements OnInit {
                 status: '',
                 sub_status: '',
                 remarks: '',
-                is_selected: 2,
+                is_selected: 0,
                 branch_id: null,
                 department_id: null,
                 assigned_to: null,
@@ -815,7 +815,7 @@ export class StudentRegistrationComponent implements OnInit {
                 status: '',
                 sub_status: '',
                 remarks: '',
-                is_selected: 2,
+                is_selected: 0,
                 branch_id: null,
                 department_id: null,
                 assigned_to: null,
@@ -1149,12 +1149,12 @@ export class StudentRegistrationComponent implements OnInit {
 
         // 1. Skill Assessment
         if (this.application.has_skill_assessment === false) {
-            const exists = this.suggestedPrograms.some(p => p.type === 'OTHER' && p.program === 'Skill Assessment');
+            const exists = this.suggestedPrograms.some(p => (p.type === 'OTHER' || p._isSystem) && p.program === 'Skill Assessment');
             if (!exists) {
                 this.addSuggestedProgram('OTHER', 'Skill Assessment', true);
             }
         } else {
-            const idx = this.suggestedPrograms.findIndex(p => p.type === 'OTHER' && p.program === 'Skill Assessment');
+            const idx = this.suggestedPrograms.findIndex(p => (p.type === 'OTHER' || p._isSystem) && p.program === 'Skill Assessment');
             if (idx > -1 && this.suggestedPrograms[idx]._isSystem) {
                 this.suggestedPrograms.splice(idx, 1);
             }
@@ -1162,12 +1162,12 @@ export class StudentRegistrationComponent implements OnInit {
 
         // 2. Language Test
         if (this.application.has_language_test === false) {
-            const exists = this.suggestedPrograms.some(p => p.type === 'OTHER' && p.program === 'Language Test');
+            const exists = this.suggestedPrograms.some(p => (p.type === 'OTHER' || p._isSystem) && p.program === 'Language Test');
             if (!exists) {
                 this.addSuggestedProgram('OTHER', 'Language Test', true);
             }
         } else {
-            const idx = this.suggestedPrograms.findIndex(p => p.type === 'OTHER' && p.program === 'Language Test');
+            const idx = this.suggestedPrograms.findIndex(p => (p.type === 'OTHER' || p._isSystem) && p.program === 'Language Test');
             if (idx > -1 && this.suggestedPrograms[idx]._isSystem) {
                 this.suggestedPrograms.splice(idx, 1);
             }
@@ -1175,12 +1175,12 @@ export class StudentRegistrationComponent implements OnInit {
 
         // 3. Admission Test
         if (this.application.has_admission_test === false) {
-            const exists = this.suggestedPrograms.some(p => p.type === 'OTHER' && p.program === 'Admission Test');
+            const exists = this.suggestedPrograms.some(p => (p.type === 'OTHER' || p._isSystem) && p.program === 'Admission Test');
             if (!exists) {
                 this.addSuggestedProgram('OTHER', 'Admission Test', true);
             }
         } else {
-            const idx = this.suggestedPrograms.findIndex(p => p.type === 'OTHER' && p.program === 'Admission Test');
+            const idx = this.suggestedPrograms.findIndex(p => (p.type === 'OTHER' || p._isSystem) && p.program === 'Admission Test');
             if (idx > -1 && this.suggestedPrograms[idx]._isSystem) {
                 this.suggestedPrograms.splice(idx, 1);
             }
@@ -1188,12 +1188,12 @@ export class StudentRegistrationComponent implements OnInit {
 
         // 4. Spouse Language Test
         if (this.application.spouse_has_language_test === false) {
-            const exists = this.suggestedPrograms.some(p => p.type === 'OTHER' && p.program === 'Spouse Language Test');
+            const exists = this.suggestedPrograms.some(p => (p.type === 'OTHER' || p._isSystem) && p.program === 'Spouse Language Test');
             if (!exists) {
                 this.addSuggestedProgram('OTHER', 'Spouse Language Test', true);
             }
         } else {
-            const idx = this.suggestedPrograms.findIndex(p => p.type === 'OTHER' && p.program === 'Spouse Language Test');
+            const idx = this.suggestedPrograms.findIndex(p => (p.type === 'OTHER' || p._isSystem) && p.program === 'Spouse Language Test');
             if (idx > -1 && this.suggestedPrograms[idx]._isSystem) {
                 this.suggestedPrograms.splice(idx, 1);
             }
@@ -1319,7 +1319,7 @@ export class StudentRegistrationComponent implements OnInit {
                 status: '',
                 sub_status: '',
                 remarks: '',
-                is_selected: 2,
+                is_selected: 0,
                 branch_id: null,
                 department_id: null,
                 assigned_to: null,
@@ -1339,7 +1339,7 @@ export class StudentRegistrationComponent implements OnInit {
                 status: '',
                 sub_status: '',
                 remarks: '',
-                is_selected: 2,
+                is_selected: 0,
                 branch_id: null,
                 department_id: null,
                 assigned_to: null,
@@ -1359,7 +1359,7 @@ export class StudentRegistrationComponent implements OnInit {
                 status: '',
                 sub_status: '',
                 remarks: '',
-                is_selected: 2,
+                is_selected: 0,
                 branch_id: null,
                 department_id: null,
                 assigned_to: null,
@@ -1379,7 +1379,7 @@ export class StudentRegistrationComponent implements OnInit {
                 status: '',
                 sub_status: '',
                 remarks: '',
-                is_selected: 2,
+                is_selected: 0,
                 branch_id: null,
                 department_id: null,
                 assigned_to: null,
@@ -1399,7 +1399,7 @@ export class StudentRegistrationComponent implements OnInit {
                 status: '',
                 sub_status: '',
                 remarks: '',
-                is_selected: 2,
+                is_selected: 0,
                 branch_id: null,
                 department_id: null,
                 assigned_to: null,

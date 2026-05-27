@@ -74,15 +74,58 @@ export class StudentService {
     }
 
     // Report API
-    getEnquiryReport(filters: any): Observable<any[]> {
-        let params = new HttpParams();
-        if (filters.fromDate) params = params.set('fromDate', filters.fromDate);
-        if (filters.toDate) params = params.set('toDate', filters.toDate);
-        if (filters.search) params = params.set('search', filters.search);
-        if (filters.branchId) params = params.set('branchId', filters.branchId);
-        if (filters.staffId) params = params.set('staffId', filters.staffId);
+    getEnquiryReport(filters: any) {
 
-        return this.http.get<any[]>(`${this.apiUrl}/reports/enquiry`, { params });
+    let params: any = {
+        fromDate: filters.fromDate,
+        toDate: filters.toDate,
+        search: filters.search || '',
+        branchId: filters.branchId || '',
+        staffId: filters.staffId || '',
+
+        // pagination
+        page: filters.page || 1,
+        limit: filters.limit || 10
+    };
+
+    return this.http.get<any>(
+        `${this.apiUrl}/reports/enquiry`,
+        { params }
+    );
+}
+
+    getAssessmentReport(filters: any) {
+        let params: any = {
+            fromDate: filters.fromDate,
+            toDate: filters.toDate,
+            search: filters.search || '',
+            branchId: filters.branchId || '',
+            staffId: filters.staffId || '',
+            page: filters.page || 1,
+            limit: filters.limit || 10
+        };
+
+        return this.http.get<any>(
+            `${this.apiUrl}/reports/assessment`,
+            { params }
+        );
+    }
+
+    getRegistrationReport(filters: any) {
+        let params: any = {
+            fromDate: filters.fromDate,
+            toDate: filters.toDate,
+            search: filters.search || '',
+            branchId: filters.branchId || '',
+            staffId: filters.staffId || '',
+            page: filters.page || 1,
+            limit: filters.limit || 10
+        };
+
+        return this.http.get<any>(
+            `${this.apiUrl}/reports/registration`,
+            { params }
+        );
     }
     // Master Data
     getBranches(): Observable<any[]> {

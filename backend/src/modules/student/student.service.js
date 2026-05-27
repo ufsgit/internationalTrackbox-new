@@ -131,37 +131,121 @@ const createOrUpdateStudent = (data, userId, userBranchId) => {
 
                 const studentId = studentResult[0][0].student_id;
 
-                // 2. Clear existing programs if updating
-                if (student.id) {
-                    const tables = ['student_study_programs', 'student_migration', 'student_coaching', 'student_visa', 'student_work'];
-                    for (const table of tables) {
-                        await new Promise((res, rej) => {
-                            connection.query(`DELETE FROM ${table} WHERE student_id = ?`, [studentId], err => err ? rej(err) : res());
-                        });
+                // 2 & 3. Smart UPDATE / INSERT / DELETE per program row
+                //   Rows WITH a primary key ID  => UPDATE (created_at preserved via explicit SET)
+                //   Rows WITHOUT a primary key  => INSERT (fresh created_at from DB default)
+                //   DB rows missing from payload => DELETE individually
+                const programTypes = [
+                    {
+                        key: 'study',
+                        table: 'student_study_programs',
+                        pk: 'study_program_id',
+                        dataCols: ['country', 'level', 'field', 'intake', 'year'],
+                        params: p => [p.country, p.level, p.field, p.intake, p.year]
+                    },
+                    {
+                        key: 'migration',
+                        table: 'student_migration',
+                        pk: 'migration_id',
+                        dataCols: ['country', 'occupation', 'category'],
+                        params: p => [p.country, p.occupation, p.category]
+                    },
+                    {
+                        key: 'coaching',
+                        table: 'student_coaching',
+                        pk: 'coaching_id',
+                        dataCols: ['course', 'batch'],
+                        params: p => [p.course, p.batch]
+                    },
+                    {
+                        key: 'visa',
+                        table: 'student_visa',
+                        pk: 'visa_id',
+                        dataCols: ['country', 'category'],
+                        params: p => [p.country, p.category]
+                    },
+                    {
+                        key: 'work',
+                        table: 'student_work',
+                        pk: 'work_id',
+                        dataCols: ['country', 'occupation'],
+                        params: p => [p.country, p.occupation]
                     }
-                }
+                ];
 
-                // 3. Insert new programs
-                if (programs) {
-                    const programTypes = [
-                        { key: 'study', table: 'student_study_programs', columns: 'student_id, country, level, field, intake, year', params: p => [studentId, p.country, p.level, p.field, p.intake, p.year] },
-                        { key: 'migration', table: 'student_migration', columns: 'student_id, country, occupation, category', params: p => [studentId, p.country, p.occupation, p.category] },
-                        { key: 'coaching', table: 'student_coaching', columns: 'student_id, course, batch', params: p => [studentId, p.course, p.batch] },
-                        { key: 'visa', table: 'student_visa', columns: 'student_id, country, category', params: p => [studentId, p.country, p.category] },
-                        { key: 'work', table: 'student_work', columns: 'student_id, country, occupation', params: p => [studentId, p.country, p.occupation] }
-                    ];
+                for (const type of programTypes) {
+                    const rows = (programs && programs[type.key]) ? programs[type.key] : [];
 
-                    for (const type of programTypes) {
-                        if (programs[type.key]) {
-                            for (const p of programs[type.key]) {
-                                await new Promise((res, rej) => {
-                                    connection.query(
-                                        `INSERT INTO ${type.table} (${type.columns}) VALUES (${type.columns.split(',').map(() => '?').join(',')})`,
-                                        type.params(p),
-                                        err => err ? rej(err) : res()
-                                    );
-                                });
-                            }
+                    // IDs of rows the user still wants to keep
+                    const incomingIds = rows
+                        .map(r => r[type.pk])
+                        .filter(id => id !== undefined && id !== null && id !== 0 && id !== '');
+
+                    if (student.id) {
+                        // ── DELETE rows removed by the user ──────────────────
+                        if (incomingIds.length > 0) {
+                            await new Promise((res, rej) => {
+                                connection.query(
+                                    `DELETE FROM ${type.table} WHERE student_id = ? AND ${type.pk} NOT IN (?)`,
+                                    [studentId, incomingIds],
+                                    err => err ? rej(err) : res()
+                                );
+                            });
+                        } else {
+                            await new Promise((res, rej) => {
+                                connection.query(
+                                    `DELETE FROM ${type.table} WHERE student_id = ?`,
+                                    [studentId],
+                                    err => err ? rej(err) : res()
+                                );
+                            });
+                        }
+                    }
+
+                    // ── Fetch existing created_at values before updating ──────
+                    // This is required because MySQL's ON UPDATE CURRENT_TIMESTAMP
+                    // would silently overwrite created_at on ANY update unless we
+                    // explicitly include the original value in the SET clause.
+                    let createdAtMap = {};
+                    if (incomingIds.length > 0) {
+                        const existingRows = await new Promise((res, rej) => {
+                            connection.query(
+                                `SELECT ${type.pk}, created_at FROM ${type.table} WHERE ${type.pk} IN (?) AND student_id = ?`,
+                                [incomingIds, studentId],
+                                (err, rows) => err ? rej(err) : res(rows)
+                            );
+                        });
+                        for (const r of existingRows) {
+                            createdAtMap[r[type.pk]] = r.created_at;
+                        }
+                    }
+
+                    // ── UPDATE existing / INSERT new ─────────────────────────
+                    for (const p of rows) {
+                        const rowId = p[type.pk];
+                        if (rowId) {
+                            // Explicitly include created_at = <original value> so that
+                            // ON UPDATE CURRENT_TIMESTAMP does NOT fire.
+                            const originalCreatedAt = createdAtMap[rowId] || null;
+                            const setClauses = [...type.dataCols, 'created_at'].map(c => `${c} = ?`).join(', ');
+                            await new Promise((res, rej) => {
+                                connection.query(
+                                    `UPDATE ${type.table} SET ${setClauses} WHERE ${type.pk} = ? AND student_id = ?`,
+                                    [...type.params(p), originalCreatedAt, rowId, studentId],
+                                    err => err ? rej(err) : res()
+                                );
+                            });
+                        } else {
+                            // INSERT new row — DB default gives it a fresh created_at
+                            const allCols = ['student_id', ...type.dataCols].join(', ');
+                            const placeholders = type.dataCols.map(() => '?').join(', ');
+                            await new Promise((res, rej) => {
+                                connection.query(
+                                    `INSERT INTO ${type.table} (${allCols}) VALUES (?, ${placeholders})`,
+                                    [studentId, ...type.params(p)],
+                                    err => err ? rej(err) : res()
+                                );
+                            });
                         }
                     }
                 }
@@ -368,6 +452,97 @@ const saveStudentApplication = (studentId, data) => {
                     }
                 }
 
+                // 2. Clear existing children, programs, skills, and interests (Full Cleanup)
+                await pConn.query('CALL sp_DeleteApplicationChildrenFull(?)', [applicationId]);
+                await pConn.query('CALL sp_DeleteApplicationSkillsFull(?)', [applicationId]);
+                await pConn.query('CALL sp_DeleteApplicationLangInterestFull(?)', [applicationId]);
+                await pConn.query('CALL sp_DeleteApplicationAdmInterestFull(?)', [applicationId]);
+
+                // 3. Insert Modular Child Records
+                
+                // Interests
+                if (application.interested_in_lang_coaching) {
+                    await pConn.query('CALL sp_AddApplicationLangInterest(?, ?, ?, ?)', 
+                    [applicationId, application.lang_coaching_course || '', normalizeDate(application.expected_lang_coaching_date), 0]);
+                }
+                if (application.spouse_interested_in_lang_coaching) {
+                    await pConn.query('CALL sp_AddApplicationLangInterest(?, ?, ?, ?)', 
+                    [applicationId, application.spouse_lang_coaching_course || '', normalizeDate(application.spouse_expected_lang_coaching_date), 1]);
+                }
+                if (application.interested_in_admission_coaching) {
+                    await pConn.query('CALL sp_AddApplicationAdmInterest(?, ?, ?)', 
+                    [applicationId, application.admission_coaching_course || '', normalizeDate(application.expected_admission_coaching_date)]);
+                }
+
+                // 3. Insert Modular Child Records
+                
+                // Skill Assessments
+                if (application.skill_assessment_list && application.skill_assessment_list.length > 0) {
+                    const isInterest = toBoolInt(application.skill_assessment_interest);
+                    for (const skill of application.skill_assessment_list) {
+                        await pConn.query('CALL sp_AddApplicationSkill(?, ?, ?, ?, ?, ?, ?)', 
+                        [applicationId, skill.country, skill.authority, skill.status, skill.sub_status, isInterest, skill.remarks || null]);
+                    }
+                }
+
+                // 3. Insert Modular Child Records (Looping in Backend)
+                
+                // Education List
+                if (education_list && education_list.length > 0) {
+                    for (const edu of education_list) {
+                        await pConn.query('CALL sp_AddApplicationEducation(?, ?, ?, ?, ?, ?, ?, ?)', 
+                        [applicationId, edu.country, edu.level, edu.field, edu.status, normalizeDate(edu.expected_completion), toBoolInt(edu.is_highest), edu.edu_type || 'highest']);
+                    }
+                }
+
+                // Work Experience
+                if (work_experience_list && work_experience_list.length > 0) {
+                    for (const work of work_experience_list) {
+                        await pConn.query('CALL sp_AddApplicationWork(?, ?, ?, ?, ?, ?, ?, ?, ?)', 
+                        [applicationId, work.country, work.job_title, work.status || 'Completed', normalizeDate(work.start_date), work.work_years || 0, work.work_months || 0, toBoolInt(work.is_current), work.work_type || 'curr_country']);
+                    }
+                }
+
+                // Language Tests
+                if (language_tests && language_tests.length > 0) {
+                    for (const test of language_tests) {
+                        await pConn.query('CALL sp_AddApplicationLangTest(?, ?, ?, ?, ?, ?, ?, ?)', 
+                        [applicationId, test.type, test.reading, test.writing, test.speaking, test.listening, test.overall, toBoolInt(test.is_spouse)]);
+                    }
+                }
+
+                // Admission Tests
+                if (admission_tests && admission_tests.length > 0) {
+                    for (const test of admission_tests) {
+                        await pConn.query('CALL sp_AddApplicationAdmTest(?, ?, ?, ?, ?, ?)', 
+                        [applicationId, test.type, test.quant, test.verbal, test.data_insights, test.overall]);
+                    }
+                }
+
+                // Spouse Education
+                if (spouse_education && spouse_education.length > 0) {
+                    for (const edu of spouse_education) {
+                        await pConn.query('CALL sp_AddApplicationSpouseEdu(?, ?, ?, ?, ?, ?, ?)', 
+                        [applicationId, edu.country, edu.level, edu.field, edu.status, normalizeDate(edu.expected_completion), edu.edu_type || 'highest']);
+                    }
+                }
+
+                // Spouse Work
+                if (spouse_work && spouse_work.length > 0) {
+                    for (const work of spouse_work) {
+                        await pConn.query('CALL sp_AddApplicationSpouseWork(?, ?, ?, ?, ?, ?, ?, ?)', 
+                        [applicationId, work.country, work.job_title, work.status || 'Completed', normalizeDate(work.start_date), work.work_years || 0, work.work_months || 0, work.work_type || 'other']);
+                    }
+                }
+
+                // Relatives
+                if (relatives && relatives.length > 0) {
+                    for (const rel of relatives) {
+                        await pConn.query('CALL sp_AddApplicationRelative(?, ?, ?, ?)', 
+                        [applicationId, rel.country, rel.relationship, rel.related_to]);
+                    }
+                }
+
                 // Legacy Children (Accompanying)
                 if (children && children.length > 0) {
                     for (const child of children) {
@@ -376,12 +551,45 @@ const saveStudentApplication = (studentId, data) => {
                     }
                 }
 
-                // Suggested Programs
-                if (suggestedPrograms && suggestedPrograms.length > 0) {
-                    for (const prog of suggestedPrograms) {
+                // Suggested Programs (Smart Diff Sync to preserve created_at)
+                const currentSugProgs = suggestedPrograms || [];
+                const incomingSugIds = currentSugProgs.map(r => r.sug_program_id).filter(id => id);
+
+                if (incomingSugIds.length > 0) {
+                    await pConn.query('DELETE FROM suggested_programs WHERE application_id = ? AND sug_program_id NOT IN (?)', [applicationId, incomingSugIds]);
+                } else {
+                    await pConn.query('DELETE FROM suggested_programs WHERE application_id = ?', [applicationId]);
+                }
+
+                let appCreatedAtMap = {};
+                if (incomingSugIds.length > 0) {
+                    const [existingRows] = await pConn.query('SELECT sug_program_id, created_at FROM suggested_programs WHERE sug_program_id IN (?) AND application_id = ?', [incomingSugIds, applicationId]);
+                    for (const r of existingRows) {
+                        appCreatedAtMap[r.sug_program_id] = r.created_at;
+                    }
+                }
+
+                for (const prog of currentSugProgs) {
+                    const rowId = prog.sug_program_id;
+                    const params = [
+                        toBoolInt(prog.issystem !== undefined ? prog.issystem : prog._isSystem),
+                        prog.type || 'OTHER', prog.program, prog.applied_for || null, 
+                        prog.details || null, prog.details2 || null, prog.details3 || null, 
+                        prog.status || null, prog.sub_status || null, prog.remarks || null, 
+                        (prog.is_selected !== undefined && prog.is_selected !== null && prog.is_selected !== '') ? parseInt(prog.is_selected) : null, 
+                        prog.branch_id || null, prog.department_id || null, prog.assigned_to || null
+                    ];
+
+                    if (rowId) {
+                        const originalCreatedAt = appCreatedAtMap[rowId] || null;
+                        await pConn.query(
+                            'UPDATE suggested_programs SET issystem=?, program_type=?, program=?, applied_for=?, details=?, details2=?, details3=?, status=?, sub_status=?, remarks=?, is_selected=?, branch_id=?, department_id=?, assigned_to=?, created_at=? WHERE sug_program_id=? AND application_id=?',
+                            [...params, originalCreatedAt, rowId, applicationId]
+                        );
+                    } else {
                         await pConn.query(
                             'INSERT INTO suggested_programs (application_id, issystem, program_type, program, applied_for, details, details2, details3, status, sub_status, remarks, is_selected, branch_id, department_id, assigned_to) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                            [applicationId, toBoolInt(prog.issystem !== undefined ? prog.issystem : prog._isSystem), prog.type || 'OTHER', prog.program, prog.applied_for || null, prog.details || null, prog.details2 || null, prog.details3 || null, prog.status || null, prog.sub_status || null, prog.remarks || null, (prog.is_selected !== undefined && prog.is_selected !== null && prog.is_selected !== '') ? parseInt(prog.is_selected) : null, prog.branch_id || null, prog.department_id || null, prog.assigned_to || null]
+                            [applicationId, ...params]
                         );
                     }
                 }
@@ -424,7 +632,7 @@ const getStudentRegistration = (studentId) => {
 };
 
 const saveStudentRegistration = (studentId, data) => {
-    const { application: app, children, suggestedPrograms, education_list, work_experience_list, language_tests, admission_tests, spouse_education, spouse_work, relatives } = data;
+    const { application: app, children, suggestedPrograms, education_list, work_experience_list, language_tests, admission_tests, spouse_education, spouse_work, relatives, skill_assessment_list } = data;
     
     return new Promise((resolve, reject) => {
         db.getConnection(async function (err, connection) {
@@ -493,8 +701,6 @@ const saveStudentRegistration = (studentId, data) => {
                 await pConn.query('CALL sp_DeleteRegistrationLangInterestFull(?)', [registrationId]);
                 await pConn.query('CALL sp_DeleteRegistrationAdmInterestFull(?)', [registrationId]);
 
-                // 3. Insert Modular Child Records
-                
                 // Interests
                 if (app.interested_in_lang_coaching) {
                     await pConn.query('CALL sp_AddRegistrationLangInterest(?, ?, ?, ?)', 
@@ -509,19 +715,15 @@ const saveStudentRegistration = (studentId, data) => {
                     [registrationId, app.admission_coaching_course || '', normalizeDate(app.expected_admission_coaching_date)]);
                 }
 
-                // 3. Insert Modular Child Records
-                
                 // Skill Assessments
-                if (app.skill_assessment_list && app.skill_assessment_list.length > 0) {
+                if (skill_assessment_list && skill_assessment_list.length > 0) {
                     const isInterest = toBoolInt(app.skill_assessment_interest);
-                    for (const skill of app.skill_assessment_list) {
+                    for (const skill of skill_assessment_list) {
                         await pConn.query('CALL sp_AddRegistrationSkill(?, ?, ?, ?, ?, ?, ?)', 
                         [registrationId, skill.country, skill.authority, skill.status, skill.sub_status, isInterest, skill.remarks || null]);
                     }
                 }
 
-                // 3. Insert Modular Child Records (Looping in Backend)
-                
                 // Education List
                 if (education_list && education_list.length > 0) {
                     for (const edu of education_list) {
@@ -534,7 +736,7 @@ const saveStudentRegistration = (studentId, data) => {
                 if (work_experience_list && work_experience_list.length > 0) {
                     for (const work of work_experience_list) {
                         await pConn.query('CALL sp_AddRegistrationWork(?, ?, ?, ?, ?, ?, ?, ?, ?)', 
-                        [registrationId, work.country, work.job_title, work.status || 'Completed', normalizeDate(work.start_date), work.work_years || 0, work.work_months || 0, work.type || 'previous', work.work_type || 'curr_country']);
+                        [registrationId, work.country, work.job_title, work.status || 'Completed', normalizeDate(work.start_date), work.work_years || 0, work.work_months || 0, toBoolInt(work.is_current), work.work_type || 'curr_country']);
                     }
                 }
 
@@ -542,7 +744,7 @@ const saveStudentRegistration = (studentId, data) => {
                 if (language_tests && language_tests.length > 0) {
                     for (const test of language_tests) {
                         await pConn.query('CALL sp_AddRegistrationLangTest(?, ?, ?, ?, ?, ?, ?, ?)', 
-                        [registrationId, test.type || test.test_type, test.reading, test.writing, test.speaking, test.listening, test.overall || '', toBoolInt(test.is_spouse)]);
+                        [registrationId, test.type, test.reading, test.writing, test.speaking, test.listening, test.overall, toBoolInt(test.is_spouse)]);
                     }
                 }
 
@@ -550,7 +752,7 @@ const saveStudentRegistration = (studentId, data) => {
                 if (admission_tests && admission_tests.length > 0) {
                     for (const test of admission_tests) {
                         await pConn.query('CALL sp_AddRegistrationAdmissionTest(?, ?, ?, ?, ?, ?)', 
-                        [registrationId, test.type || test.test_type, test.quant, test.verbal, test.data_insights, test.overall || '']);
+                        [registrationId, test.type, test.quant, test.verbal, test.data_insights, test.overall]);
                     }
                 }
 
@@ -570,12 +772,15 @@ const saveStudentRegistration = (studentId, data) => {
                     }
                 }
 
-                // Relatives
+                // Relatives (Direct Insert since SP doesn't exist)
                 if (relatives && relatives.length > 0) {
+                    await pConn.query('DELETE FROM registration_relatives WHERE registration_id = ?', [registrationId]);
                     for (const rel of relatives) {
-                        await pConn.query('INSERT INTO registration_relatives (registration_id, country, relationship, related_to) VALUES (?, ?, ?, ?)',
+                        await pConn.query('INSERT INTO registration_relatives (registration_id, country, relationship, related_to) VALUES (?, ?, ?, ?)', 
                         [registrationId, rel.country, rel.relationship, rel.related_to]);
                     }
+                } else {
+                    await pConn.query('DELETE FROM registration_relatives WHERE registration_id = ?', [registrationId]);
                 }
 
                 // Legacy Children (Accompanying)
@@ -586,12 +791,45 @@ const saveStudentRegistration = (studentId, data) => {
                     }
                 }
 
-                // Suggested Programs
-                if (suggestedPrograms && suggestedPrograms.length > 0) {
-                    for (const prog of suggestedPrograms) {
+                // Suggested Programs (Smart Diff Sync to preserve created_at)
+                const currentSugProgs = suggestedPrograms || [];
+                const incomingSugIds = currentSugProgs.map(r => r.sug_program_id).filter(id => id);
+
+                if (incomingSugIds.length > 0) {
+                    await pConn.query('DELETE FROM registration_suggested_programs WHERE registration_id = ? AND sug_program_id NOT IN (?)', [registrationId, incomingSugIds]);
+                } else {
+                    await pConn.query('DELETE FROM registration_suggested_programs WHERE registration_id = ?', [registrationId]);
+                }
+
+                let appCreatedAtMap = {};
+                if (incomingSugIds.length > 0) {
+                    const [existingRows] = await pConn.query('SELECT sug_program_id, created_at FROM registration_suggested_programs WHERE sug_program_id IN (?) AND registration_id = ?', [incomingSugIds, registrationId]);
+                    for (const r of existingRows) {
+                        appCreatedAtMap[r.sug_program_id] = r.created_at;
+                    }
+                }
+
+                for (const prog of currentSugProgs) {
+                    const rowId = prog.sug_program_id;
+                    const params = [
+                        toBoolInt(prog.issystem !== undefined ? prog.issystem : prog._isSystem),
+                        prog.type || 'OTHER', prog.program, prog.applied_for || null, 
+                        prog.details || null, prog.details2 || null, prog.details3 || null, 
+                        prog.status || null, prog.sub_status || null, prog.remarks || null, 
+                        (prog.is_selected !== undefined && prog.is_selected !== null && prog.is_selected !== '') ? parseInt(prog.is_selected) : null, 
+                        prog.branch_id || null, prog.department_id || null, prog.assigned_to || null
+                    ];
+
+                    if (rowId && appCreatedAtMap.hasOwnProperty(rowId)) {
+                        const originalCreatedAt = appCreatedAtMap[rowId] || null;
+                        await pConn.query(
+                            'UPDATE registration_suggested_programs SET issystem=?, program_type=?, program=?, applied_for=?, details=?, details2=?, details3=?, status=?, sub_status=?, remarks=?, is_selected=?, branch_id=?, department_id=?, assigned_to=?, created_at=? WHERE sug_program_id=? AND registration_id=?',
+                            [...params, originalCreatedAt, rowId, registrationId]
+                        );
+                    } else {
                         await pConn.query(
                             'INSERT INTO registration_suggested_programs (registration_id, issystem, program_type, program, applied_for, details, details2, details3, status, sub_status, remarks, is_selected, branch_id, department_id, assigned_to) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                            [registrationId, toBoolInt(prog.issystem !== undefined ? prog.issystem : prog._isSystem), prog.type || 'OTHER', prog.program, prog.applied_for || null, prog.details || null, prog.details2 || null, prog.details3 || null, prog.status || null, prog.sub_status || null, prog.remarks || null, (prog.is_selected !== undefined && prog.is_selected !== null && prog.is_selected !== '') ? parseInt(prog.is_selected) : null, prog.branch_id || null, prog.department_id || null, prog.assigned_to || null]
+                            [registrationId, ...params]
                         );
                     }
                 }

@@ -822,7 +822,7 @@
                                             class="suggested-program-select no-dropdown-btn"></ng-select>
                                     </div>
                                     <div *ngSwitchCase="'VISA'" class="details-row-inputs two-col-equal">
-                                        <ng-select [items]="lookups.categories" bindLabel="name" bindValue="name"
+                                        <ng-select [items]="lookups.visaCategories" bindLabel="name" bindValue="name"
                                             placeholder="Category" [searchable]="true" [clearable]="true"
                                             [(ngModel)]="p.applied_for"
                                             class="suggested-program-select no-dropdown-btn"></ng-select>
@@ -916,7 +916,7 @@
                             </td>
                             <td>
                                 <select [(ngModel)]="p.is_selected" style="min-width: 90px;">
-                                    <option [ngValue]="0">Unchecked</option>
+                                    <option [ngValue]="0">Select</option>
                                     <option [ngValue]="1">Paid</option>
                                     <option [ngValue]="2">Unpaid</option>
                                 </select>

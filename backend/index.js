@@ -815,21 +815,7 @@ app.get('/api/dashboard', authenticateToken, (req, res) => {
 });
 
 // Reports
-app.get('/api/reports/enquiry', authenticateToken, (req, res) => {
-    const { fromDate, toDate, search, branchId, staffId } = req.query;
-    const params = [
-        fromDate || null,
-        toDate || null,
-        search || null,
-        branchId || null,
-        staffId || null
-    ];
 
-    db.query('CALL sp_GetEnquiryReport(?, ?, ?, ?, ?)', params, (err, results) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(results[0]);
-    });
-});
 
 app.listen(PORT, () => {
     console.log(`>>> OTRACKBOX V2 is listening on port ${PORT} <<<`);

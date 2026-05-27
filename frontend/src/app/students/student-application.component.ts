@@ -264,6 +264,11 @@ export class StudentApplicationComponent implements OnInit {
                 if (!hasInterests) {
                     this.syncSuggestedPrograms();
                 }
+                // Re-capture snapshot after student data mutates application fields,
+                // because this callback may resolve after loadApplication's captureSnapshot().
+                if (this.lastSavedSnapshot) {
+                    this.captureSnapshot();
+                }
                 this.loadingService.hide();
             },
             error: () => this.loadingService.hide()
@@ -789,7 +794,7 @@ export class StudentApplicationComponent implements OnInit {
                 status: '',
                 sub_status: '',
                 remarks: '',
-                is_selected: 2,
+                is_selected: 0,
                 branch_id: null,
                 department_id: null,
                 assigned_to: null,
@@ -808,7 +813,7 @@ export class StudentApplicationComponent implements OnInit {
                 status: '',
                 sub_status: '',
                 remarks: '',
-                is_selected: 2,
+                is_selected: 0,
                 branch_id: null,
                 department_id: null,
                 assigned_to: null,
@@ -1165,7 +1170,7 @@ export class StudentApplicationComponent implements OnInit {
                 status: '',
                 sub_status: '',
                 remarks: '',
-                is_selected: 2,
+                is_selected: 0,
                 branch_id: null,
                 department_id: null,
                 assigned_to: null,
@@ -1185,7 +1190,7 @@ export class StudentApplicationComponent implements OnInit {
                 status: '',
                 sub_status: '',
                 remarks: '',
-                is_selected: 2,
+                is_selected: 0,
                 branch_id: null,
                 department_id: null,
                 assigned_to: null,
@@ -1205,7 +1210,7 @@ export class StudentApplicationComponent implements OnInit {
                 status: '',
                 sub_status: '',
                 remarks: '',
-                is_selected: 2,
+                is_selected: 0,
                 branch_id: null,
                 department_id: null,
                 assigned_to: null,
@@ -1225,7 +1230,7 @@ export class StudentApplicationComponent implements OnInit {
                 status: '',
                 sub_status: '',
                 remarks: '',
-                is_selected: 2,
+                is_selected: 0,
                 branch_id: null,
                 department_id: null,
                 assigned_to: null,
@@ -1245,7 +1250,7 @@ export class StudentApplicationComponent implements OnInit {
                 status: '',
                 sub_status: '',
                 remarks: '',
-                is_selected: 2,
+                is_selected: 0,
                 branch_id: null,
                 department_id: null,
                 assigned_to: null,

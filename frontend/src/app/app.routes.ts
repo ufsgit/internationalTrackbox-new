@@ -58,6 +58,8 @@ export const routes: Routes = [
             { path: 'settings/board-authorities', loadComponent: () => import('./settings/board-authority-list.component').then(m => m.BoardAuthorityListComponent) },
             { path: 'settings/other-types', component: OtherTypeListComponent },
             { path: 'reports/enquiry', component: EnquiryReportComponent },
+            { path: 'reports/assessment', loadComponent: () => import('./reports/assessment-report.component').then(m => m.AssessmentReportComponent) },
+            { path: 'reports/registration', loadComponent: () => import('./reports/registration-report.component').then(m => m.RegistrationReportComponent) },
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
         ]
     },
