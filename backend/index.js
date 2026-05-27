@@ -57,67 +57,7 @@ app.get('/api/health', (req, res) => {
 const masterSettings = require('./src/modules/master/settings.module');
 app.use('/api', authenticateToken, masterSettings);
 
-// Auth Routes
-app.post('/api/auth/login', (req, res) => {
-    console.log('LOGIN_DEBUG: Request received for username:', req.body.username);
-    const { username, password } = req.body;
 
-    console.log('LOGIN_DEBUG: Calling sp_Login...');
-    db.query('CALL sp_Login(?)', [username], async function (err, results) {
-        if (err) {
-            console.error('LOGIN_ERROR (DB):', err.message);
-            return res.status(500).json({ error: err.message });
-        }
-
-        // mysql2 callback results for CALL is [ [Rows], OkPacket ]
-        const users = results[0];
-        console.log('LOGIN_DEBUG: sp_Login returned', users ? users.length : 0, 'users');
-
-        if (!users || users.length === 0) {
-            console.log('LOGIN_DEBUG: User not found:', username);
-            return res.status(401).json({ message: 'Invalid username' });
-        }
-
-        const user = users[0];
-        console.log('LOGIN_DEBUG: User found:', user);
-        console.log('LOGIN_DEBUG: Comparing passwords...');
-
-        try {
-            const validPassword = await bcrypt.compare(password, user.password);
-
-            // Allow login if bcrypt matches OR if plain text matches (for manual DB edits)
-            if (!validPassword && password !== user.password && password !== 'admin123') {
-                console.log('LOGIN_DEBUG: Invalid password (bcrypt and plain text failed)');
-                return res.status(401).json({ message: 'Invalid password' });
-            }
-
-            console.log('LOGIN_DEBUG: Login successful, generating token...');
-            const token = jwt.sign(
-                {
-                    id: user.user_id,
-                    username: user.username,
-                    branch_id: user.branch_id,
-                    user_type: user.user_type
-                },
-                process.env.JWT_SECRET,
-                { expiresIn: '30d' }
-            );
-
-            res.json({
-                token,
-                user: {
-                    id: user.user_id,
-                    username: user.username,
-                    role: user.user_type,
-                    branch_id: user.branch_id
-                }
-            });
-        } catch (bcryptErr) {
-            console.error('LOGIN_ERROR (bcrypt):', bcryptErr.message);
-            res.status(500).json({ error: bcryptErr.message });
-        }
-    });
-});
 
 // Student Routes
 app.get('/api/students', authenticateToken, (req, res) => {

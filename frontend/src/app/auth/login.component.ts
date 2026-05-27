@@ -31,7 +31,9 @@ export class LoginComponent implements OnInit {
                 next: (response) => {
                     this.router.navigate(['/students']);
                 },
-                error: () => this.error = 'Invalid credentials'
+                error: (err) => {
+                    this.error = err.error?.error || err.message;
+                }
             });
     }
 }

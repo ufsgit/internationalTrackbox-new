@@ -41,9 +41,30 @@ const createOrUpdate = async (req, res) => {
     }
 };
 
+const getProcessAssignments = async (req, res) => {
+    try {
+        const assignments = await userService.getProcessAssignments(req.params.id);
+        return successResponse(res, assignments);
+    } catch (err) {
+        return errorResponse(res, err.message, err.status || 500);
+    }
+};
+
+const saveProcessAssignments = async (req, res) => {
+    if (req.user.user_type !== 'admin') return res.sendStatus(403);
+    try {
+        const result = await userService.saveProcessAssignments(req.params.id, req.body.assignments);
+        return successResponse(res, result, 'Process assignments saved successfully');
+    } catch (err) {
+        return errorResponse(res, err.message, err.status || 500);
+    }
+};
+
 module.exports = {
     getList,
     getAll,
     getById,
-    createOrUpdate
+    createOrUpdate,
+    getProcessAssignments,
+    saveProcessAssignments
 };

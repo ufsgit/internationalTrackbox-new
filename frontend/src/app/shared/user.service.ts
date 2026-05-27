@@ -36,4 +36,12 @@ export class UserService {
     getDepartments(): Observable<any> {
         return this.http.get(`${this.apiUrl}/departments`);
     }
+
+    getUserProcessAssignments(userId: number): Observable<any> {
+        return this.http.get(`${this.apiUrl}/users/${userId}/process-assignments`);
+    }
+
+    saveUserProcessAssignments(userId: number, assignments: any[]): Observable<any> {
+        return this.http.post(`${this.apiUrl}/users/${userId}/process-assignments`, { assignments });
+    }
 }

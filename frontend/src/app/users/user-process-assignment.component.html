@@ -1,0 +1,152 @@
+<div class="upa-container">
+
+  <!-- Page Header -->
+  <div class="upa-page-header">
+    <div class="page-header-left">
+      <button class="back-btn" (click)="cancel()">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path d="M19 12H5M12 5l-7 7 7 7"/>
+        </svg>
+        Back
+      </button>
+      <div>
+        <h1 class="page-title">User Process Assignment</h1>
+        <p class="page-subtitle">Define which processes and countries this user handles</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <span>Loading...</span>
+  </div>
+
+  <div *ngIf="!loading" class="upa-body">
+
+    <!-- User Info Card -->
+    <div class="user-info-card" *ngIf="userDetails">
+      <div class="user-avatar">{{ (userDetails.username || 'U')[0].toUpperCase() }}</div>
+      <div class="user-meta">
+        <div class="user-name">{{ userDetails.username }}</div>
+        <div class="user-tags">
+          <span class="tag tag-role">{{ userDetails.user_role || userDetails.role || 'Staff' }}</span>
+          <span class="tag tag-type">{{ userDetails.user_type }}</span>
+          <span class="tag tag-branch">{{ userDetails.branch_name }}</span>
+          <span *ngIf="userDetails.department_name && userDetails.department_name.trim()" class="tag tag-dept">{{ userDetails.department_name }}</span>
+        </div>
+      </div>
+      <div class="user-status-badge" [class.working]="userDetails.status === 'Working'">{{ userDetails.status }}</div>
+    </div>
+
+    <!-- Alerts -->
+    <div class="alert alert-success" *ngIf="saveSuccess">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+      </svg>
+      Process assignments saved successfully!
+    </div>
+    <div class="alert alert-error" *ngIf="saveError">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      {{ saveError }}
+    </div>
+
+    <div class="sections-grid">
+
+      <!-- SECTION 1: General Processes -->
+      <div class="section-card">
+        <div class="section-header">
+          <div class="section-icon general-icon">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+              <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="section-title">General Processes</h2>
+            <p class="section-desc">Services without country selection</p>
+          </div>
+        </div>
+
+        <div class="process-list">
+          <label *ngFor="let p of generalProcesses" class="process-item" [class.active]="generalState[p]">
+            <input type="checkbox" class="process-check" [(ngModel)]="generalState[p]">
+            <span class="process-label">{{ p }}</span>
+            <span class="process-check-indicator" *ngIf="generalState[p]">✓</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- SECTION 2: Country-Based Processes -->
+      <div class="section-card">
+        <div class="section-header">
+          <div class="section-icon country-icon">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="section-title">Country-Based Processes</h2>
+            <p class="section-desc">Enable a process, then select the countries</p>
+          </div>
+        </div>
+
+        <div class="country-process-list">
+          <div *ngFor="let p of countryProcesses" class="country-process-block" [class.expanded]="countryState[p].enabled">
+
+            <!-- Process Toggle -->
+            <label class="process-item country-process-toggle" [class.active]="countryState[p].enabled">
+              <input type="checkbox" class="process-check" [(ngModel)]="countryState[p].enabled" (change)="onCountryProcessToggle(p)">
+              <span class="process-label">{{ p }}</span>
+              <span class="country-count-badge" *ngIf="countryState[p].enabled && getSelectedCountryCount(p) > 0">
+                {{ getSelectedCountryCount(p) }} {{ getSelectedCountryCount(p) === 1 ? 'country' : 'countries' }}
+              </span>
+              <span class="expand-arrow" [class.rotated]="countryState[p].enabled">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+              </span>
+            </label>
+
+            <!-- Country Panel -->
+            <div class="country-panel" *ngIf="countryState[p].enabled">
+              <div class="country-panel-inner">
+                <label class="select-all-label">
+                  <input type="checkbox" [(ngModel)]="countryState[p].selectAll" (change)="onSelectAllToggle(p)">
+                  <span class="select-all-text">Select All Countries</span>
+                </label>
+                <div class="country-divider"></div>
+                <div class="country-grid">
+                  <label *ngFor="let c of countryState[p].countries" class="country-checkbox-item">
+                    <input type="checkbox" [(ngModel)]="c.selected" (change)="onCountryToggle(p)">
+                    <span class="country-name">{{ c.name }}</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Action Bar -->
+    <div class="action-bar">
+      <button class="btn-cancel" (click)="cancel()" [disabled]="saving">Cancel</button>
+      <button class="btn-save" (click)="save()" [disabled]="saving">
+        <svg *ngIf="!saving" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+          <polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
+        </svg>
+        <span *ngIf="saving" class="spinner-sm"></span>
+        {{ saving ? 'Saving...' : 'Save Assignments' }}
+      </button>
+    </div>
+
+  </div>
+</div>

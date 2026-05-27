@@ -39,6 +39,7 @@ export const routes: Routes = [
             { path: 'students/registration/:id', loadComponent: () => import('./students/student-registration.component').then(m => m.StudentRegistrationComponent) },
             { path: 'users', component: UserListComponent },
             { path: 'users/details', component: UserDetailsComponent },
+            { path: 'users/assign-process', loadComponent: () => import('./users/user-process-assignment.component').then(m => m.UserProcessAssignmentComponent) },
             { path: 'settings/branches', component: BranchListComponent },
             { path: 'settings/departments', component: DepartmentListComponent },
             { path: 'settings/sources', component: EnquirySourceListComponent },

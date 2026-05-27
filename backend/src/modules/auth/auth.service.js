@@ -22,8 +22,10 @@ const login = async (username, password) => {
             }
 
             const user = users[0];
-
             try {
+                if (user.status === 'Inactive') {
+                    return reject({ status: 403, message: 'User Inactive' });
+                }
                 process.stdout.write(`LOGIN_DEBUG: Attempting login for ${username}\n`);
 
                 let validPassword = false;

@@ -42,7 +42,10 @@ export class UserListComponent implements OnInit {
     }
 
     editUser(user: any) {
-        // Logic to navigate to details with user ID
         this.router.navigate(['/users/details'], { queryParams: { id: user.user_id } });
+    }
+
+    assignProcess(user: any) {
+        this.router.navigate(['/users/assign-process'], { queryParams: { id: user.user_id } });
     }
 }

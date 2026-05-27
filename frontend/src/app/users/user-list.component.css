@@ -98,6 +98,12 @@
     background: #f0f9ff;
 }
 
+.btn-icon.assign-btn:hover {
+    color: #6366f1;
+    border-color: #6366f1;
+    background: #eef2ff;
+}
+
 @media (max-width: 768px) {
     .grid-wrapper {
         overflow-x: auto;

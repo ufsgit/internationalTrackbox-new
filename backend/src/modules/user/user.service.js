@@ -44,7 +44,7 @@ const getById = (userId) => {
     });
 };
 
-const createOrUpdate = (data) => {
+const createOrUpdate = (data) => { 
     const { user, branchPermissions, pagePermissions } = data;
     return new Promise((resolve, reject) => {
         db.getConnection(async function (err, connection) {
@@ -138,9 +138,68 @@ const createOrUpdate = (data) => {
     });
 };
 
+const getProcessAssignments = (userId) => {
+    return new Promise((resolve, reject) => {
+        db.query(
+            'SELECT id, user_id, process_name, country_id FROM user_process_assignments WHERE user_id = ? ORDER BY process_name',
+            [userId],
+            function (err, results) {
+                if (err) return reject(err);
+                // Return just the array, the response utility will format it if needed, or controller returns it
+                // Note: userController uses successResponse which expects data, so returning results is fine.
+                // But the previous implementation sent results directly to express, let's keep it consistent.
+                resolve(results);
+            }
+        );
+    });
+};
+
+const saveProcessAssignments = (userId, assignments) => {
+    return new Promise((resolve, reject) => {
+        db.getConnection(async function (err, connection) {
+            if (err) return reject(err);
+            try {
+                await new Promise((res, rej) => connection.beginTransaction(err => err ? rej(err) : res()));
+
+                // Clear existing assignments for this user
+                await new Promise((res, rej) => {
+                    connection.query(
+                        'DELETE FROM user_process_assignments WHERE user_id = ?',
+                        [userId],
+                        err => err ? rej(err) : res()
+                    );
+                });
+
+                // Bulk insert new assignments
+                if (assignments && assignments.length > 0) {
+                    const values = assignments.map(a => [userId, a.process_name, a.country_id || null]);
+                    await new Promise((res, rej) => {
+                        connection.query(
+                            'INSERT INTO user_process_assignments (user_id, process_name, country_id) VALUES ?',
+                            [values],
+                            err => err ? rej(err) : res()
+                        );
+                    });
+                }
+
+                await new Promise((res, rej) => connection.commit(err => err ? rej(err) : res()));
+                resolve({ message: 'Process assignments saved successfully' });
+
+            } catch (error) {
+                await new Promise((res) => connection.rollback(() => res()));
+                reject(error);
+            } finally {
+                connection.release();
+            }
+        });
+    });
+};
+
 module.exports = {
     getList,
     getAll,
     getById,
-    createOrUpdate
+    createOrUpdate,
+    getProcessAssignments,
+    saveProcessAssignments
 };
