@@ -1,2001 +1,1716 @@
--- MySQL dump 10.13  Distrib 8.0.45, for Win64 (x86_64)
---
--- Host: localhost    Database: internationaldb
--- ------------------------------------------------------
--- Server version	8.0.45
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!50503 SET NAMES utf8 */;
-/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
-/*!40103 SET TIME_ZONE='+00:00' */;
-/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
-/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
-/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-
---
--- Table structure for table `application_adm_interest`
---
-
-DROP TABLE IF EXISTS `application_adm_interest`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `application_adm_interest` (
-  `interest_id` int NOT NULL AUTO_INCREMENT,
-  `application_id` int DEFAULT NULL,
-  `course` varchar(255) DEFAULT NULL,
-  `expected_date` date DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`interest_id`),
-  KEY `application_id` (`application_id`),
-  CONSTRAINT `application_adm_interest_ibfk_1` FOREIGN KEY (`application_id`) REFERENCES `student_applications` (`application_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `application_adm_interest`
---
-
-LOCK TABLES `application_adm_interest` WRITE;
-/*!40000 ALTER TABLE `application_adm_interest` DISABLE KEYS */;
-/*!40000 ALTER TABLE `application_adm_interest` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `application_admission_tests`
---
-
-DROP TABLE IF EXISTS `application_admission_tests`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `application_admission_tests` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `application_id` int NOT NULL,
-  `test_type` varchar(50) DEFAULT NULL,
-  `quant_score` varchar(10) DEFAULT NULL,
-  `verbal_score` varchar(10) DEFAULT NULL,
-  `data_insights_score` varchar(10) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `application_id` (`application_id`),
-  CONSTRAINT `application_admission_tests_ibfk_1` FOREIGN KEY (`application_id`) REFERENCES `student_applications` (`application_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=178 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `application_admission_tests`
---
-
-LOCK TABLES `application_admission_tests` WRITE;
-/*!40000 ALTER TABLE `application_admission_tests` DISABLE KEYS */;
-INSERT INTO `application_admission_tests` VALUES (18,9,'SAT','3','3','3'),(57,80,'GRE','2','2','2'),(64,16,'GMAT','2','2','2'),(65,16,'GRE','22','22','22'),(68,87,'GMAT','2','2','2'),(69,87,'GRE','22','22','22'),(72,88,'GRE','1','1','1'),(79,92,'GMAT','3','4','5'),(80,97,'GRE','4','56','6'),(161,209,'GMAT','','',''),(176,91,'GMAT','23','23','2'),(177,91,'GRE','32','22','23');
-/*!40000 ALTER TABLE `application_admission_tests` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `application_children`
---
-
-DROP TABLE IF EXISTS `application_children`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `application_children` (
-  `child_id` int NOT NULL AUTO_INCREMENT,
-  `application_id` int NOT NULL,
-  `age` int DEFAULT NULL,
-  `is_accompanying` tinyint(1) DEFAULT '0',
-  PRIMARY KEY (`child_id`),
-  KEY `application_id` (`application_id`),
-  CONSTRAINT `application_children_ibfk_1` FOREIGN KEY (`application_id`) REFERENCES `student_applications` (`application_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=532 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `application_children`
---
-
-LOCK TABLES `application_children` WRITE;
-/*!40000 ALTER TABLE `application_children` DISABLE KEYS */;
-INSERT INTO `application_children` VALUES (75,6,NULL,1),(89,3,NULL,1),(151,8,12,1),(262,80,3,1),(263,80,2,0),(270,16,4,1),(271,16,2,0),(276,87,4,1),(277,87,2,0),(288,92,4,1),(289,92,2,0),(290,97,5,1),(291,97,2,0),(358,133,5,1),(359,133,3,0),(479,209,2,1),(480,209,1,1),(495,196,1,1),(504,249,2,1),(505,249,2,0),(512,98,4,1),(513,98,2,0),(524,91,3,1),(525,91,1,0),(530,258,4,1),(531,258,2,0);
-/*!40000 ALTER TABLE `application_children` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `application_education`
---
-
-DROP TABLE IF EXISTS `application_education`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `application_education` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `application_id` int NOT NULL,
-  `country` varchar(100) DEFAULT NULL,
-  `level` varchar(100) DEFAULT NULL,
-  `field` varchar(100) DEFAULT NULL,
-  `status` varchar(50) DEFAULT NULL,
-  `expected_completion` date DEFAULT NULL,
-  `is_highest` tinyint(1) DEFAULT '0',
-  `edu_type` varchar(20) DEFAULT 'highest',
-  PRIMARY KEY (`id`),
-  KEY `fk_app_edu` (`application_id`),
-  CONSTRAINT `fk_app_edu` FOREIGN KEY (`application_id`) REFERENCES `student_applications` (`application_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=806 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `application_education`
---
-
-LOCK TABLES `application_education` WRITE;
-/*!40000 ALTER TABLE `application_education` DISABLE KEYS */;
-INSERT INTO `application_education` VALUES (246,9,'Germany','Bachelor','Environmental Science','Not Completed','2025-10-01',1,'highest'),(247,9,'New Zealand','Master','Finance','Not Completed','2025-11-01',0,'other'),(248,9,'Malta','Graduate Diploma','Hospitality','Completed',NULL,0,'other'),(383,80,'Singapore','Master','Law','Completed',NULL,1,'highest'),(384,80,'Australia','Associate Degree','Architecture','Not Completed','2026-05-01',0,'country'),(385,80,'Australia','Associate Degree','Environmental Science','Completed',NULL,0,'country'),(386,80,'Singapore','PhD','Health & Medicine','Completed',NULL,0,'other'),(408,16,'UAE','Graduate Certificate','Finance','Not Completed','2022-10-01',1,'highest'),(409,16,'India','High School','Hospitality','Completed','2022-10-01',0,'highest'),(410,16,'Australia','Bachelor','Architecture','Not Completed','2023-12-01',0,'country'),(411,16,'Australia','Associate Degree','Agriculture','Completed',NULL,0,'country'),(412,16,'Canada1','Master','Information Technology','Not Completed','2023-12-01',0,'country'),(413,16,'Poland','Master','Information Technology','Not Completed','2022-10-01',0,'other'),(414,16,'Germany','Graduate Certificate','Hospitality','Completed',NULL,0,'other'),(421,87,'Australia','High School','Hospitality','Not Completed','2026-05-01',1,'highest'),(422,87,'Canada1','Graduate Certificate','Finance','Completed',NULL,0,'highest'),(423,87,'Germany','Graduate Diploma','Health & Medicine','Not Completed','2026-05-01',0,'country'),(424,87,'Germany','Graduate Diploma','Finance','Completed',NULL,0,'country'),(425,87,'France','High School','Finance','Not Completed','2026-05-01',0,'other'),(426,87,'Georgia','Graduate Diploma','Finance','Completed',NULL,0,'other'),(431,88,'Malta','Graduate Diploma','Health & Medicine','Completed',NULL,1,'highest'),(432,88,'Latvia','Diploma','Hospitality','Completed',NULL,0,'other'),(445,92,'Malta','Graduate Diploma','Environmental Science','Completed',NULL,1,'highest'),(446,92,'UAE','Master','Information Technology','Completed',NULL,0,'other'),(447,97,'UAE','High School','Environmental Science','Not Completed','2026-05-01',1,'highest'),(448,97,'Ireland','Graduate Certificate','Engineering','Not Completed','2026-05-01',0,'other'),(519,133,'France','Advanced Diploma','Agriculture','Not Completed','2026-05-01',0,'highest'),(520,133,'Georgia','Associate Degree','Accounting','Completed',NULL,0,'highest'),(677,209,'','','','Completed',NULL,0,'highest'),(736,196,'Canada1','Associate Degree','Architecture','Not Completed','2024-03-01',0,'highest'),(737,196,'France','Associate Degree','Agriculture','Completed',NULL,0,'highest'),(747,249,'Georgia','Certificate III','Arts & Humanities','Completed',NULL,0,'highest'),(762,98,'Australia','Advanced Diploma','Dentistry','Not Completed','2024-12-01',0,'highest'),(763,98,'Canada1','Certificate III','Built Environment','Completed',NULL,0,'highest'),(796,91,'Malta','Master','Environmental Science','Not Completed','2026-04-01',1,'highest'),(797,91,'India','Diploma','Hospitality','Completed',NULL,0,'highest'),(798,91,'Poland','High School','Finance','Not Completed','2026-04-01',0,'highest'),(799,91,'New Zealand','Graduate Diploma','Engineering','Completed',NULL,0,'highest'),(805,258,'Georgia','Certificate III','Architecture','Completed',NULL,0,'highest');
-/*!40000 ALTER TABLE `application_education` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `application_lang_interest`
---
-
-DROP TABLE IF EXISTS `application_lang_interest`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `application_lang_interest` (
-  `interest_id` int NOT NULL AUTO_INCREMENT,
-  `application_id` int DEFAULT NULL,
-  `course` varchar(255) DEFAULT NULL,
-  `expected_date` date DEFAULT NULL,
-  `is_spouse` tinyint(1) DEFAULT '0',
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`interest_id`),
-  KEY `application_id` (`application_id`),
-  CONSTRAINT `application_lang_interest_ibfk_1` FOREIGN KEY (`application_id`) REFERENCES `student_applications` (`application_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `application_lang_interest`
---
-
-LOCK TABLES `application_lang_interest` WRITE;
-/*!40000 ALTER TABLE `application_lang_interest` DISABLE KEYS */;
-INSERT INTO `application_lang_interest` VALUES (44,98,'a language test','2026-04-20',1,'2026-05-26 08:29:44');
-/*!40000 ALTER TABLE `application_lang_interest` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `application_language_tests`
---
-
-DROP TABLE IF EXISTS `application_language_tests`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `application_language_tests` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `application_id` int NOT NULL,
-  `test_type` varchar(50) DEFAULT NULL,
-  `writing_score` varchar(10) DEFAULT NULL,
-  `listening_score` varchar(10) DEFAULT NULL,
-  `speaking_score` varchar(10) DEFAULT NULL,
-  `reading_score` varchar(10) DEFAULT NULL,
-  `is_spouse` tinyint(1) DEFAULT '0',
-  PRIMARY KEY (`id`),
-  KEY `application_id` (`application_id`),
-  CONSTRAINT `application_language_tests_ibfk_1` FOREIGN KEY (`application_id`) REFERENCES `student_applications` (`application_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=342 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `application_language_tests`
---
-
-LOCK TABLES `application_language_tests` WRITE;
-/*!40000 ALTER TABLE `application_language_tests` DISABLE KEYS */;
-INSERT INTO `application_language_tests` VALUES (18,9,'IELTS','3','3','3','3',0),(92,80,'PTE','2','2','2','2',0),(93,80,'IELTS','2','2','2','2',1),(106,16,'PTE','1','1','1','1',0),(107,16,'IELTS','11','11','11','11',0),(108,16,'TOEFL','2','2','2','2',1),(109,16,'IELTS','2','2','2','2',1),(114,87,'IELTS','1','1','1','1',0),(115,87,'PTE','11','11','11','11',0),(116,87,'IELTS','1','1','1','1',1),(117,87,'PTE','11','11','11','11',1),(120,88,'TOEFL','1','1','1','1',0),(133,92,'PTE','4','4','5','6',0),(134,92,'IELTS','3','4','5','6',1),(135,97,'PTE','4','5','6','4',0),(136,97,'IELTS','4','5','6','4',1),(308,209,'DET','','','','',0),(309,209,'IELTS','','','','',1),(338,91,'PTE','2','2','2','2',0),(339,91,'IELTS','2','2','23','3',0),(340,91,'IELTS','2','3','3','3',1),(341,91,'TOEFL','2','1','2','3',1);
-/*!40000 ALTER TABLE `application_language_tests` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `application_relatives`
---
-
-DROP TABLE IF EXISTS `application_relatives`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `application_relatives` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `application_id` int DEFAULT NULL,
-  `country` varchar(100) DEFAULT NULL,
-  `relationship` varchar(100) DEFAULT NULL,
-  `related_to` enum('Applicant','Spouse') DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=285 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `application_relatives`
---
-
-LOCK TABLES `application_relatives` WRITE;
-/*!40000 ALTER TABLE `application_relatives` DISABLE KEYS */;
-INSERT INTO `application_relatives` VALUES (1,14,'Australia','Cousin','Spouse','2026-04-29 06:55:27'),(19,78,'Australia','Parent','Spouse','2026-05-02 07:27:10'),(20,80,'Australia','Parent','Spouse','2026-05-02 07:49:42'),(24,16,'Australia','Uncle/Aunty','Spouse','2026-05-02 08:56:29'),(25,85,'Germany','Sibling','Applicant','2026-05-02 09:15:19'),(26,86,'Germany','Sibling','Applicant','2026-05-02 09:20:53'),(27,87,'Germany','Uncle/Aunty','Spouse','2026-05-02 09:46:13'),(33,92,'Canada1','Sibling','Spouse','2026-05-05 07:39:03'),(34,97,'Canada1','Uncle/Aunty','Spouse','2026-05-05 08:06:45'),(67,114,'Australia','Sibling','Applicant','2026-05-08 08:28:08'),(68,114,'Canada1','Cousin','Spouse','2026-05-08 08:28:08'),(70,115,'Australia','Uncle/Aunty','Spouse','2026-05-11 06:35:25'),(86,117,'Canada1','Sibling','Spouse','2026-05-19 10:36:19'),(87,133,'Australia','Sibling','Spouse','2026-05-19 12:03:25'),(88,134,'Australia','Uncle/Aunty','Spouse','2026-05-19 12:27:21'),(91,135,'Australia','Sibling','Spouse','2026-05-19 12:31:31'),(100,141,'Australia','Sibling','Spouse','2026-05-20 07:26:44'),(101,141,'Canada1','Uncle/Aunty','Applicant','2026-05-20 07:26:44'),(108,139,'Australia','Uncle/Aunty','Spouse','2026-05-20 10:15:01'),(109,139,'Australia','Cousin','Applicant','2026-05-20 10:15:01'),(110,148,'Australia','Uncle/Aunty','Spouse','2026-05-20 11:58:09'),(111,148,'France','Friend','Applicant','2026-05-20 11:58:09'),(112,149,'Australia','Sibling','Spouse','2026-05-20 12:30:03'),(113,149,'France','Uncle/Aunty','Applicant','2026-05-20 12:30:03'),(130,150,'Australia','Sibling','Spouse','2026-05-22 06:45:39'),(131,150,'Canada1','Friend','Applicant','2026-05-22 06:45:39'),(150,159,'Australia','Sibling','Spouse','2026-05-23 04:12:10'),(151,159,'Canada1','Friend','Applicant','2026-05-23 04:12:10'),(200,209,'Canada1','Uncle/Aunty','Spouse','2026-05-25 10:05:11'),(259,196,'Australia','Uncle/Aunty','Spouse','2026-05-26 06:32:51'),(260,196,'France','Friend','Applicant','2026-05-26 06:32:51'),(275,98,'Canada1','Uncle/Aunty','Applicant','2026-05-26 08:29:44'),(276,98,'Australia','Cousin','Spouse','2026-05-26 08:29:44'),(284,91,'Germany','Sibling','Spouse','2026-05-26 08:54:46');
-/*!40000 ALTER TABLE `application_relatives` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `application_skill`
---
-
-DROP TABLE IF EXISTS `application_skill`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `application_skill` (
-  `skill_id` int NOT NULL AUTO_INCREMENT,
-  `application_id` int DEFAULT NULL,
-  `country` varchar(100) DEFAULT NULL,
-  `authority` varchar(255) DEFAULT NULL,
-  `status` varchar(100) DEFAULT NULL,
-  `sub_status` varchar(100) DEFAULT NULL,
-  `is_interest` tinyint(1) DEFAULT '0',
-  `remarks` text,
-  `created_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`skill_id`),
-  KEY `application_id` (`application_id`),
-  CONSTRAINT `application_skill_ibfk_1` FOREIGN KEY (`application_id`) REFERENCES `student_applications` (`application_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=112 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `application_skill`
---
-
-LOCK TABLES `application_skill` WRITE;
-/*!40000 ALTER TABLE `application_skill` DISABLE KEYS */;
-INSERT INTO `application_skill` VALUES (95,209,'France','','','',0,NULL,NULL),(110,98,'Germany','Engineers Australia','Incompleted','In Progress',1,NULL,NULL),(111,98,'New Zealand','Engineers Australia','Completed','Documents Pending',1,NULL,NULL);
-/*!40000 ALTER TABLE `application_skill` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `application_spouse_education`
---
-
-DROP TABLE IF EXISTS `application_spouse_education`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `application_spouse_education` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `application_id` int DEFAULT NULL,
-  `country` varchar(100) DEFAULT NULL,
-  `level` varchar(100) DEFAULT NULL,
-  `field` varchar(100) DEFAULT NULL,
-  `status` varchar(50) DEFAULT NULL,
-  `expected_completion` date DEFAULT NULL,
-  `edu_type` varchar(20) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=565 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `application_spouse_education`
---
-
-LOCK TABLES `application_spouse_education` WRITE;
-/*!40000 ALTER TABLE `application_spouse_education` DISABLE KEYS */;
-INSERT INTO `application_spouse_education` VALUES (1,14,'Poland','Certificate III','Hospitality','Completed',NULL,NULL,'2026-04-29 06:55:27'),(140,78,'Australia','Associate Degree','Finance','Not Completed','2026-04-01','country','2026-05-02 07:27:10'),(141,78,'Australia','Advanced Diploma','Health & Medicine','Completed',NULL,'country','2026-05-02 07:27:10'),(142,78,'France','Associate Degree','Architecture','Not Completed','2026-04-01','highest','2026-05-02 07:27:10'),(143,78,'United Kingdom','Associate Degree','Environmental Science','Completed',NULL,'highest','2026-05-02 07:27:10'),(144,78,'Canada1','Associate Degree','Agriculture','Not Completed','2026-04-01','other','2026-05-02 07:27:10'),(145,80,'Australia','Bachelor','Architecture','Not Completed','2026-05-01','country','2026-05-02 07:49:42'),(146,80,'Australia','Associate Degree','Environmental Science','Completed',NULL,'country','2026-05-02 07:49:42'),(147,80,'Singapore','PhD','Hospitality','Completed',NULL,'highest','2026-05-02 07:49:42'),(148,80,'Poland','PG Diploma','Hospitality','Completed',NULL,'other','2026-05-02 07:49:42'),(170,16,'Australia','Associate Degree','Architecture','Not Completed','2024-06-01','country','2026-05-02 08:56:29'),(171,16,'Australia','Advanced Diploma','Agriculture','Completed',NULL,'country','2026-05-02 08:56:29'),(172,16,'Canada1','Advanced Diploma','Information Technology','Not Completed','2024-06-01','country','2026-05-02 08:56:29'),(173,16,'UAE','PG Diploma','Information Technology','Not Completed','2024-06-01','highest','2026-05-02 08:56:29'),(174,16,'New Zealand','High School','Information Technology','Completed',NULL,'highest','2026-05-02 08:56:29'),(175,16,'Latvia','Bachelor','Engineering','Not Completed','2024-06-01','other','2026-05-02 08:56:29'),(176,16,'UAE','Graduate Diploma','Dentistry','Completed',NULL,'other','2026-05-02 08:56:29'),(177,85,'Germany','Associate Degree','Architecture','Completed',NULL,'country','2026-05-02 09:15:19'),(178,85,'Poland','Associate Degree','Health & Medicine','Completed',NULL,'highest','2026-05-02 09:15:19'),(179,85,'New Zealand','High School','Health & Medicine','Completed',NULL,'other','2026-05-02 09:15:19'),(180,86,'Germany','Master','Information Technology','Completed',NULL,'country','2026-05-02 09:20:53'),(181,86,'Singapore','Master','Hospitality','Completed',NULL,'highest','2026-05-02 09:20:53'),(182,86,'New Zealand','High School','Hospitality','Completed',NULL,'other','2026-05-02 09:20:53'),(183,87,'Germany','Advanced Diploma','Built Environment','Not Completed','2026-05-01','country','2026-05-02 09:46:13'),(184,87,'Germany','Associate Degree','Arts & Humanities','Completed',NULL,'country','2026-05-02 09:46:13'),(185,87,'Ireland','Graduate Certificate','Health & Medicine','Not Completed','2026-05-01','highest','2026-05-02 09:46:13'),(186,87,'Latvia','Diploma','Finance','Completed',NULL,'highest','2026-05-02 09:46:13'),(187,87,'Malta','PG Diploma','Health & Medicine','Not Completed','2026-05-01','other','2026-05-02 09:46:13'),(188,87,'New Zealand','High School','Finance','Completed',NULL,'other','2026-05-02 09:46:13'),(201,92,'Poland','High School','Hospitality','Completed',NULL,'highest','2026-05-05 07:39:03'),(202,92,'Poland','Graduate Diploma','Finance','Completed',NULL,'other','2026-05-05 07:39:03'),(203,97,'Poland','Master','Health & Medicine','Not Completed','2026-05-01','highest','2026-05-05 08:06:45'),(204,97,'Latvia','High School','Environmental Science','Not Completed','2026-05-01','other','2026-05-05 08:06:45'),(237,114,'Canada1','Bachelor','Agriculture','Not Completed','2026-05-01','highest','2026-05-08 08:28:08'),(238,114,'Georgia','Bachelor','Architecture','Completed',NULL,'highest','2026-05-08 08:28:08'),(241,115,'Germany','Certificate III','Arts & Humanities','Not Completed','2026-04-01','highest','2026-05-11 06:35:25'),(242,115,'Georgia','Certificate III','Arts & Humanities','Completed',NULL,'highest','2026-05-11 06:35:25'),(273,117,'Malta','Advanced Diploma','Accounting','Not Completed','2025-03-01','highest','2026-05-19 10:36:19'),(274,117,'New Zealand','Associate Degree','Architecture','Completed',NULL,'highest','2026-05-19 10:36:19'),(275,133,'Ireland','Bachelor','Architecture','Not Completed','2026-05-01','highest','2026-05-19 12:03:25'),(276,133,'Latvia','Certificate III','Arts & Humanities','Completed',NULL,'highest','2026-05-19 12:03:25'),(277,134,'Latvia','Certificate III','Architecture','Not Completed','2026-05-01','highest','2026-05-19 12:27:21'),(278,134,'Malta','Certificate IV','Arts & Humanities','Completed',NULL,'highest','2026-05-19 12:27:21'),(284,135,'Georgia','Bachelor','Arts & Humanities','Not Completed','2026-03-01','highest','2026-05-19 12:31:31'),(285,135,'France','Certificate III','Arts & Humanities','Not Completed','2026-05-01','highest','2026-05-19 12:31:31'),(286,135,'Georgia','Bachelor','Agriculture','Completed','2026-04-01','highest','2026-05-19 12:31:31'),(287,138,'Canada1','Associate Degree','Architecture','Not Completed','2026-05-01','highest','2026-05-19 12:32:47'),(288,138,'France','Bachelor','Agriculture','Completed',NULL,'highest','2026-05-19 12:32:47'),(297,141,'Canada1','Associate Degree','Agriculture','Not Completed','2026-04-01','highest','2026-05-20 07:26:44'),(298,141,'UAE','Bachelor','Agriculture','Completed',NULL,'highest','2026-05-20 07:26:44'),(305,139,'Canada1','Bachelor','Agriculture','Not Completed','2025-11-01','highest','2026-05-20 10:15:01'),(306,139,'France','Certificate III','Agriculture','Completed',NULL,'highest','2026-05-20 10:15:01'),(307,148,'Canada1','Associate Degree','Agriculture','Not Completed','2026-05-01','highest','2026-05-20 11:58:09'),(308,148,'Georgia','Certificate III','Arts & Humanities','Completed',NULL,'highest','2026-05-20 11:58:09'),(309,149,'India','Advanced Diploma','Accounting','Not Completed','2026-05-01','highest','2026-05-20 12:30:03'),(310,149,'Ireland','Certificate III','Architecture','Completed',NULL,'highest','2026-05-20 12:30:03'),(327,150,'Australia','Associate Degree','Agriculture','Not Completed','2025-10-01','highest','2026-05-22 06:45:39'),(328,150,'France','Certificate III','Agriculture','Completed',NULL,'highest','2026-05-22 06:45:39'),(347,159,'Australia','Associate Degree','Agriculture','Not Completed','2025-03-01','highest','2026-05-23 04:12:10'),(348,159,'France','Certificate III','Agriculture','Completed',NULL,'highest','2026-05-23 04:12:10'),(363,169,'','','','Completed',NULL,'highest','2026-05-23 05:50:32'),(364,184,'','','','Completed',NULL,'highest','2026-05-23 06:08:35'),(365,185,'','','','Completed',NULL,'highest','2026-05-23 06:09:26'),(368,186,'','','','Completed',NULL,'highest','2026-05-23 06:13:04'),(369,189,'','','','Completed',NULL,'highest','2026-05-23 06:19:49'),(372,190,'','','','Completed',NULL,'highest','2026-05-23 06:24:36'),(373,193,'','','','Completed',NULL,'highest','2026-05-23 06:25:55'),(375,194,'','','','Completed',NULL,'highest','2026-05-23 06:27:09'),(436,209,'France','','','Completed',NULL,'highest','2026-05-25 10:05:11'),(495,196,'Australia','Associate Degree','Agriculture','Not Completed','2024-03-01','highest','2026-05-26 06:32:51'),(496,196,'France','Bachelor','Agriculture','Completed',NULL,'highest','2026-05-26 06:32:51'),(506,249,'Canada1','Associate Degree','Agriculture','Completed',NULL,'highest','2026-05-26 07:11:27'),(521,98,'India','Certificate IV','Engineering','Not Completed','2024-12-01','highest','2026-05-26 08:29:44'),(522,98,'Ireland','High School','Finance','Not Completed','2025-07-01','highest','2026-05-26 08:29:44'),(555,91,'New Zealand','High School','Hospitality','Not Completed','2026-04-01','highest','2026-05-26 08:54:46'),(556,91,'Poland','Graduate Certificate','Environmental Science','Completed',NULL,'highest','2026-05-26 08:54:46'),(557,91,'New Zealand','Graduate Certificate','Finance','Not Completed','2026-04-01','highest','2026-05-26 08:54:46'),(558,91,'Latvia','Diploma','Health & Medicine','Completed',NULL,'highest','2026-05-26 08:54:46'),(564,258,'Georgia','Bachelor','Architecture','Completed',NULL,'highest','2026-05-26 09:16:34');
-/*!40000 ALTER TABLE `application_spouse_education` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `application_spouse_work`
---
-
-DROP TABLE IF EXISTS `application_spouse_work`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `application_spouse_work` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `application_id` int DEFAULT NULL,
-  `country` varchar(100) DEFAULT NULL,
-  `job_title` varchar(255) DEFAULT NULL,
-  `status` varchar(50) DEFAULT NULL,
-  `start_date` date DEFAULT NULL,
-  `work_years` int DEFAULT '0',
-  `work_months` int DEFAULT '0',
-  `work_type` varchar(20) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=334 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `application_spouse_work`
---
-
-LOCK TABLES `application_spouse_work` WRITE;
-/*!40000 ALTER TABLE `application_spouse_work` DISABLE KEYS */;
-INSERT INTO `application_spouse_work` VALUES (95,78,'Singapore','2',NULL,NULL,2,2,'other','2026-05-02 07:27:10'),(96,78,'Australia','w',NULL,NULL,2,2,'curr_country','2026-05-02 07:27:10'),(97,78,'Australia','es',NULL,NULL,2,2,'other_country','2026-05-02 07:27:10'),(98,80,'Singapore','2',NULL,NULL,2,2,'other','2026-05-02 07:49:42'),(99,80,'Australia','2',NULL,NULL,2,2,'curr_country','2026-05-02 07:49:42'),(100,80,'Australia','2',NULL,NULL,2,2,'other_country','2026-05-02 07:49:42'),(117,16,'Poland','e',NULL,NULL,2,2,'curr_other','2026-05-02 08:56:29'),(118,16,'Australia','a',NULL,NULL,1,1,'curr_country','2026-05-02 08:56:29'),(119,16,'Australia','b',NULL,NULL,2,2,'curr_country','2026-05-02 08:56:29'),(120,16,'Australia','c',NULL,NULL,3,3,'other_country','2026-05-02 08:56:29'),(121,16,'Canada1','d',NULL,NULL,4,4,'other_country','2026-05-02 08:56:29'),(122,85,'Singapore','c',NULL,NULL,3,3,'curr_other','2026-05-02 09:15:19'),(123,85,'Germany','a',NULL,NULL,2,2,'curr_country','2026-05-02 09:15:19'),(124,85,'Germany','b',NULL,NULL,2,2,'other_country','2026-05-02 09:15:19'),(125,86,'Singapore','c',NULL,NULL,3,3,'curr_other','2026-05-02 09:20:53'),(126,86,'Germany','a',NULL,NULL,2,2,'curr_country','2026-05-02 09:20:53'),(127,86,'Germany','b',NULL,NULL,2,2,'other_country','2026-05-02 09:20:53'),(128,87,'Poland','c',NULL,NULL,3,3,'curr_other','2026-05-02 09:46:13'),(129,87,'Singapore','cc',NULL,NULL,33,33,'curr_other','2026-05-02 09:46:13'),(130,87,'Germany','a',NULL,NULL,1,1,'curr_country','2026-05-02 09:46:13'),(131,87,'Germany','aa',NULL,NULL,11,11,'curr_country','2026-05-02 09:46:13'),(132,87,'Germany','b',NULL,NULL,2,2,'other_country','2026-05-02 09:46:13'),(133,87,'Germany','bb',NULL,NULL,22,22,'other_country','2026-05-02 09:46:13'),(141,92,'United Kingdom','tst',NULL,NULL,3,3,'curr_other','2026-05-05 07:39:03'),(142,92,'Malta','sCd',NULL,NULL,2,3,'curr_other','2026-05-05 07:39:03'),(143,97,'Malta','asdfgh',NULL,NULL,4,5,'curr_other','2026-05-05 08:06:45'),(176,114,'France','a','Currently Working','2026-05-08',0,0,'curr_other','2026-05-08 08:28:08'),(177,114,'Georgia','b','Completed',NULL,2,1,'curr_other','2026-05-08 08:28:08'),(180,115,'Canada1','a','Currently Working','2026-05-10',0,0,'curr_other','2026-05-11 06:35:25'),(181,115,'Georgia','b','Completed',NULL,2,2,'curr_other','2026-05-11 06:35:25'),(212,117,'Poland','a','Currently Working','2026-05-05',0,0,'curr_other','2026-05-19 10:36:19'),(213,117,'Singapore','b','Completed',NULL,2,1,'curr_other','2026-05-19 10:36:19'),(214,133,'Malta','a','Currently Working','2026-05-19',0,0,'curr_other','2026-05-19 12:03:25'),(215,133,'New Zealand','b','Completed',NULL,2,1,'curr_other','2026-05-19 12:03:25'),(216,134,'New Zealand','a','Currently Working','2026-05-19',0,0,'curr_other','2026-05-19 12:27:21'),(217,134,'Poland','b','Completed',NULL,2,1,'curr_other','2026-05-19 12:27:21'),(222,135,'France','a','Currently Working','2026-05-17',0,0,'curr_other','2026-05-19 12:31:31'),(223,135,'Germany','b','Completed',NULL,2,1,'curr_other','2026-05-19 12:31:31'),(232,141,'Australia','a','Currently Working','2026-05-19',0,0,'curr_other','2026-05-20 07:26:44'),(233,141,'Georgia','b','Completed',NULL,2,1,'curr_other','2026-05-20 07:26:44'),(240,139,'Australia','a','Currently Working','2026-05-14',0,0,'curr_other','2026-05-20 10:15:01'),(241,139,'Canada1','b','Completed',NULL,2,1,'curr_other','2026-05-20 10:15:01'),(242,148,'Canada1','a','Currently Working','2026-05-20',0,0,'curr_other','2026-05-20 11:58:09'),(243,148,'UAE','b','Completed',NULL,2,1,'curr_other','2026-05-20 11:58:09'),(244,149,'Latvia','a','Currently Working','2026-05-20',0,0,'curr_other','2026-05-20 12:30:03'),(245,149,'Malta','b','Completed',NULL,2,1,'curr_other','2026-05-20 12:30:03'),(262,150,'Canada1','a','Currently Working','2026-05-13',0,0,'curr_other','2026-05-22 06:45:39'),(263,150,'Georgia','b','Completed',NULL,2,1,'curr_other','2026-05-22 06:45:39'),(316,98,'Latvia','a','Currently Working','2026-04-28',0,0,'curr_other','2026-05-26 08:29:44'),(317,98,'Malta','b','Completed',NULL,2,1,'curr_other','2026-05-26 08:29:44'),(332,91,'India','a','Completed',NULL,2,3,'curr_other','2026-05-26 08:54:46'),(333,91,'Poland','aa','Completed',NULL,2,2,'curr_other','2026-05-26 08:54:46');
-/*!40000 ALTER TABLE `application_spouse_work` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `application_status_categories`
---
-
-DROP TABLE IF EXISTS `application_status_categories`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `application_status_categories` (
-  `status_id` int NOT NULL,
-  `category` varchar(50) NOT NULL,
-  PRIMARY KEY (`status_id`,`category`),
-  CONSTRAINT `application_status_categories_ibfk_1` FOREIGN KEY (`status_id`) REFERENCES `application_statuses` (`status_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `application_status_categories`
---
-
-LOCK TABLES `application_status_categories` WRITE;
-/*!40000 ALTER TABLE `application_status_categories` DISABLE KEYS */;
-INSERT INTO `application_status_categories` VALUES (1,'STUDY'),(1,'WORK'),(2,'COACHING'),(2,'MIGRATION');
-/*!40000 ALTER TABLE `application_status_categories` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `application_statuses`
---
-
-DROP TABLE IF EXISTS `application_statuses`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `application_statuses` (
-  `status_id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  PRIMARY KEY (`status_id`),
-  UNIQUE KEY `unique_category_name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `application_statuses`
---
-
-LOCK TABLES `application_statuses` WRITE;
-/*!40000 ALTER TABLE `application_statuses` DISABLE KEYS */;
-INSERT INTO `application_statuses` VALUES (1,'one'),(2,'two');
-/*!40000 ALTER TABLE `application_statuses` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `application_sub_statuses`
---
-
-DROP TABLE IF EXISTS `application_sub_statuses`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `application_sub_statuses` (
-  `sub_status_id` int NOT NULL AUTO_INCREMENT,
-  `status_id` int NOT NULL,
-  `name` varchar(100) NOT NULL,
-  PRIMARY KEY (`sub_status_id`),
-  UNIQUE KEY `unique_sub_status` (`status_id`,`name`),
-  CONSTRAINT `application_sub_statuses_ibfk_1` FOREIGN KEY (`status_id`) REFERENCES `application_statuses` (`status_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `application_sub_statuses`
---
-
-LOCK TABLES `application_sub_statuses` WRITE;
-/*!40000 ALTER TABLE `application_sub_statuses` DISABLE KEYS */;
-INSERT INTO `application_sub_statuses` VALUES (1,1,'one sub'),(2,2,'two sub');
-/*!40000 ALTER TABLE `application_sub_statuses` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `application_work_experience`
---
-
-DROP TABLE IF EXISTS `application_work_experience`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `application_work_experience` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `application_id` int NOT NULL,
-  `country` varchar(100) DEFAULT NULL,
-  `job_title` varchar(255) DEFAULT NULL,
-  `status` varchar(50) DEFAULT NULL,
-  `start_date` date DEFAULT NULL,
-  `work_years` int DEFAULT '0',
-  `work_months` int DEFAULT '0',
-  `is_current` tinyint(1) DEFAULT '0',
-  `work_type` varchar(20) DEFAULT 'curr_country',
-  PRIMARY KEY (`id`),
-  KEY `fk_app_work` (`application_id`),
-  CONSTRAINT `fk_app_work` FOREIGN KEY (`application_id`) REFERENCES `student_applications` (`application_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=693 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `application_work_experience`
---
-
-LOCK TABLES `application_work_experience` WRITE;
-/*!40000 ALTER TABLE `application_work_experience` DISABLE KEYS */;
-INSERT INTO `application_work_experience` VALUES (182,9,'France','bfb',NULL,NULL,5,6,1,'curr_other'),(351,80,'Poland','2',NULL,NULL,2,2,0,'curr_other'),(352,80,'Australia','2',NULL,NULL,2,2,1,'curr_country'),(353,80,'Australia','2',NULL,NULL,2,2,0,'other_country'),(381,16,'Malta','d',NULL,NULL,6,5,1,'curr_other'),(382,16,'New Zealand','dd',NULL,NULL,4,3,1,'curr_other'),(383,16,'Australia','a',NULL,NULL,2,3,1,'curr_country'),(384,16,'Australia','aa',NULL,NULL,5,9,1,'curr_country'),(385,16,'Australia','b',NULL,NULL,2,4,0,'other_country'),(386,16,'Australia','bb',NULL,NULL,5,6,0,'other_country'),(387,16,'Canada1','cc',NULL,NULL,4,5,1,'curr_country'),(388,16,'Canada1','ccc',NULL,NULL,4,3,1,'curr_country'),(389,16,'Canada1','ccccc',NULL,NULL,4,3,0,'other_country'),(396,87,'India','c',NULL,NULL,3,3,0,'curr_other'),(397,87,'Ireland','cc',NULL,NULL,33,33,0,'curr_other'),(398,87,'Germany','a',NULL,NULL,1,1,1,'curr_country'),(399,87,'Germany','aa',NULL,NULL,11,11,1,'curr_country'),(400,87,'Germany','b',NULL,NULL,2,2,0,'other_country'),(401,87,'Germany','bb',NULL,NULL,22,22,0,'other_country'),(404,88,'Singapore','21',NULL,NULL,2,2,1,'curr_other'),(412,92,'Malta','tst',NULL,NULL,3,3,1,'curr_other'),(413,92,'New Zealand','efSc',NULL,NULL,4,5,0,'curr_other'),(414,97,'Malta','asdfgh',NULL,NULL,5,4,0,'curr_other'),(485,133,'Germany','a','Currently Working','2026-05-19',0,0,1,'curr_other'),(486,133,'India','b','Completed',NULL,2,1,1,'curr_other'),(659,196,'France','a','Currently Working','2026-04-27',0,0,1,'curr_other'),(660,196,'Georgia','b','Completed',NULL,1,2,1,'curr_other'),(675,98,'France','a','Currently Working','2026-04-20',0,0,1,'curr_other'),(676,98,'Georgia','b','Completed',NULL,2,1,1,'curr_other'),(691,91,'Georgia','aa','Completed',NULL,1,2,1,'curr_other'),(692,91,'New Zealand','bb','Completed',NULL,2,3,1,'curr_other');
-/*!40000 ALTER TABLE `application_work_experience` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `board_authorities`
---
-
-DROP TABLE IF EXISTS `board_authorities`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `board_authorities` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `board_authorities`
---
-
-LOCK TABLES `board_authorities` WRITE;
-/*!40000 ALTER TABLE `board_authorities` DISABLE KEYS */;
-INSERT INTO `board_authorities` VALUES (1,'WES','2026-05-07 06:52:06'),(2,'ACS','2026-05-07 06:52:06'),(3,'Engineers Australia','2026-05-07 06:52:06'),(4,'VETASSESS','2026-05-07 06:52:06'),(5,'Other','2026-05-07 06:52:06');
-/*!40000 ALTER TABLE `board_authorities` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `branch_departments`
---
-
-DROP TABLE IF EXISTS `branch_departments`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `branch_departments` (
-  `branch_id` int NOT NULL,
-  `department_id` int NOT NULL,
-  PRIMARY KEY (`branch_id`,`department_id`),
-  KEY `department_id` (`department_id`),
-  CONSTRAINT `branch_departments_ibfk_1` FOREIGN KEY (`branch_id`) REFERENCES `branches` (`branch_id`) ON DELETE CASCADE,
-  CONSTRAINT `branch_departments_ibfk_2` FOREIGN KEY (`department_id`) REFERENCES `departments` (`department_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `branch_departments`
---
-
-LOCK TABLES `branch_departments` WRITE;
-/*!40000 ALTER TABLE `branch_departments` DISABLE KEYS */;
-INSERT INTO `branch_departments` VALUES (1,1),(2,1),(3,1),(1,2),(2,2),(1,3),(1,4);
-/*!40000 ALTER TABLE `branch_departments` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `branches`
---
-
-DROP TABLE IF EXISTS `branches`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `branches` (
-  `branch_id` int NOT NULL AUTO_INCREMENT,
-  `branch_name` varchar(100) NOT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`branch_id`),
-  UNIQUE KEY `branch_name` (`branch_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `branches`
---
-
-LOCK TABLES `branches` WRITE;
-/*!40000 ALTER TABLE `branches` DISABLE KEYS */;
-INSERT INTO `branches` VALUES (1,'Kochi','2026-01-29 06:28:03'),(2,'Trivandrum','2026-01-29 06:28:03'),(3,'Calicut','2026-01-29 06:28:03');
-/*!40000 ALTER TABLE `branches` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `coaching_courses`
---
-
-DROP TABLE IF EXISTS `coaching_courses`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `coaching_courses` (
-  `course_id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  PRIMARY KEY (`course_id`),
-  UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `coaching_courses`
---
-
-LOCK TABLES `coaching_courses` WRITE;
-/*!40000 ALTER TABLE `coaching_courses` DISABLE KEYS */;
-INSERT INTO `coaching_courses` VALUES (2,'course test 2'),(1,'test course');
-/*!40000 ALTER TABLE `coaching_courses` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `countries`
---
-
-DROP TABLE IF EXISTS `countries`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `countries` (
-  `country_id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  PRIMARY KEY (`country_id`),
-  UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `countries`
---
-
-LOCK TABLES `countries` WRITE;
-/*!40000 ALTER TABLE `countries` DISABLE KEYS */;
-INSERT INTO `countries` VALUES (3,'Australia'),(2,'Canada1'),(10,'France'),(15,'Georgia'),(5,'Germany'),(7,'India'),(8,'Ireland'),(13,'Latvia'),(14,'Malta'),(9,'New Zealand'),(12,'Poland'),(11,'Singapore'),(6,'UAE'),(1,'United Kingdom'),(4,'USA');
-/*!40000 ALTER TABLE `countries` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `course_admission`
---
-
-DROP TABLE IF EXISTS `course_admission`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `course_admission` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `course_admission`
---
-
-LOCK TABLES `course_admission` WRITE;
-/*!40000 ALTER TABLE `course_admission` DISABLE KEYS */;
-INSERT INTO `course_admission` VALUES (7,'123'),(6,'adm test'),(1,'GMAT'),(4,'GMAT Focus'),(2,'GRE'),(3,'SAT');
-/*!40000 ALTER TABLE `course_admission` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `course_language`
---
-
-DROP TABLE IF EXISTS `course_language`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `course_language` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `course_language`
---
-
-LOCK TABLES `course_language` WRITE;
-/*!40000 ALTER TABLE `course_language` DISABLE KEYS */;
-INSERT INTO `course_language` VALUES (7,'a language test'),(4,'CELPIP'),(5,'DET'),(1,'IELTS'),(2,'PTE'),(3,'TOEFL');
-/*!40000 ALTER TABLE `course_language` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `department_status_mappings`
---
-
-DROP TABLE IF EXISTS `department_status_mappings`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `department_status_mappings` (
-  `department_id` int NOT NULL,
-  `status_id` int NOT NULL,
-  PRIMARY KEY (`department_id`,`status_id`),
-  KEY `status_id` (`status_id`),
-  CONSTRAINT `department_status_mappings_ibfk_1` FOREIGN KEY (`department_id`) REFERENCES `departments` (`department_id`) ON DELETE CASCADE,
-  CONSTRAINT `department_status_mappings_ibfk_2` FOREIGN KEY (`status_id`) REFERENCES `statuses` (`status_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `department_status_mappings`
---
-
-LOCK TABLES `department_status_mappings` WRITE;
-/*!40000 ALTER TABLE `department_status_mappings` DISABLE KEYS */;
-INSERT INTO `department_status_mappings` VALUES (1,1),(2,1),(1,2),(2,4),(1,5),(2,6);
-/*!40000 ALTER TABLE `department_status_mappings` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `departments`
---
-
-DROP TABLE IF EXISTS `departments`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `departments` (
-  `department_id` int NOT NULL AUTO_INCREMENT,
-  `department_name` varchar(100) NOT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`department_id`),
-  UNIQUE KEY `department_name` (`department_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `departments`
---
-
-LOCK TABLES `departments` WRITE;
-/*!40000 ALTER TABLE `departments` DISABLE KEYS */;
-INSERT INTO `departments` VALUES (1,'Counsellor','2026-01-29 06:28:03'),(2,'Admission','2026-01-29 06:28:03'),(3,'Documentation','2026-01-29 06:28:03'),(4,'Accounts','2026-01-29 06:28:03');
-/*!40000 ALTER TABLE `departments` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `educational_levels`
---
-
-DROP TABLE IF EXISTS `educational_levels`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `educational_levels` (
-  `level_id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  PRIMARY KEY (`level_id`),
-  UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `educational_levels`
---
-
-LOCK TABLES `educational_levels` WRITE;
-/*!40000 ALTER TABLE `educational_levels` DISABLE KEYS */;
-INSERT INTO `educational_levels` VALUES (9,'Advanced Diploma'),(10,'Associate Degree'),(3,'Bachelor'),(11,'Certificate III'),(12,'Certificate IV'),(2,'Diploma'),(7,'Graduate Certificate'),(13,'Graduate Diploma'),(1,'High School'),(4,'Master'),(6,'PG Diploma'),(5,'PhD'),(14,'Secondary Education');
-/*!40000 ALTER TABLE `educational_levels` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `enquiry_sources`
---
-
-DROP TABLE IF EXISTS `enquiry_sources`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `enquiry_sources` (
-  `source_id` int NOT NULL AUTO_INCREMENT,
-  `source_name` varchar(100) NOT NULL,
-  PRIMARY KEY (`source_id`),
-  UNIQUE KEY `source_name` (`source_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `enquiry_sources`
---
-
-LOCK TABLES `enquiry_sources` WRITE;
-/*!40000 ALTER TABLE `enquiry_sources` DISABLE KEYS */;
-INSERT INTO `enquiry_sources` VALUES (2,'Facebook'),(1,'Google Ads'),(3,'Instagram'),(6,'Newspaper'),(4,'Referral'),(5,'Walk-in'),(7,'Website');
-/*!40000 ALTER TABLE `enquiry_sources` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `follow_ups`
---
-
-DROP TABLE IF EXISTS `follow_ups`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `follow_ups` (
-  `follow_up_id` int NOT NULL AUTO_INCREMENT,
-  `student_id` int DEFAULT NULL,
-  `branch_id` int DEFAULT NULL,
-  `department_id` int DEFAULT NULL,
-  `status` varchar(50) DEFAULT NULL,
-  `assigned_to` int DEFAULT NULL,
-  `follow_up_date` date NOT NULL,
-  `remark` text NOT NULL,
-  `created_by` int DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`follow_up_id`),
-  KEY `student_id` (`student_id`),
-  KEY `branch_id` (`branch_id`),
-  KEY `department_id` (`department_id`),
-  KEY `assigned_to` (`assigned_to`),
-  KEY `created_by` (`created_by`),
-  CONSTRAINT `follow_ups_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `students` (`student_id`) ON DELETE CASCADE,
-  CONSTRAINT `follow_ups_ibfk_2` FOREIGN KEY (`branch_id`) REFERENCES `branches` (`branch_id`),
-  CONSTRAINT `follow_ups_ibfk_3` FOREIGN KEY (`department_id`) REFERENCES `departments` (`department_id`),
-  CONSTRAINT `follow_ups_ibfk_4` FOREIGN KEY (`assigned_to`) REFERENCES `users` (`user_id`),
-  CONSTRAINT `follow_ups_ibfk_5` FOREIGN KEY (`created_by`) REFERENCES `users` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `follow_ups`
---
-
-LOCK TABLES `follow_ups` WRITE;
-/*!40000 ALTER TABLE `follow_ups` DISABLE KEYS */;
-INSERT INTO `follow_ups` VALUES (1,2,1,1,'Applied',1,'2026-01-29','applied student',1,'2026-01-29 06:39:39'),(3,4,2,2,'Interested',1,'2026-01-29','intrested need o followup',1,'2026-01-29 12:17:50'),(4,5,1,2,'Interested',1,'2026-01-29','tested data',1,'2026-01-29 12:28:17'),(5,6,1,2,'Interested',1,'2026-02-08','q',1,'2026-02-08 07:45:31'),(6,7,1,2,'Interested',1,'2026-02-09','need to call',1,'2026-02-09 05:02:28'),(7,10,1,1,'Interested',1,'2026-02-11','Initial Status: Interested',1,'2026-02-11 16:30:48'),(8,10,1,2,'Doubtful',1,'2026-03-12','h',1,'2026-03-12 14:31:53'),(9,10,1,NULL,'Interested',1,'2026-04-15','saaa',1,'2026-04-14 04:51:55'),(10,7,1,NULL,'Interested',1,'2026-04-16','asdasa',1,'2026-04-14 04:53:02'),(11,6,1,NULL,'Interested',1,'2026-04-07','es',1,'2026-04-14 04:53:23'),(12,11,1,4,'',3,'2026-04-18','Dwdwdawd',1,'2026-04-18 03:28:56'),(13,12,2,1,'Applied',NULL,'2026-04-22','good',1,'2026-04-18 03:43:20'),(14,17,1,2,'Interested',3,'2026-04-23','remark test',1,'2026-04-23 11:21:57'),(15,19,1,2,'Interested',3,'2026-04-30','remark test',1,'2026-04-29 06:40:28'),(16,22,2,2,'Interested',3,'2026-04-30','remarks tess',1,'2026-04-30 10:00:00'),(17,31,1,2,'Interested',3,'2026-01-01','h',1,'2026-05-05 10:24:20'),(18,32,1,2,'Interested',1,'2026-05-09','remark',1,'2026-05-08 08:25:12'),(19,35,2,1,'Applied',1,'2026-05-20','rmk 11',1,'2026-05-20 11:55:46'),(20,36,2,1,'Applied',NULL,'2026-05-20','Initial Status: Applied',1,'2026-05-20 12:38:30');
-/*!40000 ALTER TABLE `follow_ups` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `migration_categories`
---
-
-DROP TABLE IF EXISTS `migration_categories`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `migration_categories` (
-  `migration_cat_id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  PRIMARY KEY (`migration_cat_id`),
-  UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `migration_categories`
---
-
-LOCK TABLES `migration_categories` WRITE;
-/*!40000 ALTER TABLE `migration_categories` DISABLE KEYS */;
-INSERT INTO `migration_categories` VALUES (1,'for studies'),(2,'test migration cat');
-/*!40000 ALTER TABLE `migration_categories` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `occupations`
---
-
-DROP TABLE IF EXISTS `occupations`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `occupations` (
-  `occ_id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  PRIMARY KEY (`occ_id`),
-  UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `occupations`
---
-
-LOCK TABLES `occupations` WRITE;
-/*!40000 ALTER TABLE `occupations` DISABLE KEYS */;
-INSERT INTO `occupations` VALUES (3,'Accountant'),(9,'Chef'),(12,'Civil Engineer'),(5,'Driver'),(8,'Electrician'),(10,'Manager'),(11,'Marketing Specialist'),(7,'Mechanic'),(2,'Nurse'),(6,'Sales Executive'),(1,'Software Engineer'),(4,'Teacher');
-/*!40000 ALTER TABLE `occupations` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `other_types`
---
-
-DROP TABLE IF EXISTS `other_types`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `other_types` (
-  `other_type_id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  PRIMARY KEY (`other_type_id`),
-  UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `other_types`
---
-
-LOCK TABLES `other_types` WRITE;
-/*!40000 ALTER TABLE `other_types` DISABLE KEYS */;
-INSERT INTO `other_types` VALUES (3,'Admission Test'),(1,'Language Test'),(5,'other test'),(4,'Skill Assessment'),(6,'Spouse Language Test');
-/*!40000 ALTER TABLE `other_types` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `registration_adm_interest`
---
-
-DROP TABLE IF EXISTS `registration_adm_interest`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `registration_adm_interest` (
-  `interest_id` int NOT NULL AUTO_INCREMENT,
-  `registration_id` int DEFAULT NULL,
-  `course` varchar(255) DEFAULT NULL,
-  `expected_date` date DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`interest_id`),
-  KEY `registration_id` (`registration_id`),
-  CONSTRAINT `registration_adm_interest_ibfk_1` FOREIGN KEY (`registration_id`) REFERENCES `student_registrations` (`registration_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `registration_adm_interest`
---
-
-LOCK TABLES `registration_adm_interest` WRITE;
-/*!40000 ALTER TABLE `registration_adm_interest` DISABLE KEYS */;
-/*!40000 ALTER TABLE `registration_adm_interest` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `registration_admission_tests`
---
-
-DROP TABLE IF EXISTS `registration_admission_tests`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `registration_admission_tests` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `registration_id` int DEFAULT NULL,
-  `test_type` varchar(50) DEFAULT NULL,
-  `quant` varchar(20) DEFAULT NULL,
-  `verbal` varchar(20) DEFAULT NULL,
-  `data_insights` varchar(20) DEFAULT NULL,
-  `overall` varchar(20) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=68 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `registration_admission_tests`
---
-
-LOCK TABLES `registration_admission_tests` WRITE;
-/*!40000 ALTER TABLE `registration_admission_tests` DISABLE KEYS */;
-INSERT INTO `registration_admission_tests` VALUES (1,9,'GMAT','2','2','2','','2026-05-02 08:27:13'),(2,9,'GRE','22','22','22','','2026-05-02 08:27:13'),(5,10,'GMAT','2','2','2','','2026-05-02 09:12:23'),(6,10,'GRE','22','22','22','','2026-05-02 09:12:23'),(7,12,'GMAT','2','2','2','','2026-05-02 09:47:21'),(8,12,'GRE','22','22','22','','2026-05-02 09:47:21'),(10,13,'GRE','1','1','1','','2026-05-02 09:49:49'),(15,16,'GMAT','3','4','5','','2026-05-05 07:39:06'),(16,19,'GRE','4','56','6','','2026-05-05 08:07:29'),(17,30,'GMAT Focus','1','1','1','','2026-05-08 08:28:55'),(18,32,'GMAT','1','1','1','','2026-05-20 05:59:48'),(19,32,'GMAT Focus','2','2','2','','2026-05-20 05:59:48'),(20,33,'GMAT','1','1','1','','2026-05-20 06:04:09'),(21,33,'GMAT Focus','2','2','2','','2026-05-20 06:04:09'),(24,34,'adm test','1','1','1','','2026-05-20 06:12:25'),(25,34,'GMAT','2','2','2','','2026-05-20 06:12:25'),(26,36,'GMAT','1','1','1','','2026-05-20 06:42:12'),(27,36,'GMAT Focus','2','2','2','','2026-05-20 06:42:12'),(28,37,'adm test','1','1','1','','2026-05-20 06:42:37'),(29,37,'GMAT','2','2','2','','2026-05-20 06:42:37'),(30,38,'GMAT','1','1','1','','2026-05-20 06:43:09'),(31,38,'GMAT Focus','2','2','2','','2026-05-20 06:43:09'),(32,39,'GMAT','1','1','1','','2026-05-20 07:10:23'),(33,39,'GMAT Focus','2','2','2','','2026-05-20 07:10:23'),(34,40,'GMAT','1','1','1','','2026-05-20 07:28:08'),(35,40,'GMAT Focus','2','2','2','','2026-05-20 07:28:08'),(36,41,'adm test','1','1','1','','2026-05-20 10:14:10'),(37,41,'GMAT','2','2','2','','2026-05-20 10:14:10'),(38,42,'GMAT','1','1','1','','2026-05-20 10:15:28'),(39,42,'GMAT Focus','2','2','2','','2026-05-20 10:15:28'),(40,43,'GMAT','1','1','1','','2026-05-20 10:16:53'),(41,43,'GMAT Focus','2','2','2','','2026-05-20 10:16:53'),(42,44,'GMAT','1','1','1','','2026-05-20 10:25:32'),(43,44,'GMAT Focus','2','2','2','','2026-05-20 10:25:32'),(44,45,'GMAT','1','1','1','','2026-05-20 11:00:33'),(45,45,'GMAT Focus','2','2','2','','2026-05-20 11:00:33'),(46,46,'GMAT','1','1','1','','2026-05-20 11:01:13'),(47,46,'GMAT Focus','2','2','2','','2026-05-20 11:01:13'),(48,47,'GMAT','1','1','1','','2026-05-20 11:18:51'),(49,47,'GMAT Focus','2','2','2','','2026-05-20 11:18:51'),(60,49,'adm test','1','1','1','','2026-05-22 08:58:22'),(61,49,'GMAT','2','2','2','','2026-05-22 08:58:22'),(66,15,'GMAT','23','23','2','','2026-05-26 08:57:34'),(67,15,'GRE','32','22','23','','2026-05-26 08:57:34');
-/*!40000 ALTER TABLE `registration_admission_tests` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `registration_children`
---
-
-DROP TABLE IF EXISTS `registration_children`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `registration_children` (
-  `child_id` int NOT NULL AUTO_INCREMENT,
-  `registration_id` int NOT NULL,
-  `age` int DEFAULT NULL,
-  `is_accompanying` tinyint(1) DEFAULT '0',
-  PRIMARY KEY (`child_id`),
-  KEY `registration_id` (`registration_id`),
-  CONSTRAINT `registration_children_ibfk_1` FOREIGN KEY (`registration_id`) REFERENCES `student_registrations` (`registration_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=114 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `registration_children`
---
-
-LOCK TABLES `registration_children` WRITE;
-/*!40000 ALTER TABLE `registration_children` DISABLE KEYS */;
-INSERT INTO `registration_children` VALUES (13,5,12,1),(14,5,10,0),(19,10,4,1),(20,10,2,0),(21,12,4,1),(22,12,2,0),(29,16,4,1),(30,16,2,0),(31,19,5,1),(32,19,2,0),(100,74,2,1),(101,74,2,0),(106,77,4,1),(107,77,2,0),(112,15,3,1),(113,15,1,0);
-/*!40000 ALTER TABLE `registration_children` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `registration_education`
---
-
-DROP TABLE IF EXISTS `registration_education`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `registration_education` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `registration_id` int NOT NULL,
-  `country` varchar(100) DEFAULT NULL,
-  `level` varchar(100) DEFAULT NULL,
-  `field` varchar(100) DEFAULT NULL,
-  `status` varchar(50) DEFAULT NULL,
-  `expected_completion` date DEFAULT NULL,
-  `is_highest` tinyint(1) DEFAULT '0',
-  `edu_type` varchar(20) DEFAULT 'highest',
-  PRIMARY KEY (`id`),
-  KEY `fk_reg_edu` (`registration_id`),
-  CONSTRAINT `fk_reg_edu` FOREIGN KEY (`registration_id`) REFERENCES `student_registrations` (`registration_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=161 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `registration_education`
---
-
-LOCK TABLES `registration_education` WRITE;
-/*!40000 ALTER TABLE `registration_education` DISABLE KEYS */;
-INSERT INTO `registration_education` VALUES (36,10,'UAE','Graduate Certificate','Finance','Not Completed','2022-08-01',1,'highest'),(37,10,'India','High School','Hospitality','Completed','2022-08-01',0,'highest'),(38,10,'Australia','Bachelor','Architecture','Not Completed','2023-10-01',0,'country'),(39,10,'Australia','Associate Degree','Agriculture','Completed',NULL,0,'country'),(40,10,'Canada1','Master','Information Technology','Not Completed','2023-10-01',0,'country'),(41,10,'Poland','Master','Information Technology','Not Completed','2022-08-01',0,'other'),(42,10,'Germany','Graduate Certificate','Hospitality','Completed',NULL,0,'other'),(43,12,'Australia','High School','Hospitality','Not Completed','2026-04-01',1,'highest'),(44,12,'Canada1','Graduate Certificate','Finance','Completed',NULL,0,'highest'),(45,12,'Germany','Graduate Diploma','Health & Medicine','Not Completed','2026-04-01',0,'country'),(46,12,'Germany','Graduate Diploma','Finance','Completed',NULL,0,'country'),(47,12,'France','High School','Finance','Not Completed','2026-04-01',0,'other'),(48,12,'Georgia','Graduate Diploma','Finance','Completed',NULL,0,'other'),(51,13,'Malta','Graduate Diploma','Health & Medicine','Completed',NULL,1,'highest'),(52,13,'Latvia','Diploma','Hospitality','Completed',NULL,0,'other'),(61,16,'Malta','Graduate Diploma','Environmental Science','Completed',NULL,1,'highest'),(62,16,'UAE','Master','Information Technology','Completed',NULL,0,'other'),(63,19,'UAE','High School','Environmental Science','Not Completed','2026-04-01',1,'highest'),(64,19,'Ireland','Graduate Certificate','Engineering','Not Completed','2026-04-01',0,'other'),(149,74,'Georgia','Certificate III','Arts & Humanities','Completed',NULL,1,'highest'),(154,77,'Georgia','Certificate III','Architecture','Completed',NULL,1,'highest'),(159,15,'Malta','Master','Environmental Science','Not Completed','2026-03-01',1,'highest'),(160,15,'India','Diploma','Hospitality','Completed',NULL,0,'highest');
-/*!40000 ALTER TABLE `registration_education` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `registration_lang_interest`
---
-
-DROP TABLE IF EXISTS `registration_lang_interest`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `registration_lang_interest` (
-  `interest_id` int NOT NULL AUTO_INCREMENT,
-  `registration_id` int DEFAULT NULL,
-  `course` varchar(255) DEFAULT NULL,
-  `expected_date` date DEFAULT NULL,
-  `is_spouse` tinyint(1) DEFAULT '0',
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`interest_id`),
-  KEY `registration_id` (`registration_id`),
-  CONSTRAINT `registration_lang_interest_ibfk_1` FOREIGN KEY (`registration_id`) REFERENCES `student_registrations` (`registration_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `registration_lang_interest`
---
-
-LOCK TABLES `registration_lang_interest` WRITE;
-/*!40000 ALTER TABLE `registration_lang_interest` DISABLE KEYS */;
-/*!40000 ALTER TABLE `registration_lang_interest` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `registration_language_tests`
---
-
-DROP TABLE IF EXISTS `registration_language_tests`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `registration_language_tests` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `registration_id` int NOT NULL,
-  `test_type` varchar(50) DEFAULT NULL,
-  `reading` varchar(20) DEFAULT NULL,
-  `writing` varchar(20) DEFAULT NULL,
-  `speaking` varchar(20) DEFAULT NULL,
-  `listening` varchar(20) DEFAULT NULL,
-  `overall` varchar(20) DEFAULT NULL,
-  `is_spouse` tinyint(1) DEFAULT '0',
-  PRIMARY KEY (`id`),
-  KEY `fk_reg_lang` (`registration_id`),
-  CONSTRAINT `fk_reg_lang` FOREIGN KEY (`registration_id`) REFERENCES `student_registrations` (`registration_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=134 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `registration_language_tests`
---
-
-LOCK TABLES `registration_language_tests` WRITE;
-/*!40000 ALTER TABLE `registration_language_tests` DISABLE KEYS */;
-INSERT INTO `registration_language_tests` VALUES (9,10,'PTE','1','1','1','1','',0),(10,10,'IELTS','11','11','11','11','',0),(11,10,'TOEFL','2','2','2','2','',1),(12,10,'IELTS','2','2','2','2','',1),(13,12,'IELTS','1','1','1','1','',0),(14,12,'PTE','11','11','11','11','',0),(15,12,'IELTS','1','1','1','1','',1),(16,12,'PTE','11','11','11','11','',1),(18,13,'TOEFL','1','1','1','1','',0),(27,16,'PTE','6','4','5','4','',0),(28,16,'IELTS','6','3','5','4','',1),(29,19,'PTE','4','4','6','5','',0),(30,19,'IELTS','4','4','6','5','',1),(130,15,'PTE','2','2','2','2','',0),(131,15,'IELTS','3','2','23','2','',0),(132,15,'IELTS','3','2','3','3','',1),(133,15,'TOEFL','3','2','2','1','',1);
-/*!40000 ALTER TABLE `registration_language_tests` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `registration_relatives`
---
-
-DROP TABLE IF EXISTS `registration_relatives`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `registration_relatives` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `registration_id` int DEFAULT NULL,
-  `country` varchar(100) DEFAULT NULL,
-  `relationship` varchar(100) DEFAULT NULL,
-  `related_to` enum('Applicant','Spouse') DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=92 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `registration_relatives`
---
-
-LOCK TABLES `registration_relatives` WRITE;
-/*!40000 ALTER TABLE `registration_relatives` DISABLE KEYS */;
-INSERT INTO `registration_relatives` VALUES (1,9,'Australia','Uncle/Aunty','Spouse','2026-05-02 08:27:13'),(3,10,'Australia','Uncle/Aunty','Spouse','2026-05-02 09:12:23'),(4,12,'Germany','Uncle/Aunty','Spouse','2026-05-02 09:47:21'),(8,16,'Canada1','Sibling','Spouse','2026-05-05 07:39:06'),(9,19,'Canada1','Uncle/Aunty','Spouse','2026-05-05 08:07:29'),(10,20,'Australia','Uncle/Aunty','Applicant','2026-05-07 10:03:39'),(11,20,'France','Parent','Spouse','2026-05-07 10:03:39'),(12,21,'Australia','Uncle/Aunty','Applicant','2026-05-07 10:49:25'),(13,21,'France','Parent','Spouse','2026-05-07 10:49:25'),(30,30,'Australia','Sibling','Applicant','2026-05-08 08:28:55'),(31,30,'Canada1','Cousin','Spouse','2026-05-08 08:28:55'),(32,31,'Australia','Sibling','Spouse','2026-05-19 12:23:28'),(33,32,'Australia','Uncle/Aunty','Spouse','2026-05-20 05:59:48'),(34,32,'Australia','Cousin','Applicant','2026-05-20 05:59:48'),(35,33,'Australia','Uncle/Aunty','Spouse','2026-05-20 06:04:09'),(36,33,'Australia','Cousin','Applicant','2026-05-20 06:04:09'),(39,34,'Australia','Sibling','Spouse','2026-05-20 06:12:25'),(40,34,'Canada1','Uncle/Aunty','Applicant','2026-05-20 06:12:25'),(41,36,'Australia','Uncle/Aunty','Spouse','2026-05-20 06:42:12'),(42,36,'Australia','Cousin','Applicant','2026-05-20 06:42:12'),(43,37,'Australia','Sibling','Spouse','2026-05-20 06:42:37'),(44,37,'Canada1','Uncle/Aunty','Applicant','2026-05-20 06:42:37'),(45,38,'Australia','Uncle/Aunty','Spouse','2026-05-20 06:43:09'),(46,38,'Australia','Cousin','Applicant','2026-05-20 06:43:09'),(47,39,'Australia','Uncle/Aunty','Spouse','2026-05-20 07:10:23'),(48,39,'Australia','Cousin','Applicant','2026-05-20 07:10:23'),(49,40,'Australia','Uncle/Aunty','Spouse','2026-05-20 07:28:08'),(50,40,'Australia','Cousin','Applicant','2026-05-20 07:28:08'),(51,41,'Australia','Sibling','Spouse','2026-05-20 10:14:10'),(52,41,'Canada1','Uncle/Aunty','Applicant','2026-05-20 10:14:10'),(53,42,'Australia','Uncle/Aunty','Spouse','2026-05-20 10:15:28'),(54,42,'Australia','Cousin','Applicant','2026-05-20 10:15:28'),(55,43,'Australia','Uncle/Aunty','Spouse','2026-05-20 10:16:53'),(56,43,'Australia','Cousin','Applicant','2026-05-20 10:16:53'),(57,44,'Australia','Uncle/Aunty','Spouse','2026-05-20 10:25:32'),(58,44,'Australia','Cousin','Applicant','2026-05-20 10:25:32'),(59,45,'Australia','Uncle/Aunty','Spouse','2026-05-20 11:00:33'),(60,45,'Australia','Cousin','Applicant','2026-05-20 11:00:33'),(61,46,'Australia','Uncle/Aunty','Spouse','2026-05-20 11:01:13'),(62,46,'Australia','Cousin','Applicant','2026-05-20 11:01:13'),(63,47,'Australia','Uncle/Aunty','Spouse','2026-05-20 11:18:51'),(64,47,'Australia','Cousin','Applicant','2026-05-20 11:18:51'),(65,48,'Australia','Sibling','Spouse','2026-05-20 12:31:47'),(66,48,'France','Uncle/Aunty','Applicant','2026-05-20 12:31:47'),(77,49,'Australia','Sibling','Spouse','2026-05-22 08:58:22'),(78,49,'Canada1','Friend','Applicant','2026-05-22 08:58:22'),(79,56,'Australia','Uncle/Aunty','Spouse','2026-05-23 07:38:05'),(80,56,'France','Friend','Applicant','2026-05-23 07:38:05'),(81,57,'Australia','Uncle/Aunty','Spouse','2026-05-23 07:39:39'),(82,57,'France','Friend','Applicant','2026-05-23 07:39:39'),(83,70,'Australia','Uncle/Aunty','Spouse','2026-05-26 06:32:55'),(84,70,'France','Friend','Applicant','2026-05-26 06:32:55'),(87,22,'France','Uncle/Aunty','Applicant','2026-05-26 07:20:28'),(88,22,'Canada1','Uncle/Aunty','Spouse','2026-05-26 07:20:28'),(91,15,'Germany','Sibling','Spouse','2026-05-26 08:57:34');
-/*!40000 ALTER TABLE `registration_relatives` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `registration_skill`
---
-
-DROP TABLE IF EXISTS `registration_skill`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `registration_skill` (
-  `skill_id` int NOT NULL AUTO_INCREMENT,
-  `registration_id` int DEFAULT NULL,
-  `country` varchar(100) DEFAULT NULL,
-  `authority` varchar(255) DEFAULT NULL,
-  `status` varchar(100) DEFAULT NULL,
-  `sub_status` varchar(100) DEFAULT NULL,
-  `is_interest` tinyint(1) DEFAULT '0',
-  `remarks` text,
-  `created_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`skill_id`),
-  KEY `registration_id` (`registration_id`),
-  CONSTRAINT `registration_skill_ibfk_1` FOREIGN KEY (`registration_id`) REFERENCES `student_registrations` (`registration_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=70 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `registration_skill`
---
-
-LOCK TABLES `registration_skill` WRITE;
-/*!40000 ALTER TABLE `registration_skill` DISABLE KEYS */;
-/*!40000 ALTER TABLE `registration_skill` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `registration_spouse_education`
---
-
-DROP TABLE IF EXISTS `registration_spouse_education`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `registration_spouse_education` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `registration_id` int DEFAULT NULL,
-  `country` varchar(100) DEFAULT NULL,
-  `level` varchar(100) DEFAULT NULL,
-  `field` varchar(100) DEFAULT NULL,
-  `status` varchar(50) DEFAULT NULL,
-  `expected_completion` date DEFAULT NULL,
-  `edu_type` varchar(20) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=138 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `registration_spouse_education`
---
-
-LOCK TABLES `registration_spouse_education` WRITE;
-/*!40000 ALTER TABLE `registration_spouse_education` DISABLE KEYS */;
-INSERT INTO `registration_spouse_education` VALUES (1,9,'Australia','Associate Degree','Architecture','Not Completed','2024-09-01','country','2026-05-02 08:27:13'),(2,9,'Australia','Advanced Diploma','Agriculture','Completed',NULL,'country','2026-05-02 08:27:13'),(3,9,'Canada1','Advanced Diploma','Information Technology','Not Completed','2024-09-01','country','2026-05-02 08:27:13'),(4,9,'UAE','PG Diploma','Information Technology','Not Completed','2024-09-01','highest','2026-05-02 08:27:13'),(5,9,'New Zealand','High School','Information Technology','Completed',NULL,'highest','2026-05-02 08:27:13'),(6,9,'Latvia','Bachelor','Engineering','Not Completed','2024-09-01','other','2026-05-02 08:27:13'),(7,9,'UAE','Graduate Diploma','Dentistry','Completed',NULL,'other','2026-05-02 08:27:13'),(15,10,'Australia','Associate Degree','Architecture','Not Completed','2024-04-01','country','2026-05-02 09:12:23'),(16,10,'Australia','Advanced Diploma','Agriculture','Completed',NULL,'country','2026-05-02 09:12:23'),(17,10,'Canada1','Advanced Diploma','Information Technology','Not Completed','2024-04-01','country','2026-05-02 09:12:23'),(18,10,'UAE','PG Diploma','Information Technology','Not Completed','2024-04-01','highest','2026-05-02 09:12:23'),(19,10,'New Zealand','High School','Information Technology','Completed',NULL,'highest','2026-05-02 09:12:23'),(20,10,'Latvia','Bachelor','Engineering','Not Completed','2024-04-01','other','2026-05-02 09:12:23'),(21,10,'UAE','Graduate Diploma','Dentistry','Completed',NULL,'other','2026-05-02 09:12:23'),(22,12,'Germany','Advanced Diploma','Built Environment','Not Completed','2026-04-01','country','2026-05-02 09:47:21'),(23,12,'Germany','Associate Degree','Arts & Humanities','Completed',NULL,'country','2026-05-02 09:47:21'),(24,12,'Ireland','Graduate Certificate','Health & Medicine','Not Completed','2026-04-01','highest','2026-05-02 09:47:21'),(25,12,'Latvia','Diploma','Finance','Completed',NULL,'highest','2026-05-02 09:47:21'),(26,12,'Malta','PG Diploma','Health & Medicine','Not Completed','2026-04-01','other','2026-05-02 09:47:21'),(27,12,'New Zealand','High School','Finance','Completed',NULL,'other','2026-05-02 09:47:21'),(36,16,'Poland','High School','Hospitality','Completed',NULL,'highest','2026-05-05 07:39:06'),(37,16,'Poland','Graduate Diploma','Finance','Completed',NULL,'other','2026-05-05 07:39:06'),(38,19,'Poland','Master','Health & Medicine','Not Completed','2026-04-01','highest','2026-05-05 08:07:29'),(39,19,'Latvia','High School','Environmental Science','Not Completed','2026-04-01','other','2026-05-05 08:07:29'),(40,20,'India','Certificate IV','Engineering','Not Completed','2025-07-01','highest','2026-05-07 10:03:39'),(41,20,'Ireland','High School','Finance','Not Completed','2026-02-01','highest','2026-05-07 10:03:39'),(42,21,'India','Certificate IV','Engineering','Not Completed','2025-07-01','highest','2026-05-07 10:49:25'),(43,21,'Ireland','High School','Finance','Not Completed','2026-02-01','highest','2026-05-07 10:49:25'),(60,30,'Canada1','Bachelor','Agriculture','Not Completed','2026-04-01','highest','2026-05-08 08:28:55'),(61,30,'Georgia','Bachelor','Architecture','Completed',NULL,'highest','2026-05-08 08:28:55'),(62,31,'Ireland','Bachelor','Architecture','Not Completed','2026-04-01','highest','2026-05-19 12:23:28'),(63,31,'Latvia','Certificate III','Arts & Humanities','Completed',NULL,'highest','2026-05-19 12:23:28'),(64,32,'Canada1','Bachelor','Agriculture','Not Completed','2026-03-01','highest','2026-05-20 05:59:48'),(65,32,'France','Certificate III','Agriculture','Completed',NULL,'highest','2026-05-20 05:59:48'),(66,33,'Canada1','Bachelor','Agriculture','Not Completed','2026-03-01','highest','2026-05-20 06:04:09'),(67,33,'France','Certificate III','Agriculture','Completed',NULL,'highest','2026-05-20 06:04:09'),(70,34,'Canada1','Associate Degree','Agriculture','Not Completed','2026-03-01','highest','2026-05-20 06:12:25'),(71,34,'UAE','Bachelor','Agriculture','Completed',NULL,'highest','2026-05-20 06:12:25'),(72,36,'Canada1','Bachelor','Agriculture','Not Completed','2026-03-01','highest','2026-05-20 06:42:12'),(73,36,'France','Certificate III','Agriculture','Completed',NULL,'highest','2026-05-20 06:42:12'),(74,37,'Canada1','Associate Degree','Agriculture','Not Completed','2026-04-01','highest','2026-05-20 06:42:37'),(75,37,'UAE','Bachelor','Agriculture','Completed',NULL,'highest','2026-05-20 06:42:37'),(76,38,'Canada1','Bachelor','Agriculture','Not Completed','2026-03-01','highest','2026-05-20 06:43:09'),(77,38,'France','Certificate III','Agriculture','Completed',NULL,'highest','2026-05-20 06:43:09'),(78,39,'Canada1','Bachelor','Agriculture','Not Completed','2026-02-01','highest','2026-05-20 07:10:23'),(79,39,'France','Certificate III','Agriculture','Completed',NULL,'highest','2026-05-20 07:10:23'),(80,40,'Canada1','Bachelor','Agriculture','Not Completed','2026-01-01','highest','2026-05-20 07:28:08'),(81,40,'France','Certificate III','Agriculture','Completed',NULL,'highest','2026-05-20 07:28:08'),(82,41,'Canada1','Associate Degree','Agriculture','Not Completed','2026-03-01','highest','2026-05-20 10:14:10'),(83,41,'UAE','Bachelor','Agriculture','Completed',NULL,'highest','2026-05-20 10:14:10'),(84,42,'Canada1','Bachelor','Agriculture','Not Completed','2025-10-01','highest','2026-05-20 10:15:28'),(85,42,'France','Certificate III','Agriculture','Completed',NULL,'highest','2026-05-20 10:15:28'),(86,43,'Canada1','Bachelor','Agriculture','Not Completed','2025-10-01','highest','2026-05-20 10:16:53'),(87,43,'France','Certificate III','Agriculture','Completed',NULL,'highest','2026-05-20 10:16:53'),(88,44,'Canada1','Bachelor','Agriculture','Not Completed','2025-10-01','highest','2026-05-20 10:25:32'),(89,44,'France','Certificate III','Agriculture','Completed',NULL,'highest','2026-05-20 10:25:32'),(90,45,'Canada1','Bachelor','Agriculture','Not Completed','2025-10-01','highest','2026-05-20 11:00:33'),(91,45,'France','Certificate III','Agriculture','Completed',NULL,'highest','2026-05-20 11:00:33'),(92,46,'Canada1','Bachelor','Agriculture','Not Completed','2025-10-01','highest','2026-05-20 11:01:13'),(93,46,'France','Certificate III','Agriculture','Completed',NULL,'highest','2026-05-20 11:01:13'),(94,47,'Canada1','Bachelor','Agriculture','Not Completed','2025-10-01','highest','2026-05-20 11:18:51'),(95,47,'France','Certificate III','Agriculture','Completed',NULL,'highest','2026-05-20 11:18:51'),(96,48,'India','Advanced Diploma','Accounting','Not Completed','2026-04-01','highest','2026-05-20 12:31:47'),(97,48,'Ireland','Certificate III','Architecture','Completed',NULL,'highest','2026-05-20 12:31:47'),(108,49,'Australia','Associate Degree','Agriculture','Not Completed','2025-12-01','highest','2026-05-22 08:58:22'),(109,49,'France','Certificate III','Agriculture','Completed',NULL,'highest','2026-05-22 08:58:22'),(110,55,'','','','Completed',NULL,'highest','2026-05-23 06:14:32'),(111,56,'Australia','Bachelor','Agriculture','Not Completed','2025-04-01','highest','2026-05-23 07:38:05'),(112,56,'France','Bachelor','Agriculture','Completed',NULL,'highest','2026-05-23 07:38:05'),(113,57,'Australia','Bachelor','Agriculture','Not Completed','2025-03-01','highest','2026-05-23 07:39:39'),(114,57,'France','Bachelor','Agriculture','Completed',NULL,'highest','2026-05-23 07:39:39'),(115,70,'Australia','Associate Degree','Agriculture','Not Completed','2024-02-01','highest','2026-05-26 06:32:55'),(116,70,'France','Bachelor','Agriculture','Completed',NULL,'highest','2026-05-26 06:32:55'),(117,71,'Canada1','Associate Degree','Agriculture','Completed',NULL,'highest','2026-05-26 06:39:46'),(118,72,'Canada1','Associate Degree','Agriculture','Completed',NULL,'highest','2026-05-26 07:01:53'),(119,73,'Canada1','Associate Degree','Agriculture','Completed',NULL,'highest','2026-05-26 07:03:02'),(120,74,'Canada1','Associate Degree','Agriculture','Completed',NULL,'highest','2026-05-26 07:11:33'),(123,22,'India','Certificate IV','Engineering','Not Completed','2024-11-01','highest','2026-05-26 07:20:28'),(124,22,'Ireland','High School','Finance','Not Completed','2025-06-01','highest','2026-05-26 07:20:28'),(125,77,'Georgia','Bachelor','Architecture','Completed',NULL,'highest','2026-05-26 08:50:47'),(134,15,'New Zealand','High School','Hospitality','Not Completed','2026-03-01','highest','2026-05-26 08:57:34'),(135,15,'Poland','Graduate Certificate','Environmental Science','Completed',NULL,'highest','2026-05-26 08:57:34'),(136,15,'New Zealand','Graduate Certificate','Finance','Not Completed','2026-03-01','other','2026-05-26 08:57:34'),(137,15,'Latvia','Diploma','Health & Medicine','Completed',NULL,'other','2026-05-26 08:57:34');
-/*!40000 ALTER TABLE `registration_spouse_education` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `registration_spouse_work`
---
-
-DROP TABLE IF EXISTS `registration_spouse_work`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `registration_spouse_work` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `registration_id` int DEFAULT NULL,
-  `country` varchar(100) DEFAULT NULL,
-  `job_title` varchar(255) DEFAULT NULL,
-  `status` varchar(50) DEFAULT NULL,
-  `start_date` date DEFAULT NULL,
-  `work_years` int DEFAULT '0',
-  `work_months` int DEFAULT '0',
-  `work_type` varchar(20) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=106 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `registration_spouse_work`
---
-
-LOCK TABLES `registration_spouse_work` WRITE;
-/*!40000 ALTER TABLE `registration_spouse_work` DISABLE KEYS */;
-INSERT INTO `registration_spouse_work` VALUES (1,9,'Latvia','e',NULL,NULL,5,5,'other','2026-05-02 08:27:13'),(2,9,'Australia','a',NULL,NULL,1,1,'curr_country','2026-05-02 08:27:13'),(3,9,'Australia','b',NULL,NULL,2,2,'curr_country','2026-05-02 08:27:13'),(4,9,'Australia','c',NULL,NULL,3,3,'other_country','2026-05-02 08:27:13'),(5,9,'Canada1','d',NULL,NULL,4,4,'other_country','2026-05-02 08:27:13'),(11,10,'Poland','e',NULL,NULL,2,2,'curr_other','2026-05-02 09:12:23'),(12,10,'Australia','a',NULL,NULL,1,1,'curr_country','2026-05-02 09:12:23'),(13,10,'Australia','b',NULL,NULL,2,2,'curr_country','2026-05-02 09:12:23'),(14,10,'Australia','c',NULL,NULL,3,3,'other_country','2026-05-02 09:12:23'),(15,10,'Canada1','d',NULL,NULL,4,4,'other_country','2026-05-02 09:12:23'),(16,12,'Poland','c',NULL,NULL,3,3,'curr_other','2026-05-02 09:47:21'),(17,12,'Singapore','cc',NULL,NULL,33,33,'curr_other','2026-05-02 09:47:21'),(18,12,'Germany','a',NULL,NULL,1,1,'curr_country','2026-05-02 09:47:21'),(19,12,'Germany','aa',NULL,NULL,11,11,'curr_country','2026-05-02 09:47:21'),(20,12,'Germany','b',NULL,NULL,2,2,'other_country','2026-05-02 09:47:21'),(21,12,'Germany','bb',NULL,NULL,22,22,'other_country','2026-05-02 09:47:21'),(26,16,'Malta','sCd',NULL,NULL,2,3,'curr_other','2026-05-05 07:39:06'),(27,19,'Malta','asdfgh',NULL,NULL,4,5,'curr_other','2026-05-05 08:07:29'),(28,21,'Latvia','a','Currently Working','2026-05-05',0,0,'curr_other','2026-05-07 10:49:25'),(29,21,'Malta','b','Completed',NULL,2,1,'curr_other','2026-05-07 10:49:25'),(46,30,'France','a','Currently Working','2026-05-07',0,0,'curr_other','2026-05-08 08:28:55'),(47,30,'Georgia','b','Completed',NULL,2,1,'curr_other','2026-05-08 08:28:55'),(48,31,'Malta','a','Currently Working','2026-05-18',0,0,'curr_other','2026-05-19 12:23:28'),(49,31,'New Zealand','b','Completed',NULL,2,1,'curr_other','2026-05-19 12:23:28'),(50,32,'Australia','a','Currently Working','2026-05-18',0,0,'curr_other','2026-05-20 05:59:48'),(51,32,'Canada1','b','Completed',NULL,2,1,'curr_other','2026-05-20 05:59:48'),(52,33,'Australia','a','Currently Working','2026-05-18',0,0,'curr_other','2026-05-20 06:04:09'),(53,33,'Canada1','b','Completed',NULL,2,1,'curr_other','2026-05-20 06:04:09'),(56,34,'Australia','a','Currently Working','2026-05-18',0,0,'curr_other','2026-05-20 06:12:25'),(57,34,'Georgia','b','Completed',NULL,2,1,'curr_other','2026-05-20 06:12:25'),(58,36,'Australia','a','Currently Working','2026-05-18',0,0,'curr_other','2026-05-20 06:42:12'),(59,36,'Canada1','b','Completed',NULL,2,1,'curr_other','2026-05-20 06:42:12'),(60,37,'Australia','a','Currently Working','2026-05-19',0,0,'curr_other','2026-05-20 06:42:37'),(61,37,'Georgia','b','Completed',NULL,2,1,'curr_other','2026-05-20 06:42:37'),(62,38,'Australia','a','Currently Working','2026-05-18',0,0,'curr_other','2026-05-20 06:43:09'),(63,38,'Canada1','b','Completed',NULL,2,1,'curr_other','2026-05-20 06:43:09'),(64,39,'Australia','a','Currently Working','2026-05-17',0,0,'curr_other','2026-05-20 07:10:23'),(65,39,'Canada1','b','Completed',NULL,2,1,'curr_other','2026-05-20 07:10:23'),(66,40,'Australia','a','Currently Working','2026-05-16',0,0,'curr_other','2026-05-20 07:28:08'),(67,40,'Canada1','b','Completed',NULL,2,1,'curr_other','2026-05-20 07:28:08'),(68,41,'Australia','a','Currently Working','2026-05-18',0,0,'curr_other','2026-05-20 10:14:10'),(69,41,'Georgia','b','Completed',NULL,2,1,'curr_other','2026-05-20 10:14:10'),(70,42,'Australia','a','Currently Working','2026-05-13',0,0,'curr_other','2026-05-20 10:15:28'),(71,42,'Canada1','b','Completed',NULL,2,1,'curr_other','2026-05-20 10:15:28'),(72,43,'Australia','a','Currently Working','2026-05-13',0,0,'curr_other','2026-05-20 10:16:53'),(73,43,'Canada1','b','Completed',NULL,2,1,'curr_other','2026-05-20 10:16:53'),(74,44,'Australia','a','Currently Working','2026-05-13',0,0,'curr_other','2026-05-20 10:25:32'),(75,44,'Canada1','b','Completed',NULL,2,1,'curr_other','2026-05-20 10:25:32'),(76,45,'Australia','a','Currently Working','2026-05-13',0,0,'curr_other','2026-05-20 11:00:33'),(77,45,'Canada1','b','Completed',NULL,2,1,'curr_other','2026-05-20 11:00:33'),(78,46,'Australia','a','Currently Working','2026-05-13',0,0,'curr_other','2026-05-20 11:01:13'),(79,46,'Canada1','b','Completed',NULL,2,1,'curr_other','2026-05-20 11:01:13'),(80,47,'Australia','a','Currently Working','2026-05-13',0,0,'curr_other','2026-05-20 11:18:51'),(81,47,'Canada1','b','Completed',NULL,2,1,'curr_other','2026-05-20 11:18:51'),(82,48,'Latvia','a','Currently Working','2026-05-19',0,0,'curr_other','2026-05-20 12:31:47'),(83,48,'Malta','b','Completed',NULL,2,1,'curr_other','2026-05-20 12:31:47'),(94,49,'Canada1','a','Currently Working','2026-05-15',0,0,'curr_other','2026-05-22 08:58:22'),(95,49,'Georgia','b','Completed',NULL,2,1,'curr_other','2026-05-22 08:58:22'),(98,22,'Latvia','a','Currently Working','2026-04-27',0,0,'curr_other','2026-05-26 07:20:28'),(99,22,'Malta','b','Completed',NULL,2,1,'curr_other','2026-05-26 07:20:28'),(104,15,'India','a','Completed',NULL,2,3,'curr_other','2026-05-26 08:57:34'),(105,15,'Poland','aa','Completed',NULL,2,2,'curr_other','2026-05-26 08:57:34');
-/*!40000 ALTER TABLE `registration_spouse_work` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `registration_suggested_programs`
---
-
-DROP TABLE IF EXISTS `registration_suggested_programs`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `registration_suggested_programs` (
-  `sug_program_id` int NOT NULL AUTO_INCREMENT,
-  `registration_id` int NOT NULL,
-  `issystem` tinyint(1) DEFAULT '0',
-  `program_type` varchar(50) DEFAULT NULL,
-  `program` varchar(255) DEFAULT NULL,
-  `applied_for` varchar(255) DEFAULT NULL,
-  `details` varchar(255) DEFAULT NULL,
-  `details2` varchar(255) DEFAULT NULL,
-  `details3` varchar(255) DEFAULT NULL,
-  `status` varchar(100) DEFAULT NULL,
-  `sub_status` varchar(100) DEFAULT NULL,
-  `remarks` text,
-  `is_selected` tinyint(1) DEFAULT '0',
-  `branch_id` int DEFAULT NULL,
-  `department_id` int DEFAULT NULL,
-  `assigned_to` int DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`sug_program_id`),
-  KEY `registration_id` (`registration_id`),
-  CONSTRAINT `registration_suggested_programs_ibfk_1` FOREIGN KEY (`registration_id`) REFERENCES `student_registrations` (`registration_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=438 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `registration_suggested_programs`
---
-
-LOCK TABLES `registration_suggested_programs` WRITE;
-/*!40000 ALTER TABLE `registration_suggested_programs` DISABLE KEYS */;
-INSERT INTO `registration_suggested_programs` VALUES (1,2,0,NULL,'STUDY Australia',NULL,'Certificate IV Agriculture - April 2025',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:08'),(2,3,0,NULL,'STUDY Australia',NULL,'Bachelor Business - August 2024',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:08'),(3,3,0,NULL,'STUDY France',NULL,'Bachelor Engineering - September 2024',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:08'),(4,3,0,NULL,'Canada',NULL,'Accountant - Dependent Visa',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:08'),(5,3,0,NULL,'India',NULL,'Dependent Visa',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:08'),(6,3,0,NULL,'',NULL,'',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:08'),(7,3,0,NULL,'COACHING',NULL,'test course - test',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:08'),(8,4,0,NULL,'STUDY Australia',NULL,'Advanced Diploma Accounting - April 2025',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:08'),(9,4,0,NULL,'Canada1',NULL,'Chef',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:08'),(46,5,0,NULL,'STUDY India',NULL,'Master Computing - April 2024',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:08'),(47,5,0,NULL,'Australia',NULL,'Accountant - for studies',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:08'),(48,5,0,NULL,'Canada1',NULL,'Dependent Visa',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:08'),(49,5,0,NULL,'France',NULL,'Chef',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:08'),(50,5,0,NULL,'COACHING',NULL,'test course - inputted a',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:08'),(51,5,0,NULL,'MIGRATION Germany',NULL,'Marketing Specialist - for studies',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:08'),(72,10,0,'STUDY','STUDY Australia',NULL,'Advanced Diploma Accounting - April 2024',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:08'),(73,10,0,'STUDY','STUDY Canada1',NULL,'Associate Degree Accounting - August 2025',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:08'),(74,10,0,'OTHER','Australia',NULL,'Accountant - for studies',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:08'),(75,10,0,'OTHER','Canada1',NULL,'Chef - for studies',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:08'),(76,10,0,'OTHER','Australia',NULL,'Dependent Visa',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:08'),(77,10,0,'OTHER','Canada1',NULL,'Spouse Visa',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:08'),(78,10,0,'OTHER','Australia',NULL,'Accountant',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:08'),(79,10,0,'OTHER','Canada1',NULL,'Chef',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:08'),(80,10,0,'COACHING','COACHING',NULL,'test course - testa',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:08'),(81,10,0,'COACHING','COACHING',NULL,'test course - testb',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:08'),(82,12,0,'STUDY','STUDY France',NULL,'Advanced Diploma Accounting - April 2025',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:08'),(83,12,0,'MIGRATION','Germany',NULL,'Chef - for studies',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:08'),(84,12,0,'VISA','Australia',NULL,'Spouse Visa',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:08'),(85,12,0,'WORK','France',NULL,'Chef',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:08'),(86,12,0,'COACHING','COACHING',NULL,'test course - dsfd',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:08'),(88,13,0,'STUDY','STUDY Poland',NULL,'Graduate Certificate Creative Arts - July 2027',NULL,NULL,'one','one sub','',1,1,1,1,'2026-05-25 10:50:08'),(89,15,0,'STUDY','STUDY Australia','Advanced','Diploma Accounting','April','2024',NULL,NULL,NULL,1,NULL,NULL,NULL,'2026-05-25 10:50:08'),(90,15,0,'MIGRATION','Germany','Chef','for studies',NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,'2026-05-25 10:50:08'),(91,15,0,'VISA','Australia','Spouse Visa',NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,'2026-05-25 10:50:08'),(92,15,0,'WORK','Canada1','Chef',NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,'2026-05-25 10:50:08'),(93,15,0,'COACHING','COACHING','test course','343',NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,'2026-05-25 10:50:08'),(104,16,0,'STUDY','STUDY Australia',NULL,'- April 2024',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:08'),(105,16,0,'MIGRATION','Canada1',NULL,' - ',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:08'),(106,16,0,'VISA','Georgia',NULL,'',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:08'),(107,16,0,'WORK','Canada1',NULL,'',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:08'),(108,16,0,'COACHING','COACHING',NULL,'test course - ',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:08'),(109,19,0,'STUDY','STUDY Australia',NULL,'Associate Degree Agriculture - August 2025',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:08'),(110,19,0,'MIGRATION','Canada1',NULL,'Chef - for studies',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:08'),(111,19,0,'VISA','Canada1',NULL,'Dependent Visa',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:08'),(112,19,0,'WORK','Canada1',NULL,'Chef',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:08'),(113,19,0,'COACHING','COACHING',NULL,'test course - zcszc',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:08'),(409,74,0,'STUDY','Canada1','Advanced Diploma','Accounting','April','2025',NULL,NULL,NULL,1,NULL,NULL,NULL,'2026-05-26 07:11:33'),(410,74,0,'MIGRATION','France','Chef','for studies',NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,'2026-05-26 07:11:33'),(411,74,0,'VISA','Australia','Dependent Visa',NULL,NULL,NULL,NULL,NULL,NULL,2,NULL,NULL,NULL,'2026-05-26 07:11:33'),(412,74,0,'WORK','Canada1','Chef',NULL,NULL,NULL,NULL,NULL,NULL,2,NULL,NULL,NULL,'2026-05-26 07:11:33'),(413,74,0,'COACHING','COACHING','test course','sa',NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,'2026-05-26 07:11:33'),(414,74,1,'Skill Assessment','Skill Assessment','1',NULL,NULL,NULL,NULL,NULL,NULL,2,NULL,NULL,NULL,'2026-05-26 07:11:33'),(415,74,1,'Language Test','Language Test','2',NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,'2026-05-26 07:11:33'),(416,74,1,'Admission Test','Admission Test','3',NULL,NULL,NULL,NULL,NULL,NULL,2,NULL,NULL,NULL,'2026-05-26 07:11:33'),(417,74,1,'Spouse Language Test','Spouse Language Test','4',NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,'2026-05-26 07:11:33'),(418,74,0,'Language Test','Language Test','5',NULL,NULL,NULL,NULL,NULL,NULL,2,NULL,NULL,NULL,'2026-05-26 07:11:33'),(419,74,0,'Admission Test','Admission Test','66',NULL,NULL,NULL,NULL,NULL,NULL,2,NULL,NULL,NULL,'2026-05-26 07:11:33'),(420,74,0,'Spouse Language Test','Spouse Language Test','6',NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,'2026-05-26 07:11:33'),(421,74,0,'Skill Assessment','Skill Assessment','66565',NULL,NULL,NULL,NULL,NULL,NULL,2,NULL,NULL,NULL,'2026-05-26 07:11:33'),(422,74,0,'EDUCATION LOAN','EDUCATION LOAN','5',NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,'2026-05-26 07:11:33'),(423,74,0,'TICKETING','TICKETING','654',NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,'2026-05-26 07:11:33'),(431,77,0,'STUDY','Canada1','Associate Degree','Agriculture','August','2025',NULL,NULL,NULL,2,NULL,NULL,NULL,'2026-05-26 08:50:47'),(432,77,0,'MIGRATION','Canada1','Chef','for studies',NULL,NULL,NULL,NULL,NULL,2,NULL,NULL,NULL,'2026-05-26 08:50:47'),(433,77,0,'COACHING','COACHING','course test 2','122',NULL,NULL,NULL,NULL,NULL,2,NULL,NULL,NULL,'2026-05-26 08:50:47'),(434,77,1,'Skill Assessment','Skill Assessment','1','2',NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,'2026-05-26 08:50:47'),(435,77,1,'Language Test','Language Test','1','2',NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,'2026-05-26 08:50:47'),(436,77,1,'Admission Test','Admission Test','1','2',NULL,NULL,NULL,NULL,NULL,2,NULL,NULL,NULL,'2026-05-26 08:50:47');
-/*!40000 ALTER TABLE `registration_suggested_programs` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `registration_work_experience`
---
-
-DROP TABLE IF EXISTS `registration_work_experience`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `registration_work_experience` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `registration_id` int NOT NULL,
-  `country` varchar(100) DEFAULT NULL,
-  `job_title` varchar(255) DEFAULT NULL,
-  `status` varchar(50) DEFAULT NULL,
-  `start_date` date DEFAULT NULL,
-  `work_years` int DEFAULT '0',
-  `work_months` int DEFAULT '0',
-  `type` enum('current','previous') DEFAULT 'previous',
-  `work_type` varchar(20) DEFAULT 'curr_country',
-  PRIMARY KEY (`id`),
-  KEY `fk_reg_work` (`registration_id`),
-  CONSTRAINT `fk_reg_work` FOREIGN KEY (`registration_id`) REFERENCES `student_registrations` (`registration_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=154 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `registration_work_experience`
---
-
-LOCK TABLES `registration_work_experience` WRITE;
-/*!40000 ALTER TABLE `registration_work_experience` DISABLE KEYS */;
-INSERT INTO `registration_work_experience` VALUES (39,10,'Malta','d',NULL,NULL,6,5,'current','curr_other'),(40,10,'New Zealand','dd',NULL,NULL,4,3,'current','curr_other'),(41,10,'Australia','a',NULL,NULL,2,3,'current','curr_country'),(42,10,'Australia','aa',NULL,NULL,5,9,'current','curr_country'),(43,10,'Australia','b',NULL,NULL,2,4,'previous','other_country'),(44,10,'Australia','bb',NULL,NULL,5,6,'previous','other_country'),(45,10,'Canada1','cc',NULL,NULL,4,5,'current','curr_country'),(46,10,'Canada1','ccc',NULL,NULL,4,3,'current','curr_country'),(47,10,'Canada1','ccccc',NULL,NULL,4,3,'previous','other_country'),(48,12,'India','c',NULL,NULL,3,3,'previous','curr_other'),(49,12,'Ireland','cc',NULL,NULL,33,33,'previous','curr_other'),(50,12,'Germany','a',NULL,NULL,1,1,'current','curr_country'),(51,12,'Germany','aa',NULL,NULL,11,11,'current','curr_country'),(52,12,'Germany','b',NULL,NULL,2,2,'previous','other_country'),(53,12,'Germany','bb',NULL,NULL,22,22,'previous','other_country'),(55,13,'Singapore','21',NULL,NULL,2,2,'current','curr_other'),(60,16,'New Zealand','efSc',NULL,NULL,4,5,'previous','curr_other'),(61,19,'Malta','asdfgh',NULL,NULL,5,4,'previous','curr_other'),(150,15,'Georgia','aa','Completed',NULL,1,2,'','curr_other'),(151,15,'New Zealand','bb','Completed',NULL,2,3,'','curr_other'),(152,15,'Georgia','aa','Completed',NULL,1,2,'','curr_other'),(153,15,'New Zealand','bb','Completed',NULL,2,3,'','curr_other');
-/*!40000 ALTER TABLE `registration_work_experience` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `skill_assessment_statuses`
---
-
-DROP TABLE IF EXISTS `skill_assessment_statuses`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `skill_assessment_statuses` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `skill_assessment_statuses`
---
-
-LOCK TABLES `skill_assessment_statuses` WRITE;
-/*!40000 ALTER TABLE `skill_assessment_statuses` DISABLE KEYS */;
-INSERT INTO `skill_assessment_statuses` VALUES (1,'Completed','2026-05-07 06:56:05'),(2,'Incompleted','2026-05-07 06:56:05'),(3,'Interested','2026-05-07 06:56:05'),(4,'In Progress','2026-05-07 06:56:05');
-/*!40000 ALTER TABLE `skill_assessment_statuses` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `skill_assessment_sub_statuses`
---
-
-DROP TABLE IF EXISTS `skill_assessment_sub_statuses`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `skill_assessment_sub_statuses` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `status_id` int DEFAULT NULL,
-  `name` varchar(255) NOT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `skill_assessment_sub_statuses`
---
-
-LOCK TABLES `skill_assessment_sub_statuses` WRITE;
-/*!40000 ALTER TABLE `skill_assessment_sub_statuses` DISABLE KEYS */;
-INSERT INTO `skill_assessment_sub_statuses` VALUES (1,1,'Result Received','2026-05-07 06:56:05'),(2,1,'Documents Verified','2026-05-07 06:56:05'),(3,4,'Documents Pending','2026-05-07 06:56:05'),(4,4,'Payment Pending','2026-05-07 06:56:05'),(5,4,'Payment Done','2026-05-07 06:56:05'),(6,4,'Result Awaited','2026-05-07 06:56:05'),(7,3,'Initial Inquiry','2026-05-07 06:56:05'),(8,3,'Counseling Done','2026-05-07 06:56:05');
-/*!40000 ALTER TABLE `skill_assessment_sub_statuses` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `statuses`
---
-
-DROP TABLE IF EXISTS `statuses`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `statuses` (
-  `status_id` int NOT NULL AUTO_INCREMENT,
-  `status_name` varchar(50) NOT NULL,
-  `requires_followup` tinyint(1) DEFAULT '1',
-  PRIMARY KEY (`status_id`),
-  UNIQUE KEY `status_name` (`status_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `statuses`
---
-
-LOCK TABLES `statuses` WRITE;
-/*!40000 ALTER TABLE `statuses` DISABLE KEYS */;
-INSERT INTO `statuses` VALUES (1,'Interested',1),(2,'Not Interested',1),(3,'Warm Lead',1),(4,'Not Responding',1),(5,'Applied',1),(6,'Offer Received',1),(7,'Visa Filed',1),(8,'Visa Granted',1),(9,'Visa Rejected',1);
-/*!40000 ALTER TABLE `statuses` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `student_applications`
---
-
-DROP TABLE IF EXISTS `student_applications`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `student_applications` (
-  `application_id` int NOT NULL AUTO_INCREMENT,
-  `student_id` int NOT NULL,
-  `passport_name` varchar(255) DEFAULT NULL,
-  `age` int DEFAULT NULL,
-  `dob` date DEFAULT NULL,
-  `gender` enum('Male','Female','Other') DEFAULT NULL,
-  `marital_status` varchar(50) DEFAULT NULL,
-  `spouse_accompanying` tinyint(1) DEFAULT '0',
-  `address_country` varchar(100) DEFAULT NULL,
-  `address_state` varchar(100) DEFAULT NULL,
-  `address_suburb` varchar(100) DEFAULT NULL,
-  `mobile_country_code` varchar(10) DEFAULT NULL,
-  `contact1_code` varchar(10) DEFAULT NULL,
-  `contact1` varchar(50) DEFAULT NULL,
-  `contact1_whatsapp` tinyint(1) DEFAULT '0',
-  `contact1_bot` tinyint(1) DEFAULT '0',
-  `contact1_telegram` tinyint(1) DEFAULT '0',
-  `phone_country_code` varchar(10) DEFAULT NULL,
-  `contact2_code` varchar(10) DEFAULT NULL,
-  `contact2` varchar(50) DEFAULT NULL,
-  `contact2_whatsapp` tinyint(1) DEFAULT '0',
-  `contact2_bot` tinyint(1) DEFAULT '0',
-  `contact2_telegram` tinyint(1) DEFAULT '0',
-  `email` varchar(100) DEFAULT NULL,
-  `citizenship_country` varchar(100) DEFAULT NULL,
-  `passport_country` varchar(100) DEFAULT NULL,
-  `has_second_passport` tinyint(1) DEFAULT NULL,
-  `second_passport_country` varchar(100) DEFAULT NULL,
-  `highest_education` varchar(100) DEFAULT NULL,
-  `education_field` varchar(100) DEFAULT NULL,
-  `has_canadian_edu` tinyint(1) DEFAULT '0',
-  `canadian_edu_level` varchar(100) DEFAULT NULL,
-  `canadian_edu_field` varchar(100) DEFAULT NULL,
-  `has_australian_edu` tinyint(1) DEFAULT '0',
-  `australian_edu_level` varchar(100) DEFAULT NULL,
-  `australian_edu_field` varchar(100) DEFAULT NULL,
-  `has_aus_specialised_edu` tinyint(1) DEFAULT '0',
-  `aus_specialised_edu_level` varchar(100) DEFAULT NULL,
-  `aus_specialised_edu_field` varchar(100) DEFAULT NULL,
-  `has_nz_edu` tinyint(1) DEFAULT '0',
-  `nz_edu_level` varchar(100) DEFAULT NULL,
-  `nz_edu_field` varchar(100) DEFAULT NULL,
-  `has_work_experience` tinyint(1) DEFAULT '0',
-  `total_work_experience` varchar(50) DEFAULT NULL,
-  `canadian_work_years` varchar(50) DEFAULT NULL,
-  `australian_work_years` varchar(50) DEFAULT NULL,
-  `nz_work_years` varchar(50) DEFAULT NULL,
-  `has_language_test` tinyint(1) DEFAULT '0',
-  `has_language_interest` tinyint(1) DEFAULT '0',
-  `language_test_type` varchar(50) DEFAULT NULL,
-  `writing_score` varchar(20) DEFAULT NULL,
-  `listening_score` varchar(20) DEFAULT NULL,
-  `speaking_score` varchar(20) DEFAULT NULL,
-  `reading_score` varchar(20) DEFAULT NULL,
-  `has_admission_test` tinyint(1) DEFAULT '0',
-  `has_admission_interest` tinyint(1) DEFAULT '0',
-  `admission_test_type` varchar(50) DEFAULT NULL,
-  `quant_score` varchar(20) DEFAULT NULL,
-  `verbal_score` varchar(20) DEFAULT NULL,
-  `data_insights_score` varchar(20) DEFAULT NULL,
-  `spouse_age` int DEFAULT NULL,
-  `spouse_has_language_test` tinyint(1) DEFAULT NULL,
-  `spouse_edu_level` varchar(100) DEFAULT NULL,
-  `spouse_canadian_edu` tinyint(1) DEFAULT '0',
-  `spouse_canadian_edu_level` varchar(100) DEFAULT NULL,
-  `spouse_canadian_edu_field` varchar(100) DEFAULT NULL,
-  `spouse_australian_edu` tinyint(1) DEFAULT '0',
-  `spouse_australian_edu_level` varchar(100) DEFAULT NULL,
-  `spouse_australian_edu_field` varchar(100) DEFAULT NULL,
-  `spouse_aus_specialised_edu` tinyint(1) DEFAULT '0',
-  `spouse_aus_specialised_edu_level` varchar(100) DEFAULT NULL,
-  `spouse_aus_specialised_edu_field` varchar(100) DEFAULT NULL,
-  `spouse_work_exp` varchar(50) DEFAULT NULL,
-  `spouse_canadian_work` varchar(50) DEFAULT NULL,
-  `spouse_australian_work` varchar(50) DEFAULT NULL,
-  `spouse_nz_work` varchar(50) DEFAULT NULL,
-  `spouse_lang_test_type` varchar(50) DEFAULT NULL,
-  `spouse_writing` varchar(20) DEFAULT NULL,
-  `spouse_listening` varchar(20) DEFAULT NULL,
-  `spouse_speaking` varchar(20) DEFAULT NULL,
-  `spouse_reading` varchar(20) DEFAULT NULL,
-  `has_skill_assessment` tinyint(1) DEFAULT NULL,
-  `skill_assessment_interest` tinyint(1) DEFAULT NULL,
-  `has_relatives` tinyint(1) DEFAULT '0',
-  `relative_relationship` varchar(100) DEFAULT NULL,
-  `relative_related_to` varchar(50) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`application_id`),
-  UNIQUE KEY `student_id_2` (`student_id`),
-  KEY `student_id` (`student_id`),
-  CONSTRAINT `student_applications_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `students` (`student_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=267 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `student_applications`
---
-
-LOCK TABLES `student_applications` WRITE;
-/*!40000 ALTER TABLE `student_applications` DISABLE KEYS */;
-INSERT INTO `student_applications` VALUES (1,2,'Ashwini Suresh',35,NULL,'Female','Single',0,'','','',NULL,NULL,'9446885925',0,0,0,NULL,NULL,'8590217598',0,0,0,'ashwini1suresh@gmail.com','',NULL,NULL,NULL,'','',0,'','',0,'','',0,'','',0,'','',0,'','','','',0,0,'','','','','',0,0,'','','','',NULL,NULL,'',0,'','',0,'','',0,'','','','','','','','','','','',NULL,NULL,0,'','','2026-02-05 11:06:21','2026-02-06 07:04:44'),(2,7,'Test1',NULL,NULL,'Male','Single',0,'Australia','','',NULL,NULL,'5895557458',0,0,0,NULL,NULL,'56875656552',0,0,0,'Test1@gmail.com','Australia',NULL,NULL,NULL,'Bachelor','Business',0,'','',0,'','',0,'','',0,'','',1,'','','','',0,0,'','','','','',0,0,'','','','',NULL,NULL,'',0,'','',0,'','',0,'','','','','','','','','','','',NULL,NULL,0,'','','2026-02-14 17:36:25','2026-02-23 15:14:48'),(3,10,'sudheesh',13,NULL,'Male','Married',1,'Latvia','200','200','+91',NULL,'9099090909',0,0,0,'+971',NULL,'64654654',0,0,0,'ggyuguyg@','Canada1','',0,'','Graduate Diploma','Engineering',1,'Advanced Diploma','Agriculture',1,'Advanced Diploma','Finance',0,'','',1,'','',1,'5','','2','',1,0,'IELTS','','','','',1,0,'GMAT','','','',30,NULL,'Bachelor',1,'','',1,'','',0,'','','','','','','IELTS','','','','',NULL,NULL,0,'','','2026-03-13 14:19:58','2026-04-23 05:51:03'),(4,11,'ESDFS',21,NULL,'Male','Single',0,'United Kingdom','jn','jn',NULL,NULL,'56323',0,0,0,NULL,NULL,'5464654646',0,0,0,'saaaaa@','United Kingdom',NULL,NULL,NULL,'Bachelor','',0,'','',0,'','',0,'','',0,'','',1,'','','','',1,0,'IELTS','','yes','yes','yes',0,0,'','','','',NULL,NULL,'',0,'','',0,'','',0,'','','','','','','','','','','',NULL,NULL,0,'','','2026-04-18 03:30:32','2026-04-18 03:37:55'),(5,12,'riju',22,NULL,'Male','Single',0,'Australia','tayankari','dd',NULL,NULL,'888888888888',0,0,0,NULL,NULL,'',0,0,0,'sabu@1','',NULL,NULL,NULL,'Advanced Diploma','Accounting',0,'','',0,'','',0,'','',0,'','',1,'','','','',1,0,'IELTS','','','','',1,0,'','dd','dd','dd',NULL,NULL,'',0,'','',0,'','',0,'','','','','','','','','','','',NULL,NULL,0,'','','2026-04-18 03:44:18','2026-04-20 10:46:33'),(6,15,'malavika',6,NULL,'Male','Single',0,'Australia','ygy','rdr',NULL,NULL,'15165165',0,0,0,NULL,NULL,'6+265265265',0,0,0,'ytfytf@','United Kingdom',NULL,NULL,NULL,'PhD','Information Technology',0,'','',0,'','',0,'','',0,'','',1,'','','','',1,0,'IELTS','nu','uu','uh','hh',1,0,'','','','',NULL,NULL,'',0,'','',0,'','',0,'','','','','','','','','','','',NULL,NULL,0,'','','2026-04-21 04:46:22','2026-04-21 04:46:22'),(7,16,'jiju',NULL,NULL,'Male','Single',0,'','','','+91',NULL,'4554149515',0,0,0,'+91',NULL,'51951',0,0,0,'sasas@','','',0,'','','',0,'','',0,'','',0,'','',0,'','',1,'','','','',1,0,'IELTS','','','','yguyg',0,0,'','','','',NULL,NULL,'',0,'','',0,'','',0,'','','','','','','','','','','',NULL,NULL,0,'','','2026-04-21 05:56:37','2026-04-23 08:44:54'),(8,17,'max',22,NULL,'Male','Married',1,'India','Kerala','Kochi','+971',NULL,'0123456789',0,0,0,'+1',NULL,'0123456789',0,0,0,'max@gmail.comww','Canada1','',0,'','Associate Degree','Education & Teaching',0,'','',1,'Bachelor','Agriculture',0,'','',0,'','',1,'','','','',1,0,'','','','','',1,0,'','','','',21,NULL,'Bachelor',1,'','',1,'','',0,'','','','1','2','3','','','','','',NULL,NULL,0,'','','2026-04-24 04:51:24','2026-04-25 11:28:31'),(9,18,'rger',22,NULL,'Male','Married',1,'Canada1','cf','cc','+91',NULL,'4545453545',0,0,0,'+91',NULL,'5454543543',0,0,0,'454545','','',0,'','','',0,'','',0,'','',0,'','',0,'','',0,'','','','',0,0,'','','','','',0,0,'','','','',NULL,NULL,'',0,'','',0,'','',0,'','','','','','','','','','','',NULL,NULL,0,'','','2026-04-25 05:33:44','2026-04-30 06:59:07'),(16,19,'test',20,NULL,'Female','Married',1,'UAE','Kerala','Kochi',NULL,'+1','6565156511',0,0,0,NULL,'+91','5733653453',0,0,0,'test@gmail.com','Singapore','',0,'','Graduate Certificate','Finance',0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,NULL,NULL,0,0,NULL,NULL,NULL,NULL,NULL,0,0,NULL,NULL,NULL,NULL,25,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,'2026-04-29 07:02:36','2026-05-02 08:56:29'),(80,22,'tess',31,NULL,'Male','Married',1,'Malta','Kerala','Kochi',NULL,'+91','4352443544',0,0,0,NULL,'+1','5345235235',0,0,0,'3524','Poland','',0,'','Master','Law',0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,NULL,NULL,0,0,NULL,NULL,NULL,NULL,NULL,0,0,NULL,NULL,NULL,NULL,21,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,'2026-05-02 07:49:42','2026-05-02 07:49:42'),(87,24,'kiro',21,NULL,'Male','Married',1,'Poland','Kerala','Kochi',NULL,'+971','2354542325',0,0,0,NULL,'+1','3454523524',0,0,0,'kiro@gmail.com','Poland','',0,'','High School','Hospitality',0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,NULL,NULL,0,0,NULL,NULL,NULL,NULL,NULL,0,0,NULL,NULL,NULL,NULL,21,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,'2026-05-02 09:46:13','2026-05-02 09:46:13'),(88,25,'non',21,NULL,'Male','Single',0,'Malta','Kerala','Kochi',NULL,'+91','5234553254',0,0,0,NULL,'+91','2345243534',0,0,0,'edfr@gmail.com','Malta','',0,'','Graduate Diploma','Health & Medicine',0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,NULL,NULL,0,0,NULL,NULL,NULL,NULL,NULL,0,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,'2026-05-02 09:48:51','2026-05-02 09:49:27'),(91,26,'qq',21,NULL,'Male','Married',1,'Malta','Kerala','Kochi',NULL,'+1','2543265634',0,0,0,NULL,'+91','5346546546',0,0,0,'12@gmail.com','New Zealand','',0,'','Master','Environmental Science',0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,NULL,NULL,1,0,NULL,NULL,NULL,NULL,NULL,1,0,NULL,NULL,NULL,NULL,21,1,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,NULL,NULL,'2026-05-02 10:36:20','2026-05-26 08:54:46'),(92,29,'adsd',21,NULL,'Male','Married',1,'France','Kerala','Kochi',NULL,'+1','3452324624',0,0,0,NULL,'+971','2345345245',0,0,0,'efw@gmail.com','Germany','',0,'','Graduate Diploma','Environmental Science',0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,NULL,NULL,0,0,NULL,NULL,NULL,NULL,NULL,0,0,NULL,NULL,NULL,NULL,32,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,'2026-05-04 04:04:25','2026-05-05 07:39:03'),(97,30,'aa',22,NULL,'Male','Married',1,'New Zealand','Kerala','Kochi',NULL,'+971','2545253425',0,0,0,NULL,'+971','5646453453',0,0,0,'aa@gmail.com','New Zealand','',0,'','High School','Environmental Science',0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,NULL,NULL,0,0,NULL,NULL,NULL,NULL,NULL,0,0,NULL,NULL,NULL,NULL,44,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,'2026-05-05 08:06:45','2026-05-05 08:06:45'),(98,31,'Mathew',25,NULL,'Male','Married',1,'Singapore','Kerala','Kochi',NULL,'+971','9099878987',1,1,0,NULL,'+971','2525452444',0,1,1,'mathew@gmail.com','Poland','',0,'','','',0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,NULL,NULL,0,0,NULL,NULL,NULL,NULL,NULL,0,0,NULL,NULL,NULL,NULL,22,0,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,NULL,NULL,'2026-05-07 09:16:32','2026-05-26 08:29:44'),(133,32,'poo',12,NULL,'Male','Married',1,'Australia','Kerala','Kochi',NULL,'+971','1234567899',1,0,1,NULL,'+1','9876543210',1,0,1,'123@gmail.com','Canada1','',0,'','','',0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,NULL,NULL,0,0,NULL,NULL,NULL,NULL,NULL,0,0,NULL,NULL,NULL,NULL,21,0,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,NULL,NULL,'2026-05-19 12:03:25','2026-05-19 12:03:25'),(196,35,'sq',2,NULL,'Male','Married',1,'Canada1','Kerala','Kochi',NULL,'+1','5346566363',1,0,1,NULL,'+971','4556346346',1,0,1,'211mail.com','Canada1','',0,'','','',0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,NULL,NULL,0,0,NULL,NULL,NULL,NULL,NULL,0,0,NULL,NULL,NULL,NULL,21,0,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,NULL,NULL,'2026-05-23 06:28:57','2026-05-26 06:32:51'),(209,36,'yss',21,NULL,'Male','Married',1,'Canada1','Kerala','Kochi',NULL,'+971','5635463345',1,0,1,NULL,'+971','4564536534',1,0,1,'1221mail.com','','',0,'','','',0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,NULL,NULL,1,0,NULL,NULL,NULL,NULL,NULL,1,0,NULL,NULL,NULL,NULL,12,1,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,0,0,NULL,NULL,'2026-05-23 06:46:50','2026-05-25 10:05:11'),(249,54,'xsa',21,NULL,'Male','Married',1,'France','Kerala','Kochi',NULL,'+91','4323423423',1,0,0,NULL,'+91','',0,1,0,'12221gmail.com','Canada1','',0,'','','',0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,NULL,NULL,0,0,NULL,NULL,NULL,NULL,NULL,0,0,NULL,NULL,NULL,NULL,21,0,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,NULL,NULL,'2026-05-26 06:37:32','2026-05-26 07:11:27'),(258,55,'122',122,NULL,'Male','Married',1,'France','Kerala','Kochi',NULL,'+1','2321312312',0,0,0,NULL,'+971','',0,0,0,'221@gmail.com','','',0,'','','',0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,NULL,NULL,0,0,NULL,NULL,NULL,NULL,NULL,0,0,NULL,NULL,NULL,NULL,21,0,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,NULL,NULL,'2026-05-26 08:49:50','2026-05-26 09:16:34');
-/*!40000 ALTER TABLE `student_applications` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `student_coaching`
---
-
-DROP TABLE IF EXISTS `student_coaching`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `student_coaching` (
-  `coaching_id` int NOT NULL AUTO_INCREMENT,
-  `student_id` int DEFAULT NULL,
-  `course` varchar(100) DEFAULT NULL,
-  `batch` varchar(100) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`coaching_id`),
-  KEY `student_id` (`student_id`),
-  CONSTRAINT `student_coaching_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `students` (`student_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=95 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `student_coaching`
---
-
-LOCK TABLES `student_coaching` WRITE;
-/*!40000 ALTER TABLE `student_coaching` DISABLE KEYS */;
-INSERT INTO `student_coaching` VALUES (10,2,'mtecj','A!','2026-02-04 08:42:01'),(11,5,'','','2026-02-05 15:54:55'),(16,12,'','','2026-04-20 05:35:33'),(27,16,'','','2026-04-23 09:27:47'),(28,10,'test course','test','2026-04-23 09:38:12'),(36,17,'test course','inputted a','2026-04-25 05:31:39'),(37,19,'test course','testa','2026-04-29 06:40:28'),(38,19,'test course','testb','2026-04-29 06:40:28'),(44,24,'test course','dsfd','2026-05-02 09:41:55'),(45,26,'test course','343','2026-05-02 10:33:54'),(49,29,'test course','','2026-05-05 07:39:00'),(50,30,'test course','zcszc','2026-05-05 07:50:56'),(51,22,'test course','batch a','2026-05-05 10:21:50'),(65,31,'test course','2322344','2026-05-08 03:51:57'),(66,32,'course test 2','type in','2026-05-08 08:25:12'),(90,35,'course test 2','tytt','2026-05-25 06:03:31'),(91,36,'course test 2','fsa','2026-05-25 06:21:37'),(92,31,'course test 2','as','2026-05-25 08:42:54'),(93,54,'test course','sa','2026-05-26 06:36:41'),(94,55,'course test 2','122','2026-05-26 08:47:42');
-/*!40000 ALTER TABLE `student_coaching` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `student_migration`
---
-
-DROP TABLE IF EXISTS `student_migration`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `student_migration` (
-  `migration_id` int NOT NULL AUTO_INCREMENT,
-  `student_id` int DEFAULT NULL,
-  `country` varchar(100) DEFAULT NULL,
-  `occupation` varchar(100) DEFAULT NULL,
-  `category` varchar(100) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`migration_id`),
-  KEY `student_id` (`student_id`),
-  CONSTRAINT `student_migration_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `students` (`student_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=116 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `student_migration`
---
-
-LOCK TABLES `student_migration` WRITE;
-/*!40000 ALTER TABLE `student_migration` DISABLE KEYS */;
-INSERT INTO `student_migration` VALUES (6,4,'Canada','Chef','Spouse Visa','2026-01-29 12:17:50'),(18,2,'France','Accountant','Tourist Visa','2026-02-04 08:42:01'),(19,2,'Canada','Software Engineer','Study Visa','2026-02-04 08:42:01'),(20,2,'Georgia','Chef','Spouse Visa','2026-02-04 08:42:01'),(21,5,'Ireland','Accountant','Spouse Visa','2026-02-05 15:54:55'),(28,7,'United Kingdom','Driver','Spouse Visa','2026-02-17 19:42:13'),(38,12,'','','','2026-04-20 05:35:33'),(51,15,'','','','2026-04-23 09:15:46'),(54,16,'','','','2026-04-23 09:27:47'),(55,10,'Canada','Accountant','Dependent Visa','2026-04-23 09:38:12'),(63,17,'Australia','Accountant','for studies','2026-04-25 05:31:39'),(64,19,'Australia','Accountant','for studies','2026-04-29 06:40:28'),(65,19,'Canada1','Chef','for studies','2026-04-29 06:40:28'),(71,24,'Germany','Chef','for studies','2026-05-02 09:41:55'),(72,26,'Germany','Accountant','for studies','2026-05-02 10:33:54'),(75,30,'Canada1','Chef','for studies','2026-05-05 07:50:56'),(76,22,'Australia','Chef','for studies','2026-05-05 10:21:50'),(83,31,'Canada1','Accountant','for studies','2026-05-08 03:51:57'),(84,32,'Canada1','Accountant','for studies','2026-05-08 08:25:12'),(112,35,'France','Accountant','for studies','2026-05-25 06:03:31'),(113,36,'Canada1','Chef','for studies','2026-05-25 06:21:37'),(114,54,'France','Chef','for studies','2026-05-26 06:36:41'),(115,55,'Canada1','Chef','for studies','2026-05-26 08:47:42');
-/*!40000 ALTER TABLE `student_migration` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `student_registrations`
---
-
-DROP TABLE IF EXISTS `student_registrations`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `student_registrations` (
-  `registration_id` int NOT NULL AUTO_INCREMENT,
-  `student_id` int NOT NULL,
-  `passport_name` varchar(255) DEFAULT NULL,
-  `first_name` varchar(100) DEFAULT NULL,
-  `last_name` varchar(100) DEFAULT NULL,
-  `age` int DEFAULT NULL,
-  `dob` date DEFAULT NULL,
-  `gender` enum('Male','Female','Other') DEFAULT NULL,
-  `marital_status` varchar(50) DEFAULT NULL,
-  `spouse_accompanying` tinyint(1) DEFAULT '0',
-  `address_country` varchar(100) DEFAULT NULL,
-  `address_state` varchar(100) DEFAULT NULL,
-  `address_suburb` varchar(100) DEFAULT NULL,
-  `address_postcode` varchar(20) DEFAULT NULL,
-  `contact1_code` varchar(10) DEFAULT NULL,
-  `contact1` varchar(50) DEFAULT NULL,
-  `contact1_whatsapp` tinyint(1) DEFAULT '0',
-  `contact1_bot` tinyint(1) DEFAULT '0',
-  `contact1_telegram` tinyint(1) DEFAULT '0',
-  `contact2_code` varchar(10) DEFAULT NULL,
-  `contact2` varchar(50) DEFAULT NULL,
-  `contact2_whatsapp` tinyint(1) DEFAULT '0',
-  `contact2_bot` tinyint(1) DEFAULT '0',
-  `contact2_telegram` tinyint(1) DEFAULT '0',
-  `email` varchar(100) DEFAULT NULL,
-  `citizenship_country` varchar(100) DEFAULT NULL,
-  `passport_country` varchar(100) DEFAULT NULL,
-  `has_second_passport` tinyint(1) DEFAULT NULL,
-  `second_passport_country` varchar(100) DEFAULT NULL,
-  `highest_education` varchar(100) DEFAULT NULL,
-  `education_field` varchar(100) DEFAULT NULL,
-  `has_canadian_edu` tinyint(1) DEFAULT '0',
-  `canadian_edu_level` varchar(100) DEFAULT NULL,
-  `canadian_edu_field` varchar(100) DEFAULT NULL,
-  `has_australian_edu` tinyint(1) DEFAULT '0',
-  `australian_edu_level` varchar(100) DEFAULT NULL,
-  `australian_edu_field` varchar(100) DEFAULT NULL,
-  `has_aus_specialised_edu` tinyint(1) DEFAULT '0',
-  `aus_specialised_edu_level` varchar(100) DEFAULT NULL,
-  `aus_specialised_edu_field` varchar(100) DEFAULT NULL,
-  `has_nz_edu` tinyint(1) DEFAULT '0',
-  `nz_edu_level` varchar(100) DEFAULT NULL,
-  `nz_edu_field` varchar(100) DEFAULT NULL,
-  `has_work_experience` tinyint(1) DEFAULT '0',
-  `total_work_experience` varchar(50) DEFAULT NULL,
-  `canadian_work_years` varchar(50) DEFAULT NULL,
-  `australian_work_years` varchar(50) DEFAULT NULL,
-  `nz_work_years` varchar(50) DEFAULT NULL,
-  `has_language_test` tinyint(1) DEFAULT '0',
-  `has_language_interest` tinyint(1) DEFAULT '0',
-  `language_test_type` varchar(50) DEFAULT NULL,
-  `writing_score` varchar(20) DEFAULT NULL,
-  `listening_score` varchar(20) DEFAULT NULL,
-  `speaking_score` varchar(20) DEFAULT NULL,
-  `reading_score` varchar(20) DEFAULT NULL,
-  `has_admission_test` tinyint(1) DEFAULT '0',
-  `has_admission_interest` tinyint(1) DEFAULT '0',
-  `admission_test_type` varchar(50) DEFAULT NULL,
-  `quant_score` varchar(20) DEFAULT NULL,
-  `verbal_score` varchar(20) DEFAULT NULL,
-  `data_insights_score` varchar(20) DEFAULT NULL,
-  `spouse_age` int DEFAULT NULL,
-  `spouse_has_language_test` tinyint(1) DEFAULT NULL,
-  `spouse_edu_level` varchar(100) DEFAULT NULL,
-  `spouse_canadian_edu` tinyint(1) DEFAULT '0',
-  `spouse_canadian_edu_level` varchar(100) DEFAULT NULL,
-  `spouse_canadian_edu_field` varchar(100) DEFAULT NULL,
-  `spouse_australian_edu` tinyint(1) DEFAULT '0',
-  `spouse_australian_edu_level` varchar(100) DEFAULT NULL,
-  `spouse_australian_edu_field` varchar(100) DEFAULT NULL,
-  `spouse_aus_specialised_edu` tinyint(1) DEFAULT '0',
-  `spouse_aus_specialised_edu_level` varchar(100) DEFAULT NULL,
-  `spouse_aus_specialised_edu_field` varchar(100) DEFAULT NULL,
-  `spouse_work_exp` varchar(50) DEFAULT NULL,
-  `spouse_canadian_work` varchar(50) DEFAULT NULL,
-  `spouse_australian_work` varchar(50) DEFAULT NULL,
-  `spouse_nz_work` varchar(50) DEFAULT NULL,
-  `spouse_lang_test_type` varchar(50) DEFAULT NULL,
-  `spouse_writing` varchar(20) DEFAULT NULL,
-  `spouse_listening` varchar(20) DEFAULT NULL,
-  `spouse_speaking` varchar(20) DEFAULT NULL,
-  `spouse_reading` varchar(20) DEFAULT NULL,
-  `has_skill_assessment` tinyint(1) DEFAULT NULL,
-  `skill_assessment_interest` tinyint(1) DEFAULT NULL,
-  `has_relatives` tinyint(1) DEFAULT '0',
-  `relative_relationship` varchar(100) DEFAULT NULL,
-  `relative_related_to` varchar(50) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`registration_id`),
-  UNIQUE KEY `student_id_2` (`student_id`),
-  KEY `student_id` (`student_id`),
-  CONSTRAINT `student_registrations_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `students` (`student_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=81 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `student_registrations`
---
-
-LOCK TABLES `student_registrations` WRITE;
-/*!40000 ALTER TABLE `student_registrations` DISABLE KEYS */;
-INSERT INTO `student_registrations` VALUES (1,11,'ESDFS',NULL,NULL,NULL,NULL,'Male','Single',0,'','','',NULL,NULL,'56323',0,0,0,NULL,'',0,0,0,'','',NULL,NULL,NULL,'','',0,'','',0,'','',0,'','',0,'','',0,'','','','',0,0,'','','','','',0,0,'','','','',NULL,NULL,'',0,'','',0,'','',0,'','','','','','','','','','','',NULL,NULL,0,'','','2026-04-18 03:35:00','2026-04-18 03:35:00'),(2,12,'riju',NULL,NULL,NULL,NULL,'Male','Single',0,'','','',NULL,NULL,'7777777777',0,0,0,NULL,'',0,0,0,'sabu@','',NULL,NULL,NULL,'','',0,'','',0,'','',0,'','',0,'','',0,'','','','',0,0,'','','','','',0,0,'','','','',NULL,NULL,'',0,'','',0,'','',0,'','','','','','','','','','','',NULL,NULL,0,'','','2026-04-18 03:45:29','2026-04-18 03:45:29'),(3,10,'sudheesh',NULL,NULL,NULL,NULL,'Male','Single',0,'France','255','255',NULL,NULL,'9099090909',0,0,0,NULL,'',0,0,0,'','',NULL,NULL,NULL,'','',0,'','',0,'','',0,'','',0,'','',0,'','','','',0,0,'','','','','',0,0,'','','','',NULL,NULL,'',0,'','',0,'','',0,'','','','','','','','','','','',NULL,NULL,0,'','','2026-04-20 09:50:29','2026-04-20 09:50:29'),(4,16,'jiju',NULL,NULL,NULL,NULL,'Male','Single',0,'','','',NULL,NULL,'4554149515',0,0,0,NULL,'51951',0,0,0,'sasas@','','',0,'','','',0,'','',0,'','',0,'','',0,'','',1,'','','','',1,0,'IELTS','','','','yguyg',0,0,'','','','',NULL,NULL,'',0,'','',0,'','',0,'','','','','','','','','','','',NULL,NULL,0,'','','2026-04-21 05:56:59','2026-04-21 05:56:59'),(5,17,'max','max','ver',1,'2025-04-01','Male','Married',1,'India','Kerala','Kochi','10','+971','0123456789',0,0,0,'+91','0123456789',0,0,0,'max@gmail.comww','Canada1','Germany',1,'New Zealand','Associate Degree','Education & Teaching',0,'','',1,'Bachelor','Agriculture',0,'','',0,'','',1,'','','','',1,0,'','','','','',1,0,'','','','',21,NULL,'Bachelor',1,'','',1,'','',0,'','','','1','2','3','IELTS','','','','',NULL,NULL,0,'','','2026-04-25 11:07:15','2026-04-29 05:37:02'),(10,19,'test','test n','x',2,'2024-01-02','Female','Married',1,'UAE','Kerala','Kochi','123','+1','6565156511',0,0,0,'+91','5733653453',0,0,0,'test@gmail.com','Singapore','France',1,'New Zealand','Graduate Certificate','Finance',0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,NULL,NULL,0,0,NULL,NULL,NULL,NULL,NULL,0,0,NULL,NULL,NULL,NULL,25,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,'2026-05-02 08:58:30','2026-05-02 09:12:23'),(12,24,'kiro','kiro','x',7,'2019-01-02','Male','Married',1,'Poland','Kerala','Kochi','123','+971','2354542325',0,0,0,'+1','3454523524',0,0,0,'kiro@gmail.com','Poland','Germany',1,'UAE','High School','Hospitality',0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,NULL,NULL,0,0,NULL,NULL,NULL,NULL,NULL,0,0,NULL,NULL,NULL,NULL,21,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,'2026-05-02 09:47:21','2026-05-02 09:47:21'),(13,25,'non','nn','n',0,'2026-04-29','Male','Single',0,'Malta','Kerala','Kochi','nn','+91','5234553254',0,0,0,'+91','2345243534',0,0,0,'edfr@gmail.com','Malta','Malta',1,'Ireland','Graduate Diploma','Health & Medicine',0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,NULL,NULL,0,0,NULL,NULL,NULL,NULL,NULL,0,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,'2026-05-02 09:49:42','2026-05-02 09:49:49'),(15,26,'qq','q','z',6,'2020-01-28','Male','Married',1,'Malta','Kerala','Kochi','123','+1','2543265634',0,0,0,'+91','5346546546',0,0,0,'12@gmail.com','New Zealand','Australia',1,'Poland','Master','Environmental Science',0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,NULL,NULL,1,0,NULL,NULL,NULL,NULL,NULL,1,0,NULL,NULL,NULL,NULL,21,1,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,NULL,NULL,'2026-05-02 10:37:01','2026-05-26 08:57:34'),(16,29,'adsd','fas','afg',0,'2026-05-01','Male','Married',1,'France','Kerala','Kochi','123','+1','3452324624',0,0,0,'+971','2345345245',0,0,0,'efw@gmail.com','Germany','France',1,'New Zealand','Graduate Diploma','Environmental Science',0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,NULL,NULL,0,0,NULL,NULL,NULL,NULL,NULL,0,0,NULL,NULL,NULL,NULL,32,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,'2026-05-04 04:04:57','2026-05-05 07:39:06'),(19,30,'aa','aa','x',0,'2026-05-01','Male','Married',1,'New Zealand','Kerala','Kochi','123','+971','2545253425',0,0,0,'+971','5646453453',0,0,0,'aa@gmail.com','New Zealand','Georgia',1,'Malta','High School','Environmental Science',0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,NULL,NULL,0,0,NULL,NULL,NULL,NULL,NULL,0,0,NULL,NULL,NULL,NULL,44,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,'2026-05-05 08:07:29','2026-05-05 08:07:29'),(74,54,'xsa','xsa','',21,NULL,'Male','Married',1,'France','Kerala','Kochi','','+91','4323423423',1,0,0,'+91','',0,1,0,'12221gmail.com','Canada1','Canada1',0,'','Certificate III','Arts & Humanities',0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,NULL,NULL,0,0,NULL,NULL,NULL,NULL,NULL,0,0,NULL,NULL,NULL,NULL,21,0,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,NULL,NULL,'2026-05-26 07:11:33','2026-05-26 07:11:33'),(77,55,'122','122','',122,NULL,'Male','Married',1,'France','Kerala','Kochi','','+1','2321312312',0,0,0,'+971','',0,0,0,'221@gmail.com','','',0,'','Certificate III','Architecture',0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,NULL,NULL,0,0,NULL,NULL,NULL,NULL,NULL,0,0,NULL,NULL,NULL,NULL,21,0,NULL,0,NULL,NULL,0,NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,NULL,NULL,'2026-05-26 08:50:47','2026-05-26 08:50:47');
-/*!40000 ALTER TABLE `student_registrations` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `student_study`
---
-
-DROP TABLE IF EXISTS `student_study`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `student_study` (
-  `program_id` int NOT NULL AUTO_INCREMENT,
-  `student_id` int DEFAULT NULL,
-  `country` varchar(100) DEFAULT NULL,
-  `level` varchar(100) DEFAULT NULL,
-  `field` varchar(100) DEFAULT NULL,
-  `intake` varchar(50) DEFAULT NULL,
-  `year` year DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`program_id`),
-  KEY `student_id` (`student_id`),
-  CONSTRAINT `student_study_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `students` (`student_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `student_study`
---
-
-LOCK TABLES `student_study` WRITE;
-/*!40000 ALTER TABLE `student_study` DISABLE KEYS */;
-/*!40000 ALTER TABLE `student_study` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `student_study_programs`
---
-
-DROP TABLE IF EXISTS `student_study_programs`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `student_study_programs` (
-  `program_id` int NOT NULL AUTO_INCREMENT,
-  `student_id` int DEFAULT NULL,
-  `country` varchar(100) DEFAULT NULL,
-  `level` varchar(100) DEFAULT NULL,
-  `field` varchar(100) DEFAULT NULL,
-  `intake` varchar(50) DEFAULT NULL,
-  `year` year DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`program_id`),
-  KEY `student_id` (`student_id`),
-  CONSTRAINT `student_study_programs_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `students` (`student_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=161 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `student_study_programs`
---
-
-LOCK TABLES `student_study_programs` WRITE;
-/*!40000 ALTER TABLE `student_study_programs` DISABLE KEYS */;
-INSERT INTO `student_study_programs` VALUES (6,4,'Germany','Bachelor','Business','April',2025,'2026-01-29 12:17:50'),(7,4,'Australia','Diploma','Engineering','August',2026,'2026-01-29 12:17:50'),(20,2,'Australia','Bachelor','Engineering','December',2026,'2026-02-04 08:42:01'),(21,2,'Canada','Master','Business','August',2025,'2026-02-04 08:42:01'),(22,5,'Georgia','High School','Hospitality','February',2027,'2026-02-05 15:54:55'),(23,5,'France','Graduate Certificate','Hospitality','February',2026,'2026-02-05 15:54:55'),(35,6,'Singapore','PG Diploma','Business','October',2024,'2026-02-09 10:08:16'),(37,7,'Poland','Master','Engineering','November',2025,'2026-02-17 19:42:12'),(38,7,'Georgia','PG Diploma','Business','November',2026,'2026-02-17 19:42:12'),(39,7,'Ireland','Bachelor','Business','September',2024,'2026-02-17 19:42:13'),(54,12,'Australia','Certificate IV','Agriculture','April',2025,'2026-04-20 05:35:33'),(74,15,'Australia','Advanced Diploma','Agriculture','April',2024,'2026-04-23 09:15:46'),(79,16,'Australia','Advanced Diploma','Accounting','April',2025,'2026-04-23 09:27:47'),(80,10,'Australia','Bachelor','Business','August',2024,'2026-04-23 09:38:12'),(81,10,'France','Bachelor','Engineering','September',2024,'2026-04-23 09:38:12'),(89,17,'India','Master','Computing','April',2024,'2026-04-25 05:31:39'),(90,19,'Australia','Advanced Diploma','Accounting','April',2024,'2026-04-29 06:40:28'),(91,19,'Canada1','Associate Degree','Accounting','August',2025,'2026-04-29 06:40:28'),(97,24,'France','Advanced Diploma','Accounting','April',2025,'2026-05-02 09:41:55'),(98,26,'Australia','Advanced Diploma','Accounting','April',2024,'2026-05-02 10:33:54'),(102,29,'Australia','','','April',2024,'2026-05-05 07:39:00'),(103,30,'Australia','Associate Degree','Agriculture','August',2025,'2026-05-05 07:50:56'),(104,22,'Canada1','Advanced Diploma','Accounting','April',2024,'2026-05-05 10:21:50'),(147,35,'Australia','Advanced Diploma','Accounting','April',2025,'2026-05-25 06:03:31'),(148,36,'Australia','Advanced Diploma','Accounting','April',2025,'2026-05-25 06:21:37'),(151,32,'Australia','Advanced Diploma','Accounting','April',2025,'2026-05-25 08:34:19'),(158,31,'Canada1','Associate Degree','Architecture','April',2024,'2026-05-25 08:43:42'),(159,54,'Canada1','Advanced Diploma','Accounting','April',2025,'2026-05-26 06:36:41'),(160,55,'Canada1','Associate Degree','Agriculture','August',2025,'2026-05-26 08:47:42');
-/*!40000 ALTER TABLE `student_study_programs` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `student_visa`
---
-
-DROP TABLE IF EXISTS `student_visa`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `student_visa` (
-  `visa_id` int NOT NULL AUTO_INCREMENT,
-  `student_id` int DEFAULT NULL,
-  `country` varchar(100) DEFAULT NULL,
-  `category` varchar(100) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`visa_id`),
-  KEY `student_id` (`student_id`),
-  CONSTRAINT `student_visa_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `students` (`student_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=94 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `student_visa`
---
-
-LOCK TABLES `student_visa` WRITE;
-/*!40000 ALTER TABLE `student_visa` DISABLE KEYS */;
-INSERT INTO `student_visa` VALUES (3,4,'Georgia','Study Visa','2026-01-29 12:17:50'),(4,4,'Canada','Study Visa','2026-01-29 12:17:50'),(9,2,'India','Dependent Visa','2026-02-04 08:42:01'),(19,12,'','','2026-04-20 05:35:33'),(30,16,'','','2026-04-23 09:27:47'),(31,10,'India','Dependent Visa','2026-04-23 09:38:12'),(35,17,'Canada1','Spouse Visa','2026-04-25 05:31:39'),(36,19,'Australia','Dependent Visa','2026-04-29 06:40:28'),(37,19,'Canada1','Spouse Visa','2026-04-29 06:40:28'),(43,24,'Australia','Spouse Visa','2026-05-02 09:41:55'),(44,26,'Australia','Spouse Visa','2026-05-02 10:33:54'),(48,29,'Georgia','','2026-05-05 07:39:00'),(49,30,'Canada1','Dependent Visa','2026-05-05 07:50:56'),(50,22,'Canada1','Dependent Visa','2026-05-05 10:21:50'),(65,32,'France','Dependent Visa','2026-05-08 08:25:12'),(89,35,'Canada1','Dependent Visa','2026-05-25 06:03:31'),(90,36,'France','Spouse Visa','2026-05-25 06:21:37'),(91,31,'Australia','Spouse Visa','2026-05-25 08:42:32'),(92,54,'Australia','Dependent Visa','2026-05-26 06:36:41'),(93,55,'Canada1','Spouse Visa','2026-05-26 08:47:42');
-/*!40000 ALTER TABLE `student_visa` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `student_work`
---
-
-DROP TABLE IF EXISTS `student_work`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `student_work` (
-  `work_id` int NOT NULL AUTO_INCREMENT,
-  `student_id` int DEFAULT NULL,
-  `country` varchar(100) DEFAULT NULL,
-  `occupation` varchar(100) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`work_id`),
-  KEY `student_id` (`student_id`),
-  CONSTRAINT `student_work_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `students` (`student_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=99 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `student_work`
---
-
-LOCK TABLES `student_work` WRITE;
-/*!40000 ALTER TABLE `student_work` DISABLE KEYS */;
-INSERT INTO `student_work` VALUES (3,4,'France','Civil Engineer','2026-01-29 12:17:50'),(8,2,'Singapore','Civil Engineer','2026-02-04 08:42:01'),(9,5,'France','Accountant','2026-02-05 15:54:55'),(18,12,'','','2026-04-20 05:35:33'),(34,15,'Australia','Accountant','2026-04-23 09:15:46'),(37,16,'Canada1','Chef','2026-04-23 09:27:47'),(38,10,'','','2026-04-23 09:38:12'),(43,19,'Australia','Accountant','2026-04-29 06:40:28'),(44,19,'Canada1','Chef','2026-04-29 06:40:28'),(50,24,'France','Chef','2026-05-02 09:41:55'),(51,26,'Canada1','Chef','2026-05-02 10:33:54'),(55,29,'Canada1','','2026-05-05 07:39:00'),(56,30,'Canada1','Chef','2026-05-05 07:50:56'),(57,22,'Canada1','Civil Engineer','2026-05-05 10:21:50'),(72,32,'Canada1','Chef','2026-05-08 08:25:12'),(92,36,'Australia','Chef','2026-05-22 10:09:15'),(94,35,'Canada1','Accountant','2026-05-25 06:03:31'),(96,31,'Canada1','Civil Engineer','2026-05-25 08:37:43'),(97,54,'Canada1','Chef','2026-05-26 06:36:41'),(98,55,'Canada1','Chef','2026-05-26 08:47:42');
-/*!40000 ALTER TABLE `student_work` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `students`
---
-
-DROP TABLE IF EXISTS `students`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `students` (
-  `student_id` int NOT NULL AUTO_INCREMENT,
-  `student_name` varchar(100) NOT NULL,
-  `mobile_country_code` varchar(10) DEFAULT NULL,
-  `mobile_number` varchar(20) NOT NULL,
-  `phone_country_code` varchar(10) DEFAULT NULL,
-  `phone_number` varchar(20) DEFAULT NULL,
-  `email` varchar(100) DEFAULT NULL,
-  `whatsapp` tinyint(1) DEFAULT '0',
-  `botim` tinyint(1) DEFAULT '0',
-  `telegram` tinyint(1) DEFAULT '0',
-  `phone_whatsapp` tinyint(1) DEFAULT '0',
-  `phone_botim` tinyint(1) DEFAULT '0',
-  `phone_telegram` tinyint(1) DEFAULT '0',
-  `enquiry_source` varchar(100) DEFAULT NULL,
-  `study_interested` tinyint(1) DEFAULT '0',
-  `migration_interested` tinyint(1) DEFAULT '0',
-  `coaching_interested` tinyint(1) DEFAULT '0',
-  `visa_interested` tinyint(1) DEFAULT '0',
-  `work_interested` tinyint(1) DEFAULT '0',
-  `branch_id` int DEFAULT NULL,
-  `created_by` int DEFAULT NULL,
-  `assigned_to` int DEFAULT NULL,
-  `is_registered` tinyint(1) DEFAULT '0',
-  `current_status` varchar(50) DEFAULT 'New Lead',
-  `last_remark` text,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`student_id`),
-  KEY `branch_id` (`branch_id`),
-  KEY `created_by` (`created_by`),
-  KEY `assigned_to` (`assigned_to`),
-  CONSTRAINT `students_ibfk_1` FOREIGN KEY (`branch_id`) REFERENCES `branches` (`branch_id`),
-  CONSTRAINT `students_ibfk_2` FOREIGN KEY (`created_by`) REFERENCES `users` (`user_id`),
-  CONSTRAINT `students_ibfk_3` FOREIGN KEY (`assigned_to`) REFERENCES `users` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=56 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `students`
---
-
-LOCK TABLES `students` WRITE;
-/*!40000 ALTER TABLE `students` DISABLE KEYS */;
-INSERT INTO `students` VALUES (2,'Ashwini Suresh','+91','9446885925','+91','8590217598','ashwini1suresh@gmail.com',0,0,0,0,0,0,'fb',1,1,1,1,1,1,1,1,0,'Applied','applied student','2026-01-29 06:39:39'),(4,'test student','+91','68995875822','+91','78586922558','',0,1,1,1,0,0,'',1,1,0,1,1,1,1,1,0,'Interested','intrested need o followup','2026-01-29 12:17:50'),(5,'test data','+91','9855600245','+91','6589555895','testdata@gmail.com',1,1,0,0,1,1,'facebook',1,1,0,0,1,1,1,1,0,'Interested','tested data','2026-01-29 12:28:17'),(6,'L1','+91','9099090909','+91','','',1,1,0,0,0,0,'',1,0,0,0,0,1,1,1,0,'Interested','es','2026-02-08 07:45:30'),(7,'Test1','+91','5895557458','+91','56875656552','Test1@gmail.com',1,0,1,0,0,0,'',1,1,0,0,0,1,1,1,0,'Interested','asdasa','2026-02-09 05:02:27'),(10,'sudheesh','+91','9099090909','+91','','',1,1,1,0,0,0,'',1,0,1,1,1,1,1,1,0,'Interested','saaa','2026-02-11 16:30:47'),(11,'ESDFS','+91','56323','+91','','',0,0,0,0,0,0,'',0,0,0,0,0,1,1,3,0,'','Dwdwdawd','2026-04-17 09:27:45'),(12,'riju','+91','9999999','+91','','sabu@',0,0,0,0,0,0,'ig',1,1,1,1,1,1,1,NULL,0,'Applied','good','2026-04-18 03:43:20'),(15,'malavika','+91','15165165','+91','','ytfytf@',0,0,0,0,0,0,'asdf',1,1,0,0,1,1,1,NULL,0,'New Lead',NULL,'2026-04-21 04:45:16'),(16,'jiju','+91','4554149515','+91','51951','sasas@',0,0,0,0,0,0,'ig',1,1,1,1,1,1,1,NULL,0,'New Lead',NULL,'2026-04-21 05:27:53'),(17,'max','+91','0123456789','+91','0123456789','max123',1,1,1,1,1,1,'youtube',1,1,1,1,0,1,1,3,0,'Interested','remark test','2026-04-23 11:21:57'),(18,'rger','+91','4545453545','+91','5454543543','454545',0,0,0,0,0,0,'54545454545',0,0,0,0,0,1,1,NULL,0,'New Lead',NULL,'2026-04-25 05:29:00'),(19,'test','+971','6565156511','+1','5733653453','emailtest',1,1,1,1,1,1,'test',1,1,1,1,1,1,1,3,0,'Interested','remark test','2026-04-29 06:40:28'),(22,'tess','+91','4352443544','+1','5345235235','3524',0,0,0,0,0,0,'asd',1,1,1,1,1,1,1,3,0,'Interested','remarks tess','2026-04-30 10:00:00'),(24,'kiro','+971','2354542325','+1','3454523524','123',1,1,1,1,1,1,'as',1,1,1,1,1,1,1,NULL,0,'New Lead',NULL,'2026-05-02 09:41:55'),(25,'non','+91','5234553254','+91','2345243534','',0,0,0,0,0,0,'non',0,0,0,0,0,1,1,NULL,0,'New Lead',NULL,'2026-05-02 09:48:08'),(26,'qq','+91','2543265634','+91','5346546546','4545',0,0,0,0,0,0,'qq',1,1,1,1,1,1,1,NULL,0,'New Lead',NULL,'2026-05-02 10:33:54'),(29,'adsd','+91','3452324624','+971','2345345245','arf',0,0,0,0,0,0,'ASD',1,0,1,1,1,1,1,NULL,0,'New Lead',NULL,'2026-05-04 04:02:55'),(30,'aa','+971','2545253425','+971','5646453453','aa',1,1,1,1,1,1,'aa',1,1,1,1,1,1,1,NULL,0,'New Lead',NULL,'2026-05-05 07:50:56'),(31,'Mathew','+971','9099878987','+971','2525452444','123',1,0,1,1,1,1,'youtube',1,1,1,1,1,1,1,3,0,'Interested','h','2026-05-05 10:24:20'),(32,'poo','+971','1234567899','+1','9876543210','123',1,0,1,1,0,1,'email',1,1,1,1,1,1,1,1,0,'Interested','remark','2026-05-08 08:25:12'),(35,'sq','+1','5346566363','+971','4556346346','123',1,0,1,1,0,1,'sa',1,1,1,1,1,1,1,1,0,'Applied','rmk 11','2026-05-20 11:55:46'),(36,'yss','+971','5635463345','+971','4564536534','456',1,0,1,1,0,1,'adsa',1,1,1,1,0,1,1,NULL,0,'Applied','Initial Status: Applied','2026-05-20 12:38:30'),(54,'xsa','+91','4323423423','+91','','',0,0,0,0,0,0,'ssa',1,1,1,1,1,1,1,NULL,0,'New Lead',NULL,'2026-05-26 06:36:41'),(55,'122','+1','2321312312','+971','','12',0,0,0,0,0,0,'122222',1,1,1,1,1,1,1,NULL,0,'New Lead',NULL,'2026-05-26 08:47:42');
-/*!40000 ALTER TABLE `students` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `study_fields`
---
-
-DROP TABLE IF EXISTS `study_fields`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `study_fields` (
-  `field_id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  PRIMARY KEY (`field_id`),
-  UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `study_fields`
---
-
-LOCK TABLES `study_fields` WRITE;
-/*!40000 ALTER TABLE `study_fields` DISABLE KEYS */;
-INSERT INTO `study_fields` VALUES (7,'Accounting'),(8,'Agriculture'),(9,'Architecture'),(10,'Arts & Humanities'),(11,'Built Environment'),(3,'Business'),(12,'Communications'),(13,'Computing'),(14,'Creative Arts'),(15,'Dentistry'),(16,'Education & Teaching'),(1,'Engineering'),(17,'Environmental Science'),(18,'Finance'),(19,'Health & Medicine'),(5,'Hospitality'),(4,'Information Technology'),(20,'Law'),(21,'Management'),(22,'Marketing'),(23,'Mathematics'),(24,'Media'),(2,'Nursing'),(25,'Pharmacy'),(26,'Product Design'),(27,'Psychology'),(6,'Science'),(28,'Social Work'),(29,'Tourism & Travel');
-/*!40000 ALTER TABLE `study_fields` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `study_intakes`
---
-
-DROP TABLE IF EXISTS `study_intakes`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `study_intakes` (
-  `intake_id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(50) NOT NULL,
-  PRIMARY KEY (`intake_id`),
-  UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `study_intakes`
---
-
-LOCK TABLES `study_intakes` WRITE;
-/*!40000 ALTER TABLE `study_intakes` DISABLE KEYS */;
-INSERT INTO `study_intakes` VALUES (4,'April'),(8,'August'),(12,'December'),(2,'February'),(1,'January'),(7,'July'),(6,'June'),(3,'March'),(5,'May'),(11,'November'),(10,'October'),(9,'September');
-/*!40000 ALTER TABLE `study_intakes` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `suggested_programs`
---
-
-DROP TABLE IF EXISTS `suggested_programs`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `suggested_programs` (
-  `sug_program_id` int NOT NULL AUTO_INCREMENT,
-  `application_id` int NOT NULL,
-  `issystem` tinyint(1) DEFAULT '0',
-  `program_type` varchar(50) DEFAULT NULL,
-  `program` varchar(255) DEFAULT NULL,
-  `applied_for` varchar(255) DEFAULT NULL,
-  `details` varchar(255) DEFAULT NULL,
-  `details2` varchar(255) DEFAULT NULL,
-  `details3` varchar(255) DEFAULT NULL,
-  `status` varchar(100) DEFAULT NULL,
-  `sub_status` varchar(100) DEFAULT NULL,
-  `remarks` text,
-  `is_selected` tinyint(1) DEFAULT '0',
-  `branch_id` int DEFAULT NULL,
-  `department_id` int DEFAULT NULL,
-  `assigned_to` int DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`sug_program_id`),
-  KEY `application_id` (`application_id`),
-  CONSTRAINT `suggested_programs_ibfk_1` FOREIGN KEY (`application_id`) REFERENCES `student_applications` (`application_id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2856 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `suggested_programs`
---
-
-LOCK TABLES `suggested_programs` WRITE;
-/*!40000 ALTER TABLE `suggested_programs` DISABLE KEYS */;
-INSERT INTO `suggested_programs` VALUES (60,1,0,NULL,'STUDY Poland',NULL,'Bachelor Engineering - December 2026',NULL,NULL,'Application Status','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(61,1,0,NULL,'STUDY Canada',NULL,'Master Business - August 2025',NULL,NULL,'Application Status','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(62,1,0,NULL,'MIGRATION France',NULL,'Accountant - Tourist Visa',NULL,NULL,'Application Status','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(63,1,0,NULL,'MIGRATION Canada',NULL,'Software Engineer - Study Visa',NULL,NULL,'Application Status','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(64,1,0,NULL,'MIGRATION Georgia',NULL,'Chef - Spouse Visa',NULL,NULL,'Application Status','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(65,1,0,NULL,'VISA India',NULL,'Dependent Visa',NULL,NULL,'Application Status','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(66,1,0,NULL,'WORK Singapore',NULL,'Civil Engineer',NULL,NULL,'Application Status','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(67,1,0,NULL,'COACHING',NULL,'mtecj - A!',NULL,NULL,'Application Status','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(68,1,0,NULL,'STUDY United Kingdom',NULL,'High School Hospitality - December 2026',NULL,NULL,'Application Status','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(69,1,0,NULL,'MIGRATION France',NULL,'Civil Engineer - Spouse Visa',NULL,NULL,'Application Status','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(70,1,0,NULL,'WORK India',NULL,'Driver',NULL,NULL,'Application Status','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(150,2,0,NULL,'STUDY Latvia',NULL,'Diploma Science - -',NULL,NULL,'one','one sub','',1,1,1,3,'2026-05-25 10:50:07'),(151,2,0,NULL,'STUDY USA',NULL,'PhD Nursing - September 2024',NULL,NULL,'Offer Received','','',1,1,1,1,'2026-05-25 10:50:07'),(152,2,0,NULL,'VISA',NULL,'',NULL,NULL,'Application Status','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(153,2,0,NULL,'MIGRATION UAE',NULL,'-',NULL,NULL,'two','two sub','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(154,2,0,NULL,'STUDY USA',NULL,'PhD Nursing - September 2028',NULL,NULL,'Offer Received','','',1,1,4,NULL,'2026-05-25 10:50:07'),(155,2,0,NULL,'COACHING',NULL,'',NULL,NULL,'Application Status','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(156,2,0,NULL,'',NULL,'',NULL,NULL,'Application Status','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(329,4,0,NULL,'STUDY USA',NULL,'Secondary Education Information Technology - October 2030',NULL,NULL,'one','one sub','64',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(349,5,0,NULL,'STUDY Australia',NULL,'Certificate III IV Agriculture - April 2025',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(362,6,0,NULL,'STUDY Australia',NULL,'Advanced Diploma Agriculture - April 2024',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(363,6,0,NULL,'Australia',NULL,'Accountant',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(416,3,0,NULL,'STUDY Canada',NULL,'Bachelor Business - August 2024',NULL,NULL,'one','one sub','',1,1,NULL,NULL,'2026-05-25 10:50:07'),(417,3,0,NULL,'',NULL,'',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(418,3,0,NULL,'',NULL,'',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(419,3,0,NULL,'MIGRATION Australia',NULL,'-',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(420,3,0,NULL,'MIGRATION Canada',NULL,'-',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(421,3,0,NULL,'MIGRATION India',NULL,'-',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(422,7,0,NULL,'STUDY Australia',NULL,'Advanced Diploma Accounting - April 2025',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(423,7,0,NULL,'Canada1',NULL,'Chef',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(767,8,0,NULL,'STUDY India',NULL,'Master Computing - April 2024',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(768,8,0,NULL,'Australia',NULL,'Accountant - for studies',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(769,8,0,NULL,'Canada1',NULL,'Dependent Visa',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(770,8,0,NULL,'France',NULL,'Chef',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(771,8,0,NULL,'COACHING',NULL,'test course - inputted a',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(772,8,0,NULL,'MIGRATION Germany',NULL,'Marketing Specialist - for studies',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(1314,80,0,'STUDY','STUDY Australia',NULL,'Bachelor Agriculture - August 2025',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(1315,80,0,'MIGRATION','Australia',NULL,'Chef - for studies',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(1316,80,0,'VISA','Canada1',NULL,'Dependent Visa',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(1317,80,0,'WORK','Canada1',NULL,'Civil Engineer',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(1318,80,0,'COACHING','COACHING',NULL,'test course - batch a',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(1349,16,0,'STUDY','STUDY Australia',NULL,'Advanced Diploma Accounting - April 2024',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(1350,16,0,'STUDY','STUDY Canada1',NULL,'Associate Degree Accounting - August 2025',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(1351,16,0,'OTHER','Australia',NULL,'Accountant - for studies',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(1352,16,0,'OTHER','Canada1',NULL,'Chef - for studies',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(1353,16,0,'OTHER','Australia',NULL,'Dependent Visa',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(1354,16,0,'OTHER','Canada1',NULL,'Spouse Visa',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(1355,16,0,'OTHER','Australia',NULL,'Accountant',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(1356,16,0,'OTHER','Canada1',NULL,'Chef',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(1357,16,0,'COACHING','COACHING',NULL,'test course - testa',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(1358,16,0,'COACHING','COACHING',NULL,'test course - testb',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(1369,87,0,'STUDY','STUDY France',NULL,'Advanced Diploma Accounting - April 2025',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(1370,87,0,'MIGRATION','Germany',NULL,'Chef - for studies',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(1371,87,0,'VISA','Australia',NULL,'Spouse Visa',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(1372,87,0,'WORK','France',NULL,'Chef',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(1373,87,0,'COACHING','COACHING',NULL,'test course - dsfd',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(1375,88,0,'STUDY','STUDY Poland',NULL,'Graduate Certificate Creative Arts - July 2027',NULL,NULL,'one','one sub','',1,1,1,1,'2026-05-25 10:50:07'),(1376,91,0,'STUDY','STUDY Australia','Advanced','Diploma Accounting','April','2024',NULL,NULL,NULL,1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(1377,91,0,'MIGRATION','Germany','Chef','for studies',NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(1378,91,0,'VISA','Australia','for studies',NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(1379,91,0,'WORK','Georgia','Chef',NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(1380,91,0,'COACHING','COACHING','test course','343',NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(1398,92,0,'STUDY','STUDY Australia',NULL,'- April 2024',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(1399,92,0,'VISA','Georgia',NULL,'',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(1400,92,0,'WORK','Canada1',NULL,'',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(1401,92,0,'COACHING','COACHING',NULL,'test course - ',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(1402,97,0,'STUDY','STUDY Australia',NULL,'Associate Degree Agriculture - August 2025',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(1403,97,0,'MIGRATION','Canada1',NULL,'Chef - for studies',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(1404,97,0,'VISA','Canada1',NULL,'Dependent Visa',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(1405,97,0,'WORK','Canada1',NULL,'Chef',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(1406,97,0,'COACHING','COACHING',NULL,'test course - zcszc',NULL,NULL,'','','',1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(1482,98,0,'STUDY','STUDY France','Associate','Degree Architecture','April','2024',NULL,NULL,NULL,1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(1483,98,0,'MIGRATION','Australia','Accountant','for studies',NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(1484,98,0,'VISA','Canada1','Dependent Visa',NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(1485,98,0,'WORK','Canada1','Civil Engineer',NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(1486,98,0,'COACHING','COACHING','test course','2322344',NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(1707,133,0,'STUDY','STUDY Australia',NULL,'Advanced Diploma Accounting - April 2025',NULL,NULL,'one','one sub','1',1,1,1,3,'2026-05-25 10:50:07'),(1708,133,0,'MIGRATION','Canada1',NULL,'Accountant - for studies',NULL,NULL,'two','two sub','2',1,2,NULL,NULL,'2026-05-25 10:50:07'),(1709,133,0,'VISA','VISA France',NULL,'Dependent Visa - x1',NULL,NULL,'one','one sub','3',1,2,1,NULL,'2026-05-25 10:50:07'),(1710,133,0,'WORK','WORK Georgia',NULL,'Accountant - x2',NULL,NULL,'one','one sub','4',1,1,1,3,'2026-05-25 10:50:07'),(1711,133,0,'COACHING','COACHING',NULL,'course test 2 - type in',NULL,NULL,'two','two sub','5',1,2,2,NULL,'2026-05-25 10:50:07'),(1712,133,1,'OTHER','Skill Assessment',NULL,'1',NULL,NULL,'one','one sub','6',1,3,1,NULL,'2026-05-25 10:50:07'),(1713,133,1,'OTHER','Language Test',NULL,'2',NULL,NULL,'one','one sub','7',1,1,1,1,'2026-05-25 10:50:07'),(1714,133,1,'OTHER','Admission Test',NULL,'3',NULL,NULL,'one','one sub','8',1,2,2,NULL,'2026-05-25 10:50:07'),(1715,133,1,'OTHER','Spouse Language Test',NULL,'4',NULL,NULL,'two','two sub','9',1,2,1,NULL,'2026-05-25 10:50:07'),(1716,133,0,'OTHER','Language Test',NULL,'5',NULL,NULL,'two','two sub','10',0,3,1,NULL,'2026-05-25 10:50:07'),(1717,133,0,'OTHER','Skill Assessment',NULL,'6',NULL,NULL,'one','one sub','11',1,1,2,NULL,'2026-05-25 10:50:07'),(2779,196,0,'STUDY','Australia','Advanced Diploma','Accounting','April','2025','one','one sub',NULL,2,NULL,NULL,NULL,'2026-05-25 10:50:07'),(2780,196,0,'MIGRATION','France','Accountant','for studies','1','1',NULL,NULL,NULL,2,NULL,NULL,NULL,'2026-05-25 10:50:07'),(2781,196,0,'VISA','Canada1','Dependent Visa','1','2','2',NULL,NULL,NULL,2,NULL,NULL,NULL,'2026-05-25 10:50:07'),(2782,196,0,'WORK','Georgia','Civil Engineer','2','3','3',NULL,NULL,NULL,2,NULL,NULL,NULL,'2026-05-25 10:50:07'),(2783,196,0,'COACHING','COACHING','course test 2','3','4','4',NULL,NULL,NULL,2,NULL,NULL,NULL,'2026-05-25 10:50:07'),(2784,196,1,'Spouse Language Test','IELTS','1','4','5','5',NULL,NULL,NULL,0,NULL,NULL,NULL,'2026-05-25 10:50:07'),(2785,196,1,'Admission Test','GMAT Focus','2','5','6','6',NULL,NULL,NULL,1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(2786,196,1,'Language Test','IELTS','3','6','7','7',NULL,NULL,NULL,1,NULL,NULL,NULL,'2026-05-25 10:50:07'),(2787,196,1,'Skill Assessment','Engineers Australia','4','7','8','8',NULL,NULL,NULL,2,NULL,NULL,NULL,'2026-05-25 10:50:07'),(2788,196,0,'Language Test','DET','5','8','9','9',NULL,NULL,NULL,2,NULL,NULL,NULL,'2026-05-25 10:50:07'),(2789,196,0,'Admission Test','GMAT','6','9','0','0',NULL,NULL,NULL,2,NULL,NULL,NULL,'2026-05-25 10:50:07'),(2790,196,0,'Spouse Language Test','DET','7','1','1','1',NULL,NULL,NULL,2,NULL,NULL,NULL,'2026-05-25 10:50:07'),(2791,196,0,'Skill Assessment','Engineers Australia','88','1','2','2',NULL,NULL,NULL,2,NULL,NULL,NULL,'2026-05-25 10:50:07'),(2792,196,0,'EDUCATION LOAN','ED','9','2','3','3','one',NULL,NULL,2,NULL,NULL,NULL,'2026-05-25 10:50:07'),(2793,196,0,'TICKETING','TIC','0','3','4','4',NULL,NULL,NULL,0,NULL,NULL,NULL,'2026-05-25 10:50:07'),(2807,209,0,'STUDY','STUDY Australia','Advanced Diploma','Accounting','April','2025',NULL,NULL,NULL,2,NULL,NULL,NULL,'2026-05-25 10:50:07'),(2808,209,0,'MIGRATION','MIGRATION Canada1','Chef','for studies',NULL,NULL,NULL,NULL,NULL,2,NULL,NULL,NULL,'2026-05-25 10:50:07'),(2809,209,0,'VISA','VISA France','Spouse Visa',NULL,NULL,NULL,NULL,NULL,NULL,2,NULL,NULL,NULL,'2026-05-25 10:50:07'),(2810,209,0,'WORK','WORK Australia','Chef',NULL,NULL,NULL,NULL,NULL,NULL,2,NULL,NULL,NULL,'2026-05-25 10:50:07'),(2811,209,0,'COACHING','COACHING','course test 2','fsa',NULL,NULL,NULL,NULL,NULL,2,NULL,NULL,NULL,'2026-05-25 10:50:07'),(2812,209,0,'Language Test','Language Test','CELPIP',NULL,NULL,NULL,NULL,NULL,NULL,2,NULL,NULL,NULL,'2026-05-25 10:50:07'),(2813,209,0,'Admission Test','Admission Test','adm test',NULL,NULL,NULL,NULL,NULL,NULL,2,NULL,NULL,NULL,'2026-05-25 10:50:07'),(2814,209,0,'Spouse Language Test','Spouse Language Test','CELPIP',NULL,NULL,NULL,NULL,NULL,NULL,2,NULL,NULL,NULL,'2026-05-25 10:50:07'),(2815,209,0,'Skill Assessment','Skill Assessment','Engineers Australia',NULL,NULL,NULL,NULL,NULL,NULL,2,NULL,NULL,NULL,'2026-05-25 10:50:07'),(2816,209,0,'EDUCATION LOAN','EDUCATION LOAN',NULL,NULL,NULL,NULL,NULL,NULL,NULL,2,NULL,NULL,NULL,'2026-05-25 10:50:07'),(2817,209,0,'TICKETING','TICKETING',NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,NULL,'2026-05-25 10:50:07'),(2818,209,0,'FOREX','FOREX',NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,NULL,'2026-05-25 10:50:07'),(2823,196,0,'FOREX','FOREX','2','2','2','2',NULL,NULL,NULL,0,NULL,NULL,NULL,'2026-05-26 04:24:19'),(2824,249,0,'STUDY','Canada1','Advanced Diploma','Accounting','April','2025',NULL,NULL,NULL,1,NULL,NULL,NULL,'2026-05-26 06:37:32'),(2825,249,0,'MIGRATION','France','Chef','for studies',NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,'2026-05-26 06:37:32'),(2826,249,0,'VISA','Australia','Dependent Visa',NULL,NULL,NULL,NULL,NULL,NULL,2,NULL,NULL,NULL,'2026-05-26 06:37:32'),(2827,249,0,'WORK','Canada1','Chef',NULL,NULL,NULL,NULL,NULL,NULL,2,NULL,NULL,NULL,'2026-05-26 06:37:32'),(2828,249,0,'COACHING','COACHING','test course','sa',NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,'2026-05-26 06:37:32'),(2829,249,1,'Skill Assessment','Skill Assessment','1',NULL,NULL,NULL,NULL,NULL,NULL,2,NULL,NULL,NULL,'2026-05-26 06:37:32'),(2830,249,1,'Language Test','Language Test','2',NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,'2026-05-26 06:37:32'),(2831,249,1,'Admission Test','Admission Test','3',NULL,NULL,NULL,NULL,NULL,NULL,2,NULL,NULL,NULL,'2026-05-26 06:37:32'),(2832,249,1,'Spouse Language Test','Spouse Language Test','4',NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,'2026-05-26 06:37:32'),(2833,249,0,'Language Test','Language Test','5',NULL,NULL,NULL,NULL,NULL,NULL,2,NULL,NULL,NULL,'2026-05-26 06:37:32'),(2834,249,0,'Admission Test','Admission Test','66',NULL,NULL,NULL,NULL,NULL,NULL,2,NULL,NULL,NULL,'2026-05-26 06:37:32'),(2835,249,0,'Spouse Language Test','Spouse Language Test','6',NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,'2026-05-26 06:37:32'),(2836,249,0,'Skill Assessment','Skill Assessment','66565',NULL,NULL,NULL,NULL,NULL,NULL,2,NULL,NULL,NULL,'2026-05-26 06:37:32'),(2837,249,0,'EDUCATION LOAN','EDUCATION LOAN','5',NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,'2026-05-26 06:37:32'),(2838,249,0,'TICKETING','TICKETING','654',NULL,NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,'2026-05-26 06:37:32'),(2839,249,0,'FOREX','FOREX','56',NULL,NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,NULL,'2026-05-26 06:37:32'),(2840,98,1,'Skill Assessment','Skill Assessment','1',NULL,NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,NULL,'2026-05-26 07:19:12'),(2843,98,1,'Language Test','Language Test','2',NULL,NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,NULL,'2026-05-26 07:22:07'),(2844,98,1,'Admission Test','Admission Test','3',NULL,NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,NULL,'2026-05-26 07:22:07'),(2845,98,1,'Spouse Language Test','Spouse Language Test','4',NULL,NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,NULL,'2026-05-26 07:22:07'),(2846,258,0,'STUDY','Canada1','Associate Degree','Agriculture','August','2025',NULL,NULL,NULL,2,NULL,NULL,NULL,'2026-05-26 08:49:50'),(2847,258,0,'MIGRATION','Canada1','Chef','for studies',NULL,NULL,NULL,NULL,NULL,2,NULL,NULL,NULL,'2026-05-26 08:49:50'),(2848,258,0,'VISA','Canada1','Spouse Visa','2',NULL,NULL,NULL,NULL,NULL,2,NULL,NULL,NULL,'2026-05-26 08:49:50'),(2849,258,0,'WORK','Canada1','Chef','2',NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,NULL,'2026-05-26 08:49:50'),(2850,258,0,'COACHING','COACHING','course test 2','122',NULL,NULL,NULL,NULL,NULL,2,NULL,NULL,NULL,'2026-05-26 08:49:50'),(2851,258,1,'Skill Assessment','Skill Assessment','1','2',NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,'2026-05-26 08:49:50'),(2852,258,1,'Language Test','Language Test','1','2',NULL,NULL,NULL,NULL,NULL,1,NULL,NULL,NULL,'2026-05-26 08:49:50'),(2853,258,1,'Admission Test','Admission Test','1','2',NULL,NULL,NULL,NULL,NULL,2,NULL,NULL,NULL,'2026-05-26 08:49:50'),(2854,258,1,'Spouse Language Test','Spouse Language Test','1','2',NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,NULL,'2026-05-26 08:49:50');
-/*!40000 ALTER TABLE `suggested_programs` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `user_permissions_docs`
---
-
-DROP TABLE IF EXISTS `user_permissions_docs`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `user_permissions_docs` (
-  `perm_id` int NOT NULL AUTO_INCREMENT,
-  `user_id` int DEFAULT NULL,
-  `branch_id` int DEFAULT NULL,
-  `department_id` int DEFAULT NULL,
-  `can_view` tinyint(1) DEFAULT '0',
-  `can_view_all` tinyint(1) DEFAULT '0',
-  `can_transfer` tinyint(1) DEFAULT '0',
-  PRIMARY KEY (`perm_id`),
-  KEY `user_id` (`user_id`),
-  CONSTRAINT `user_permissions_docs_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `user_permissions_docs`
---
-
-LOCK TABLES `user_permissions_docs` WRITE;
-/*!40000 ALTER TABLE `user_permissions_docs` DISABLE KEYS */;
-/*!40000 ALTER TABLE `user_permissions_docs` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `user_permissions_pages`
---
-
-DROP TABLE IF EXISTS `user_permissions_pages`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `user_permissions_pages` (
-  `perm_id` int NOT NULL AUTO_INCREMENT,
-  `user_id` int DEFAULT NULL,
-  `menu_name` varchar(100) DEFAULT NULL,
-  `can_view` tinyint(1) DEFAULT '0',
-  `can_save` tinyint(1) DEFAULT '0',
-  `can_edit` tinyint(1) DEFAULT '0',
-  `can_delete` tinyint(1) DEFAULT '0',
-  PRIMARY KEY (`perm_id`),
-  KEY `user_id` (`user_id`),
-  CONSTRAINT `user_permissions_pages_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `user_permissions_pages`
---
-
-LOCK TABLES `user_permissions_pages` WRITE;
-/*!40000 ALTER TABLE `user_permissions_pages` DISABLE KEYS */;
-/*!40000 ALTER TABLE `user_permissions_pages` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `users`
---
-
-DROP TABLE IF EXISTS `users`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `users` (
-  `user_id` int NOT NULL AUTO_INCREMENT,
-  `username` varchar(50) NOT NULL,
-  `password` varchar(255) NOT NULL,
-  `email` varchar(100) DEFAULT NULL,
-  `mobile` varchar(20) DEFAULT NULL,
-  `user_type` varchar(50) DEFAULT 'Staff',
-  `status` varchar(50) DEFAULT 'Working',
-  `branch_id` int DEFAULT NULL,
-  `department_id` int DEFAULT NULL,
-  `user_role` varchar(100) DEFAULT NULL,
-  `backup_user` varchar(100) DEFAULT NULL,
-  `extension` varchar(50) DEFAULT NULL,
-  `all_time_view` tinyint(1) DEFAULT '0',
-  `role` varchar(50) DEFAULT 'staff',
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`user_id`),
-  UNIQUE KEY `username` (`username`),
-  KEY `branch_id` (`branch_id`),
-  KEY `department_id` (`department_id`),
-  CONSTRAINT `users_ibfk_1` FOREIGN KEY (`branch_id`) REFERENCES `branches` (`branch_id`),
-  CONSTRAINT `users_ibfk_2` FOREIGN KEY (`department_id`) REFERENCES `departments` (`department_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `users`
---
-
-LOCK TABLES `users` WRITE;
-/*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'admin','123','ashwini1suresh@gmail.com','3728374283774','admin','Working',1,1,'admin','','',0,'admin','2026-01-29 06:28:03'),(3,'ashwini','$2b$10$R8IWHkgB3VF96H44zk74be9MpF7/YdPyPBY08QtVaeZRwxoR9d7MC','ashwini1suresh@gmail.com','9446885925','Admin','Working',1,1,'admin','','',0,'admin','2026-01-29 09:47:49');
-/*!40000 ALTER TABLE `users` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `visa_categories`
---
-
-DROP TABLE IF EXISTS `visa_categories`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `visa_categories` (
-  `visa_cat_id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  PRIMARY KEY (`visa_cat_id`),
-  UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `visa_categories`
---
-
-LOCK TABLES `visa_categories` WRITE;
-/*!40000 ALTER TABLE `visa_categories` DISABLE KEYS */;
-INSERT INTO `visa_categories` VALUES (4,'Dependent Visa'),(5,'Spouse Visa'),(1,'Study Visa'),(3,'Tourist Visa'),(2,'Work Visa');
-/*!40000 ALTER TABLE `visa_categories` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `work_categories`
---
-
-DROP TABLE IF EXISTS `work_categories`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `work_categories` (
-  `work_cat_id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  PRIMARY KEY (`work_cat_id`),
-  UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `work_categories`
---
-
-LOCK TABLES `work_categories` WRITE;
-/*!40000 ALTER TABLE `work_categories` DISABLE KEYS */;
-INSERT INTO `work_categories` VALUES (1,'sgdgsgfa');
-/*!40000 ALTER TABLE `work_categories` ENABLE KEYS */;
-UNLOCK TABLES;
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
-
-/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
-/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
-/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
-
--- Dump completed on 2026-05-27 11:55:47
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddApplicationAdmInterest`(
+                    IN p_id INT,
+                    IN p_course VARCHAR(255),
+                    IN p_expected_date DATE
+                )
+BEGIN
+                    INSERT INTO application_adm_interest (application_id, course, expected_date)
+                    VALUES (p_id, p_course, p_expected_date);
+                END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddApplicationAdmTest`(
+      IN p_application_id INT,
+      IN p_test_type VARCHAR(50),
+      IN p_quant_score VARCHAR(10),
+      IN p_verbal_score VARCHAR(10),
+      IN p_data_insights_score VARCHAR(10),
+      IN p_overall_score VARCHAR(10)
+    )
+BEGIN
+      INSERT INTO application_admission_tests (
+        application_id, test_type, quant_score, verbal_score, data_insights_score
+      ) VALUES (
+        p_application_id, p_test_type, p_quant_score, p_verbal_score, p_data_insights_score
+      );
+    END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddApplicationEducation`(
+                IN p_application_id INT, IN p_country VARCHAR(100), IN p_level VARCHAR(100), 
+                IN p_field VARCHAR(100), IN p_status VARCHAR(50), IN p_expected_completion DATE, 
+                IN p_is_highest TINYINT(1), IN p_edu_type VARCHAR(20)
+            )
+BEGIN
+                INSERT INTO application_education (application_id, country, level, field, status, expected_completion, is_highest, edu_type)
+                VALUES (p_application_id, p_country, p_level, p_field, p_status, p_expected_completion, p_is_highest, p_edu_type);
+            END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddApplicationLangInterest`(
+                IN p_application_id INT,
+                IN p_course VARCHAR(255),
+                IN p_expected_date DATE,
+                IN p_is_spouse TINYINT(1)
+            )
+BEGIN
+                INSERT INTO application_lang_interest (application_id, course, expected_date, is_spouse)
+                VALUES (p_application_id, p_course, p_expected_date, p_is_spouse);
+            END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddApplicationLangTest`(
+      IN p_application_id INT,
+      IN p_test_type VARCHAR(50),
+      IN p_reading_score VARCHAR(10),
+      IN p_writing_score VARCHAR(10),
+      IN p_speaking_score VARCHAR(10),
+      IN p_listening_score VARCHAR(10),
+      IN p_overall_score VARCHAR(10),
+      IN p_is_spouse TINYINT(1)
+    )
+BEGIN
+      INSERT INTO application_language_tests (
+        application_id, test_type, reading_score, writing_score, speaking_score, listening_score, is_spouse
+      ) VALUES (
+        p_application_id, p_test_type, p_reading_score, p_writing_score, p_speaking_score, p_listening_score, p_is_spouse
+      );
+    END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddApplicationRelative`(
+    IN p_application_id INT, IN p_country VARCHAR(100), IN p_relationship VARCHAR(100), IN p_related_to ENUM('Applicant', 'Spouse')
+)
+BEGIN
+    INSERT INTO application_relatives (application_id, country, relationship, related_to)
+    VALUES (p_application_id, p_country, p_relationship, p_related_to);
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddApplicationSkill`(
+    IN p_application_id INT,
+    IN p_country VARCHAR(100),
+    IN p_authority VARCHAR(100),
+    IN p_status VARCHAR(50),
+    IN p_sub_status VARCHAR(50),
+    IN p_is_interest TINYINT,
+    IN p_remarks VARCHAR(255)
+)
+BEGIN
+    INSERT INTO application_skill 
+    (application_id, country, authority, status, sub_status, is_interest, remarks)
+    VALUES 
+    (p_application_id, p_country, p_authority, p_status, p_sub_status, p_is_interest, p_remarks);
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddApplicationSpouseEdu`(
+        IN p_app_id INT,
+        IN p_country VARCHAR(100),
+        IN p_level VARCHAR(100),
+        IN p_field VARCHAR(100),
+        IN p_status VARCHAR(50),
+        IN p_expected_completion DATE,
+        IN p_edu_type VARCHAR(20)
+    )
+BEGIN
+        INSERT INTO application_spouse_education (application_id, country, level, field, status, expected_completion, edu_type)
+        VALUES (p_app_id, p_country, p_level, p_field, p_status, p_expected_completion, p_edu_type);
+    END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddApplicationSpouseWork`(
+                IN p_app_id INT, IN p_country VARCHAR(100), IN p_job_title VARCHAR(255), 
+                IN p_status VARCHAR(50), IN p_start_date DATE,
+                IN p_work_years INT, IN p_work_months INT, IN p_work_type VARCHAR(20)
+            )
+BEGIN
+                INSERT INTO application_spouse_work (application_id, country, job_title, status, start_date, work_years, work_months, work_type)
+                VALUES (p_app_id, p_country, p_job_title, p_status, p_start_date, p_work_years, p_work_months, p_work_type);
+            END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddApplicationWork`(
+                IN p_application_id INT, IN p_country VARCHAR(100), IN p_job_title VARCHAR(255), 
+                IN p_status VARCHAR(50), IN p_start_date DATE,
+                IN p_work_years INT, IN p_work_months INT, IN p_is_current TINYINT(1),
+                IN p_work_type VARCHAR(20)
+            )
+BEGIN
+                INSERT INTO application_work_experience (application_id, country, job_title, status, start_date, work_years, work_months, is_current, work_type)
+                VALUES (p_application_id, p_country, p_job_title, p_status, p_start_date, p_work_years, p_work_months, p_is_current, p_work_type);
+            END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddFollowUp`(
+    IN p_student_id INT,
+    IN p_branch_id INT,
+    IN p_dept_id INT,
+    IN p_status VARCHAR(50),
+    IN p_assigned_to INT,
+    IN p_follow_up_date DATE,
+    IN p_remark TEXT,
+    IN p_created_by INT
+)
+BEGIN
+    INSERT INTO follow_ups (
+        student_id, branch_id, department_id, status, 
+        assigned_to, follow_up_date, remark, created_by
+    ) VALUES (
+        p_student_id, p_branch_id, p_dept_id, p_status,
+        p_assigned_to, p_follow_up_date, p_remark, p_created_by
+    );
+    
+    -- Update Current Status and Last Remark in Student Table
+    UPDATE students SET 
+        current_status = p_status,
+        last_remark = p_remark,
+        assigned_to = p_assigned_to
+    WHERE student_id = p_student_id;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddRegistrationAdmInterest`(
+                    IN p_id INT,
+                    IN p_course VARCHAR(255),
+                    IN p_expected_date DATE
+                )
+BEGIN
+                    INSERT INTO registration_adm_interest (registration_id, course, expected_date)
+                    VALUES (p_id, p_course, p_expected_date);
+                END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddRegistrationAdmissionTest`(
+    IN p_registration_id INT, 
+    IN p_type VARCHAR(50), 
+    IN p_quant VARCHAR(20), 
+    IN p_verbal VARCHAR(20), 
+    IN p_data_insights VARCHAR(20), 
+    IN p_overall VARCHAR(20)
+)
+BEGIN
+    INSERT INTO registration_admission_tests (registration_id, test_type, quant, verbal, data_insights, overall)
+    VALUES (p_registration_id, p_type, p_quant, p_verbal, p_data_insights, p_overall);
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddRegistrationEducation`(
+                IN p_registration_id INT, IN p_country VARCHAR(100), IN p_level VARCHAR(100), 
+                IN p_field VARCHAR(100), IN p_status VARCHAR(50), IN p_expected_completion DATE, 
+                IN p_is_highest TINYINT(1), IN p_edu_type VARCHAR(20)
+            )
+BEGIN
+                INSERT INTO registration_education (registration_id, country, level, field, status, expected_completion, is_highest, edu_type)
+                VALUES (p_registration_id, p_country, p_level, p_field, p_status, p_expected_completion, p_is_highest, p_edu_type);
+            END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddRegistrationLangInterest`(
+                IN p_registration_id INT,
+                IN p_course VARCHAR(255),
+                IN p_expected_date DATE,
+                IN p_is_spouse TINYINT(1)
+            )
+BEGIN
+                INSERT INTO registration_lang_interest (registration_id, course, expected_date, is_spouse)
+                VALUES (p_registration_id, p_course, p_expected_date, p_is_spouse);
+            END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddRegistrationLangTest`(
+                IN p_registration_id INT, IN p_type VARCHAR(50), IN p_reading VARCHAR(20), 
+                IN p_writing VARCHAR(20), IN p_speaking VARCHAR(20), IN p_listening VARCHAR(20), 
+                IN p_overall VARCHAR(20), IN p_is_spouse TINYINT(1)
+            )
+BEGIN
+                INSERT INTO registration_language_tests (registration_id, test_type, reading, writing, speaking, listening, overall, is_spouse)
+                VALUES (p_registration_id, p_type, p_reading, p_writing, p_speaking, p_listening, p_overall, p_is_spouse);
+            END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddRegistrationSkill`(
+    IN p_registration_id INT,
+    IN p_country VARCHAR(100),
+    IN p_authority VARCHAR(100),
+    IN p_status VARCHAR(50),
+    IN p_sub_status VARCHAR(50),
+    IN p_is_interest TINYINT,
+    IN p_remarks VARCHAR(255)
+)
+BEGIN
+    INSERT INTO registration_skill 
+    (registration_id, country, authority, status, sub_status, is_interest, remarks)
+    VALUES 
+    (p_registration_id, p_country, p_authority, p_status, p_sub_status, p_is_interest, p_remarks);
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddRegistrationSpouseEdu`(
+        IN p_reg_id INT,
+        IN p_country VARCHAR(100),
+        IN p_level VARCHAR(100),
+        IN p_field VARCHAR(100),
+        IN p_status VARCHAR(50),
+        IN p_expected_completion DATE,
+        IN p_edu_type VARCHAR(20)
+    )
+BEGIN
+        INSERT INTO registration_spouse_education (registration_id, country, level, field, status, expected_completion, edu_type)
+        VALUES (p_reg_id, p_country, p_level, p_field, p_status, p_expected_completion, p_edu_type);
+    END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddRegistrationSpouseWork`(
+                IN p_reg_id INT, IN p_country VARCHAR(100), IN p_job_title VARCHAR(255), 
+                IN p_status VARCHAR(50), IN p_start_date DATE,
+                IN p_work_years INT, IN p_work_months INT, IN p_work_type VARCHAR(20)
+            )
+BEGIN
+                INSERT INTO registration_spouse_work (registration_id, country, job_title, status, start_date, work_years, work_months, work_type)
+                VALUES (p_reg_id, p_country, p_job_title, p_status, p_start_date, p_work_years, p_work_months, p_work_type);
+            END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_AddRegistrationWork`(
+                IN p_registration_id INT, IN p_country VARCHAR(100), IN p_job_title VARCHAR(255), 
+                IN p_status VARCHAR(50), IN p_start_date DATE,
+                IN p_work_years INT, IN p_work_months INT, IN p_type VARCHAR(20),
+                IN p_work_type VARCHAR(20)
+            )
+BEGIN
+                INSERT INTO registration_work_experience (registration_id, country, job_title, status, start_date, work_years, work_months, type, work_type)
+                VALUES (p_registration_id, p_country, p_job_title, p_status, p_start_date, p_work_years, p_work_months, p_type, p_work_type);
+            END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_CreateStudent`(
+    IN p_student_name VARCHAR(100),
+    IN p_mobile_country_code VARCHAR(10),
+    IN p_mobile_number VARCHAR(20),
+    IN p_phone_country_code VARCHAR(10),
+    IN p_phone_number VARCHAR(20),
+    IN p_email VARCHAR(100),
+    IN p_whatsapp BOOLEAN,
+    IN p_botim BOOLEAN,
+    IN p_telegram BOOLEAN,
+    IN p_enquiry_source VARCHAR(100),
+    IN p_study_interested BOOLEAN,
+    IN p_migration_interested BOOLEAN,
+    IN p_coaching_interested BOOLEAN,
+    IN p_visa_interested BOOLEAN,
+    IN p_work_interested BOOLEAN,
+    IN p_branch_id INT,
+    IN p_created_by INT
+)
+BEGIN
+    INSERT INTO students (
+        student_name, mobile_country_code, mobile_number, 
+        phone_country_code, phone_number, email, 
+        whatsapp, botim, telegram, enquiry_source,
+        study_interested, migration_interested, coaching_interested, 
+        visa_interested, work_interested, branch_id, created_by
+    ) VALUES (
+        p_student_name, p_mobile_country_code, p_mobile_number, 
+        p_phone_country_code, p_phone_number, p_email, 
+        p_whatsapp, p_botim, p_telegram, p_enquiry_source,
+        p_study_interested, p_migration_interested, p_coaching_interested, 
+        p_visa_interested, p_work_interested, p_branch_id, p_created_by
+    );
+    SELECT LAST_INSERT_ID() as student_id;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_DeleteApplicationAdmInterestFull`(IN p_id INT)
+BEGIN
+                    DELETE FROM application_adm_interest WHERE application_id = p_id;
+                END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_DeleteApplicationChildren`(IN p_application_id INT)
+BEGIN
+    DELETE FROM application_education WHERE application_id = p_application_id;
+    DELETE FROM application_work_experience WHERE application_id = p_application_id;
+    -- Add other child tables here
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_DeleteApplicationChildrenFull`(IN p_application_id INT)
+BEGIN
+    DELETE FROM application_education WHERE application_id = p_application_id;
+    DELETE FROM application_work_experience WHERE application_id = p_application_id;
+    DELETE FROM application_language_tests WHERE application_id = p_application_id;
+    DELETE FROM application_admission_tests WHERE application_id = p_application_id;
+    DELETE FROM application_spouse_education WHERE application_id = p_application_id;
+    DELETE FROM application_spouse_work WHERE application_id = p_application_id;
+    DELETE FROM application_relatives WHERE application_id = p_application_id;
+    DELETE FROM application_children WHERE application_id = p_application_id;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_DeleteApplicationLangInterestFull`(IN p_id INT)
+BEGIN
+                    DELETE FROM application_lang_interest WHERE application_id = p_id;
+                END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_DeleteApplicationSkillsFull`(IN p_application_id INT)
+BEGIN
+                DELETE FROM application_skill WHERE application_id = p_application_id;
+            END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_DeleteRegistrationAdmInterestFull`(IN p_id INT)
+BEGIN
+                    DELETE FROM registration_adm_interest WHERE registration_id = p_id;
+                END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_DeleteRegistrationChildrenFull`(IN p_registration_id INT)
+BEGIN
+    DELETE FROM registration_education WHERE registration_id = p_registration_id;
+    DELETE FROM registration_work_experience WHERE registration_id = p_registration_id;
+    DELETE FROM registration_language_tests WHERE registration_id = p_registration_id;
+    DELETE FROM registration_admission_tests WHERE registration_id = p_registration_id;
+    DELETE FROM registration_spouse_education WHERE registration_id = p_registration_id;
+    DELETE FROM registration_spouse_work WHERE registration_id = p_registration_id;
+    DELETE FROM registration_relatives WHERE registration_id = p_registration_id;
+    DELETE FROM registration_children WHERE registration_id = p_registration_id;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_DeleteRegistrationLangInterestFull`(IN p_id INT)
+BEGIN
+                    DELETE FROM registration_lang_interest WHERE registration_id = p_id;
+                END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_DeleteRegistrationSkillsFull`(IN p_registration_id INT)
+BEGIN
+                DELETE FROM registration_skill WHERE registration_id = p_registration_id;
+            END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_DeleteStudent`(IN p_student_id INT)
+BEGIN
+    DELETE FROM students WHERE student_id = p_student_id;
+    SELECT ROW_COUNT() as affected_rows;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetBranchDepartments`(IN p_branch_id INT)
+BEGIN
+    SELECT d.* 
+    FROM departments d
+    JOIN branch_departments bd ON d.department_id = bd.department_id
+    WHERE bd.branch_id = p_branch_id
+    ORDER BY d.department_name;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetBranchStatuses`(IN p_branch_id INT, IN p_dept_id INT)
+BEGIN
+    -- Check if Dept is in Branch, then return Dept Statuses
+    IF EXISTS (SELECT 1 FROM branch_departments WHERE branch_id = p_branch_id AND department_id = p_dept_id) THEN
+        CALL sp_GetDepartmentStatuses(p_dept_id);
+    END IF;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetDashboardStats`(
+    IN p_filter VARCHAR(20),       -- 'day', 'month', 'all'
+    IN p_startDate DATE,
+    IN p_endDate DATE,
+    IN p_userId INT,
+    IN p_branchId INT,
+    IN p_userRole VARCHAR(20)
+)
+BEGIN
+    -- 1. Summary Counts
+    SELECT 
+        (SELECT COUNT(*) FROM students 
+         WHERE (p_startDate IS NULL OR DATE(created_at) >= p_startDate)
+           AND (p_endDate IS NULL OR DATE(created_at) <= p_endDate)
+        ) as totalStudents,
+        (SELECT COUNT(*) FROM follow_ups 
+         WHERE follow_up_date = CURDATE()
+        ) as todayFollowups,
+        (SELECT COUNT(*) FROM follow_ups 
+         WHERE follow_up_date < CURDATE()
+           AND status NOT IN ('Visa Granted', 'Visa Rejected', 'Not Interested', 'Applied', 'Dead enquiry')
+        ) as pendingFollowups;
+
+    -- 2. Status Distribution
+    SELECT current_status, COUNT(*) as count 
+    FROM students 
+    WHERE (p_startDate IS NULL OR DATE(created_at) >= p_startDate)
+      AND (p_endDate IS NULL OR DATE(created_at) <= p_endDate)
+    GROUP BY current_status;
+
+    -- 3. Graph Data
+    IF p_filter = 'day' THEN
+        SELECT DATE_FORMAT(created_at, '%Y-%m-%d') as label, COUNT(*) as count 
+        FROM students 
+        WHERE (p_startDate IS NULL OR DATE(created_at) >= p_startDate)
+          AND (p_endDate IS NULL OR DATE(created_at) <= p_endDate)
+        GROUP BY DATE(created_at)
+        ORDER BY DATE(created_at);
+    ELSE
+        -- Default to Month
+        SELECT DATE_FORMAT(created_at, '%b %Y') as label, COUNT(*) as count 
+        FROM students 
+        WHERE (p_startDate IS NULL OR DATE(created_at) >= p_startDate)
+          AND (p_endDate IS NULL OR DATE(created_at) <= p_endDate)
+        GROUP BY YEAR(created_at), MONTH(created_at), label
+        ORDER BY YEAR(created_at), MONTH(created_at);
+    END IF;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetDepartmentStatuses`(IN p_dept_id INT)
+BEGIN
+    SELECT s.* 
+    FROM statuses s
+    JOIN department_status_mappings dsm ON s.status_id = dsm.status_id
+    WHERE dsm.department_id = p_dept_id
+    ORDER BY s.status_name;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetEnquiryReport`(
+    IN p_from_date DATE,
+    IN p_to_date DATE,
+    IN p_search VARCHAR(100),
+    IN p_branch_id INT,
+    IN p_staff_id INT,
+    IN p_limit INT,
+    IN p_offset INT
+)
+BEGIN
+
+    -- PAGINATED DATA
+    SELECT * FROM (
+
+        -- STUDY
+        SELECT 
+            DATE(ss.created_at) as created_date,
+            s.student_id,
+            s.student_name,
+            CONCAT(s.mobile_country_code, ' ', s.mobile_number) as mobile,
+            'Study' as enquiry_type,
+            ss.country as country_or_course,
+            CONCAT(IFNULL(ss.level,''), ' ', IFNULL(ss.field,'')) as program_details,
+            CONCAT(IFNULL(ss.intake,''), ' ', IFNULL(ss.year,'')) as intake_or_batch,
+            s.current_status,
+            s.last_remark,
+            u_to.username as assigned_to,
+            u_by.username as created_by,
+            b.branch_id,
+            s.assigned_to as assigned_to_id
+
+        FROM students s
+        JOIN student_study_programs ss 
+            ON s.student_id = ss.student_id
+
+        LEFT JOIN users u_to 
+            ON s.assigned_to = u_to.user_id
+
+        LEFT JOIN users u_by 
+            ON s.created_by = u_by.user_id
+
+        LEFT JOIN branches b 
+            ON s.branch_id = b.branch_id
+
+
+        UNION ALL
+
+        -- MIGRATION
+        SELECT 
+            DATE(sm.created_at),
+            s.student_id,
+            s.student_name,
+            CONCAT(s.mobile_country_code, ' ', s.mobile_number),
+            'Migration',
+            sm.country,
+            sm.category,
+            '',
+            s.current_status,
+            s.last_remark,
+            u_to.username,
+            u_by.username,
+            b.branch_id,
+            s.assigned_to
+
+        FROM students s
+        JOIN student_migration sm 
+            ON s.student_id = sm.student_id
+
+        LEFT JOIN users u_to 
+            ON s.assigned_to = u_to.user_id
+
+        LEFT JOIN users u_by 
+            ON s.created_by = u_by.user_id
+
+        LEFT JOIN branches b 
+            ON s.branch_id = b.branch_id
+
+
+        UNION ALL
+
+        -- VISA
+        SELECT 
+            DATE(sv.created_at),
+            s.student_id,
+            s.student_name,
+            CONCAT(s.mobile_country_code, ' ', s.mobile_number),
+            'Visa',
+            sv.country,
+            sv.category,
+            '',
+            s.current_status,
+            s.last_remark,
+            u_to.username,
+            u_by.username,
+            b.branch_id,
+            s.assigned_to
+
+        FROM students s
+        JOIN student_visa sv 
+            ON s.student_id = sv.student_id
+
+        LEFT JOIN users u_to 
+            ON s.assigned_to = u_to.user_id
+
+        LEFT JOIN users u_by 
+            ON s.created_by = u_by.user_id
+
+        LEFT JOIN branches b 
+            ON s.branch_id = b.branch_id
+
+
+        UNION ALL
+
+        -- WORK
+        SELECT 
+            DATE(sw.created_at),
+            s.student_id,
+            s.student_name,
+            CONCAT(s.mobile_country_code, ' ', s.mobile_number),
+            'Work',
+            sw.country,
+            sw.occupation,
+            '',
+            s.current_status,
+            s.last_remark,
+            u_to.username,
+            u_by.username,
+            b.branch_id,
+            s.assigned_to
+
+        FROM students s
+        JOIN student_work sw 
+            ON s.student_id = sw.student_id
+
+        LEFT JOIN users u_to 
+            ON s.assigned_to = u_to.user_id
+
+        LEFT JOIN users u_by 
+            ON s.created_by = u_by.user_id
+
+        LEFT JOIN branches b 
+            ON s.branch_id = b.branch_id
+
+
+        UNION ALL
+
+        -- COACHING
+        SELECT 
+            DATE(sc.created_at),
+            s.student_id,
+            s.student_name,
+            CONCAT(s.mobile_country_code, ' ', s.mobile_number),
+            'Coaching',
+            sc.course,
+            '',
+            sc.batch,
+            s.current_status,
+            s.last_remark,
+            u_to.username,
+            u_by.username,
+            b.branch_id,
+            s.assigned_to
+
+        FROM students s
+        JOIN student_coaching sc 
+            ON s.student_id = sc.student_id
+
+        LEFT JOIN users u_to 
+            ON s.assigned_to = u_to.user_id
+
+        LEFT JOIN users u_by 
+            ON s.created_by = u_by.user_id
+
+        LEFT JOIN branches b 
+            ON s.branch_id = b.branch_id
+
+    ) AS combined_report
+
+    WHERE 
+        (p_from_date IS NULL OR created_date >= p_from_date)
+        AND
+        (p_to_date IS NULL OR created_date <= p_to_date)
+        AND
+        (p_branch_id IS NULL OR branch_id = p_branch_id)
+        AND
+        (p_staff_id IS NULL OR assigned_to_id = p_staff_id)
+        AND
+        (
+            p_search IS NULL
+            OR student_name LIKE CONCAT('%', p_search, '%')
+            OR mobile LIKE CONCAT('%', p_search, '%')
+        )
+
+    ORDER BY created_date DESC, student_name
+
+    LIMIT p_limit OFFSET p_offset;
+
+
+    -- TOTAL COUNT
+    SELECT COUNT(*) AS total
+    FROM (
+
+        -- STUDY
+        SELECT 
+            DATE(ss.created_at) as created_date,
+            s.student_name,
+            CONCAT(s.mobile_country_code, ' ', s.mobile_number) as mobile,
+            b.branch_id,
+            s.assigned_to as assigned_to_id
+
+        FROM students s
+        JOIN student_study_programs ss 
+            ON s.student_id = ss.student_id
+        LEFT JOIN branches b 
+            ON s.branch_id = b.branch_id
+
+        UNION ALL
+
+        -- MIGRATION
+        SELECT 
+            DATE(sm.created_at),
+            s.student_name,
+            CONCAT(s.mobile_country_code, ' ', s.mobile_number),
+            b.branch_id,
+            s.assigned_to
+
+        FROM students s
+        JOIN student_migration sm 
+            ON s.student_id = sm.student_id
+        LEFT JOIN branches b 
+            ON s.branch_id = b.branch_id
+
+        UNION ALL
+
+        -- VISA
+        SELECT 
+            DATE(sv.created_at),
+            s.student_name,
+            CONCAT(s.mobile_country_code, ' ', s.mobile_number),
+            b.branch_id,
+            s.assigned_to
+
+        FROM students s
+        JOIN student_visa sv 
+            ON s.student_id = sv.student_id
+        LEFT JOIN branches b 
+            ON s.branch_id = b.branch_id
+
+        UNION ALL
+
+        -- WORK
+        SELECT 
+            DATE(sw.created_at),
+            s.student_name,
+            CONCAT(s.mobile_country_code, ' ', s.mobile_number),
+            b.branch_id,
+            s.assigned_to
+
+        FROM students s
+        JOIN student_work sw 
+            ON s.student_id = sw.student_id
+        LEFT JOIN branches b 
+            ON s.branch_id = b.branch_id
+
+        UNION ALL
+
+        -- COACHING
+        SELECT 
+            DATE(sc.created_at),
+            s.student_name,
+            CONCAT(s.mobile_country_code, ' ', s.mobile_number),
+            b.branch_id,
+            s.assigned_to
+
+        FROM students s
+        JOIN student_coaching sc 
+            ON s.student_id = sc.student_id
+        LEFT JOIN branches b 
+            ON s.branch_id = b.branch_id
+
+    ) AS count_report
+
+    WHERE 
+        (p_from_date IS NULL OR created_date >= p_from_date)
+        AND
+        (p_to_date IS NULL OR created_date <= p_to_date)
+        AND
+        (p_branch_id IS NULL OR branch_id = p_branch_id)
+        AND
+        (p_staff_id IS NULL OR assigned_to_id = p_staff_id)
+        AND
+        (
+            p_search IS NULL
+            OR student_name LIKE CONCAT('%', p_search, '%')
+            OR mobile LIKE CONCAT('%', p_search, '%')
+        );
+
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetEnquirySources`()
+BEGIN
+    SELECT * FROM enquiry_sources ORDER BY source_name;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetMasterLookups`()
+BEGIN
+                SELECT * FROM countries ORDER BY name;
+                SELECT * FROM educational_levels ORDER BY name;
+                SELECT * FROM study_intakes ORDER BY name;
+                SELECT * FROM occupations ORDER BY name;
+                SELECT * FROM study_fields ORDER BY name;
+                SELECT * FROM migration_categories ORDER BY name;
+                SELECT (SELECT 2024) as id UNION SELECT (SELECT 2025) UNION SELECT (SELECT 2026); -- Years dummy
+                SELECT * FROM enquiry_sources ORDER BY source_name;
+                SELECT * FROM visa_categories ORDER BY name;
+                SELECT * FROM work_categories ORDER BY name;
+                SELECT * FROM coaching_courses ORDER BY name;
+                SELECT * FROM course_admission ORDER BY name;
+                SELECT * FROM course_language ORDER BY name;
+                SELECT * FROM board_authorities ORDER BY name;
+            END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetStatuses`()
+BEGIN
+    SELECT * FROM statuses ORDER BY status_name;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetStudentApplication`(IN p_student_id INT)
+BEGIN
+                -- Result 1: Core Application Data
+                SELECT * FROM student_applications WHERE student_id = p_student_id LIMIT 1;
+                
+                -- Result 2: Education
+                SELECT e.* FROM application_education e
+                JOIN student_applications a ON e.application_id = a.application_id
+                WHERE a.student_id = p_student_id;
+                
+                -- Result 3: Work Experience
+                SELECT w.* FROM application_work_experience w
+                JOIN student_applications a ON w.application_id = a.application_id
+                WHERE a.student_id = p_student_id;
+                
+                -- Result 4: Language Tests
+                SELECT t.* FROM application_language_tests t
+                JOIN student_applications a ON t.application_id = a.application_id
+                WHERE a.student_id = p_student_id;
+                
+                -- Result 5: Admission Tests
+                SELECT t.* FROM application_admission_tests t
+                JOIN student_applications a ON t.application_id = a.application_id
+                WHERE a.student_id = p_student_id;
+                
+                -- Result 6: Spouse Education
+                SELECT e.* FROM application_spouse_education e
+                JOIN student_applications a ON e.application_id = a.application_id
+                WHERE a.student_id = p_student_id;
+                
+                -- Result 7: Spouse Work
+                SELECT w.* FROM application_spouse_work w
+                JOIN student_applications a ON w.application_id = a.application_id
+                WHERE a.student_id = p_student_id;
+                
+                -- Result 8: Relatives
+                SELECT r.* FROM application_relatives r
+                JOIN student_applications a ON r.application_id = a.application_id
+                WHERE a.student_id = p_student_id;
+                
+                -- Result 9: Children
+                SELECT c.* FROM application_children c
+                JOIN student_applications a ON c.application_id = a.application_id
+                WHERE a.student_id = p_student_id;
+                
+                -- Result 10: Suggested Programs
+                SELECT s.* FROM suggested_programs s
+                JOIN student_applications a ON s.application_id = a.application_id
+                WHERE a.student_id = p_student_id;
+
+                -- Result 11: Skill Assessments
+                SELECT sk.* FROM application_skill sk
+                JOIN student_applications a ON sk.application_id = a.application_id
+                WHERE a.student_id = p_student_id;
+
+                -- Result 12: Lang Interest
+                SELECT li.* FROM application_lang_interest li
+                JOIN student_applications a ON li.application_id = a.application_id
+                WHERE a.student_id = p_student_id;
+
+                -- Result 13: Adm Interest
+                SELECT ai.* FROM application_adm_interest ai
+                JOIN student_applications a ON ai.application_id = a.application_id
+                WHERE a.student_id = p_student_id;
+            END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetStudentList`(
+    IN p_logged_user_id INT,
+    IN p_dept_id INT,
+    IN p_assigned_to INT,
+    IN p_from_date DATE,
+    IN p_to_date DATE,
+    IN p_status VARCHAR(50),
+    IN p_use_date BOOLEAN,
+    IN p_search VARCHAR(100),
+    IN p_limit INT,
+    IN p_offset INT
+)
+BEGIN
+    DECLARE v_branch_id INT;
+    DECLARE v_role VARCHAR(50);
+    
+    SELECT branch_id, role INTO v_branch_id, v_role FROM users WHERE user_id = p_logged_user_id;
+
+    
+    SELECT COUNT(*) as total
+    FROM students s
+    LEFT JOIN users at ON s.assigned_to = at.user_id
+    WHERE (v_role = 'admin' OR s.branch_id = v_branch_id)
+      AND (p_dept_id = 0 OR at.department_id = p_dept_id)
+      AND (p_assigned_to = 0 OR s.assigned_to = p_assigned_to)
+      AND (p_status = '' OR s.current_status = p_status)
+      AND (p_search = '' OR s.student_name LIKE CONCAT('%', p_search, '%') OR s.mobile_number LIKE CONCAT('%', p_search, '%'))
+      AND (p_use_date = FALSE OR 
+          EXISTS (SELECT 1 FROM follow_ups WHERE student_id = s.student_id AND follow_up_date BETWEEN p_from_date AND p_to_date));
+
+    
+    SELECT 
+        s.student_id,
+        s.is_registered,
+        (SELECT MAX(created_at) FROM follow_ups WHERE student_id = s.student_id) as follow_up_entry_on,
+        (SELECT MAX(follow_up_date) FROM follow_ups WHERE student_id = s.student_id) as follow_up_on,
+        s.student_name,
+        s.mobile_country_code,
+        s.mobile_number,
+        s.enquiry_source,
+        s.last_remark as remark,
+        (SELECT u.username FROM follow_ups f JOIN users u ON f.created_by = u.user_id WHERE f.student_id = s.student_id ORDER BY f.created_at DESC LIMIT 1) as follow_up_by_name,
+        d.department_name,
+        s.current_status as status,
+        at.username as assigned_to_name,
+        cb.username as created_by_name,
+        b.branch_name
+    FROM students s
+    LEFT JOIN branches b ON s.branch_id = b.branch_id
+    LEFT JOIN users cb ON s.created_by = cb.user_id
+    LEFT JOIN users at ON s.assigned_to = at.user_id
+    LEFT JOIN departments d ON at.department_id = d.department_id
+    WHERE (v_role = 'admin' OR s.branch_id = v_branch_id)
+      AND (p_dept_id = 0 OR at.department_id = p_dept_id)
+      AND (p_assigned_to = 0 OR s.assigned_to = p_assigned_to)
+      AND (p_status = '' OR s.current_status = p_status)
+      AND (p_search = '' OR s.student_name LIKE CONCAT('%', p_search, '%') OR s.mobile_number LIKE CONCAT('%', p_search, '%'))
+      AND (p_use_date = FALSE OR 
+          EXISTS (SELECT 1 FROM follow_ups WHERE student_id = s.student_id AND follow_up_date BETWEEN p_from_date AND p_to_date))
+    ORDER BY s.created_at DESC
+    LIMIT p_limit OFFSET p_offset;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetStudentRegistration`(IN p_student_id INT)
+BEGIN
+                -- Find the latest registration ID for this student
+                DECLARE v_registration_id INT;
+                SELECT registration_id INTO v_registration_id 
+                FROM student_registrations 
+                WHERE student_id = p_student_id 
+                ORDER BY created_at DESC LIMIT 1;
+
+                -- 1. Core Registration Data
+                SELECT * FROM student_registrations 
+                WHERE registration_id = v_registration_id;
+                
+                -- 2. Education List
+                SELECT * FROM registration_education WHERE registration_id = v_registration_id;
+                
+                -- 3. Work Experience List
+                SELECT * FROM registration_work_experience WHERE registration_id = v_registration_id;
+                
+                -- 4. Language Tests
+                SELECT * FROM registration_language_tests WHERE registration_id = v_registration_id;
+                
+                -- 5. Children
+                SELECT * FROM registration_children WHERE registration_id = v_registration_id;
+                
+                -- 6. Suggested Programs
+                SELECT * FROM registration_suggested_programs WHERE registration_id = v_registration_id;
+
+                -- 7. Spouse Education
+                SELECT * FROM registration_spouse_education WHERE registration_id = v_registration_id;
+
+                -- 8. Spouse Work
+                SELECT * FROM registration_spouse_work WHERE registration_id = v_registration_id;
+
+                -- 9. Relatives
+                SELECT * FROM registration_relatives WHERE registration_id = v_registration_id;
+
+                -- 10. Skill Assessments
+                SELECT * FROM registration_skill WHERE registration_id = v_registration_id;
+
+                -- 11. Language Interest
+                SELECT * FROM registration_lang_interest WHERE registration_id = v_registration_id;
+
+                -- 12. Admission Interest
+                SELECT * FROM registration_adm_interest WHERE registration_id = v_registration_id;
+            END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetStudents`(
+    IN p_user_role VARCHAR(20),
+    IN p_branch_id INT
+)
+BEGIN
+    IF p_user_role = 'admin' THEN
+        SELECT s.*, b.branch_name, u.username as creator_name 
+        FROM students s 
+        LEFT JOIN branches b ON s.branch_id = b.branch_id 
+        LEFT JOIN users u ON s.created_by = u.user_id;
+    ELSE
+        SELECT s.*, b.branch_name, u.username as creator_name 
+        FROM students s 
+        LEFT JOIN branches b ON s.branch_id = b.branch_id 
+        LEFT JOIN users u ON s.created_by = u.user_id
+        WHERE s.branch_id = p_branch_id;
+    END IF;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetUserById`(IN p_user_id INT)
+BEGIN
+    SELECT * FROM users WHERE user_id = p_user_id;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetUserPermissions`(IN p_user_id INT)
+BEGIN
+    -- Result 1: Branch/Dept Permissions
+    SELECT * FROM user_permissions_docs WHERE user_id = p_user_id;
+    -- Result 2: Page Permissions
+    SELECT * FROM user_permissions_pages WHERE user_id = p_user_id;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_GetUsers`()
+BEGIN
+    SELECT 
+        u.user_id, 
+        u.username, 
+        u.email, 
+        u.mobile, 
+        u.user_type, 
+        u.status, 
+        u.user_role,
+        u.role,
+        b.branch_name, 
+        d.department_name
+    FROM users u
+    LEFT JOIN branches b ON u.branch_id = b.branch_id
+    LEFT JOIN departments d ON u.department_id = d.department_id
+    ORDER BY u.created_at DESC;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_Login`(
+    IN p_username VARCHAR(50)
+)
+BEGIN
+    SELECT user_id, username, password, branch_id, department_id, user_type, status
+    FROM users 
+    WHERE username = p_username;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_UpdateBranchDepartments`(IN p_branch_id INT, IN p_dept_ids JSON)
+BEGIN
+    -- Remove existing mappings
+    DELETE FROM branch_departments WHERE branch_id = p_branch_id;
+    
+    -- Insert new mappings from JSON array
+    IF JSON_LENGTH(p_dept_ids) > 0 THEN
+        INSERT INTO branch_departments (branch_id, department_id)
+        SELECT p_branch_id, department_id 
+        FROM departments 
+        WHERE JSON_CONTAINS(p_dept_ids, CAST(department_id AS CHAR));
+    END IF;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_UpdateDepartmentStatuses`(IN p_dept_id INT, IN p_status_ids JSON)
+BEGIN
+    -- Remove existing mappings
+    DELETE FROM department_status_mappings WHERE department_id = p_dept_id;
+    
+    -- Insert new mappings
+    IF JSON_LENGTH(p_status_ids) > 0 THEN
+        INSERT INTO department_status_mappings (department_id, status_id)
+        SELECT p_dept_id, status_id
+        FROM statuses
+        WHERE JSON_CONTAINS(p_status_ids, CAST(status_id AS CHAR));
+    END IF;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_UpsertBranch`(IN p_id INT, IN p_name VARCHAR(100))
+BEGIN
+    IF p_id = 0 THEN
+        INSERT INTO branches (branch_name) VALUES (p_name);
+    ELSE
+        UPDATE branches SET branch_name = p_name WHERE branch_id = p_id;
+    END IF;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_UpsertDepartment`(IN p_id INT, IN p_name VARCHAR(100))
+BEGIN
+    IF p_id = 0 THEN
+        INSERT INTO departments (department_name) VALUES (p_name);
+    ELSE
+        UPDATE departments SET department_name = p_name WHERE department_id = p_id;
+    END IF;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_UpsertDepartmentStatus`(IN p_id INT, IN p_dept_id INT, IN p_name VARCHAR(50))
+BEGIN
+    IF p_id = 0 THEN
+        INSERT INTO department_statuses (department_id, status_name) VALUES (p_dept_id, p_name);
+    ELSE
+        UPDATE department_statuses SET department_id = p_dept_id, status_name = p_name WHERE status_id = p_id;
+    END IF;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_UpsertEnquirySource`(IN p_id INT, IN p_name VARCHAR(100))
+BEGIN
+    IF p_id = 0 THEN
+        INSERT INTO enquiry_sources (source_name) VALUES (p_name);
+    ELSE
+        UPDATE enquiry_sources SET source_name = p_name WHERE source_id = p_id;
+    END IF;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_UpsertStatus`(IN p_id INT, IN p_name VARCHAR(50), IN p_followup TINYINT(1))
+BEGIN IF p_id = 0 THEN INSERT INTO statuses (status_name, requires_followup) VALUES (p_name, p_followup); ELSE UPDATE statuses SET status_name = p_name, requires_followup = p_followup WHERE status_id = p_id; END IF; END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_UpsertStudent`(
+    IN p_id INT,
+    IN p_name VARCHAR(100),
+    IN p_mobile_cc VARCHAR(10),
+    IN p_mobile_num VARCHAR(20),
+    IN p_phone_cc VARCHAR(10),
+    IN p_phone_num VARCHAR(20),
+    IN p_email VARCHAR(100),
+    IN p_whatsapp BOOLEAN,
+    IN p_botim BOOLEAN,
+    IN p_telegram BOOLEAN,
+    IN p_phone_whatsapp BOOLEAN,
+    IN p_phone_botim BOOLEAN,
+    IN p_phone_telegram BOOLEAN,
+    IN p_source VARCHAR(100),
+    IN p_study BOOLEAN,
+    IN p_migration BOOLEAN,
+    IN p_coaching BOOLEAN,
+    IN p_visa BOOLEAN,
+    IN p_work BOOLEAN,
+    IN p_branch_id INT,
+    IN p_created_by INT,
+    IN p_assigned_to INT
+)
+BEGIN
+    IF p_id = 0 THEN
+        INSERT INTO students (
+            student_name, mobile_country_code, mobile_number, 
+            phone_country_code, phone_number, email, 
+            whatsapp, botim, telegram, 
+            phone_whatsapp, phone_botim, phone_telegram,
+            enquiry_source,
+            study_interested, migration_interested, coaching_interested,
+            visa_interested, work_interested, branch_id, created_by, assigned_to
+        ) VALUES (
+            p_name, p_mobile_cc, p_mobile_num,
+            p_phone_cc, p_phone_num, p_email,
+            p_whatsapp, p_botim, p_telegram, 
+            p_phone_whatsapp, p_phone_botim, p_phone_telegram,
+            p_source,
+            p_study, p_migration, p_coaching,
+            p_visa, p_work, p_branch_id, p_created_by, p_assigned_to
+        );
+        SELECT LAST_INSERT_ID() AS student_id;
+    ELSE
+        UPDATE students SET 
+            student_name = p_name,
+            mobile_country_code = p_mobile_cc,
+            mobile_number = p_mobile_num,
+            phone_country_code = p_phone_cc,
+            phone_number = p_phone_num,
+            email = p_email,
+            whatsapp = p_whatsapp,
+            botim = p_botim,
+            telegram = p_telegram,
+            phone_whatsapp = p_phone_whatsapp,
+            phone_botim = p_phone_botim,
+            phone_telegram = p_phone_telegram,
+            enquiry_source = p_source,
+            study_interested = p_study,
+            migration_interested = p_migration,
+            coaching_interested = p_coaching,
+            visa_interested = p_visa,
+            work_interested = p_work,
+            branch_id = p_branch_id,
+            assigned_to = p_assigned_to
+        WHERE student_id = p_id;
+        SELECT p_id AS student_id;
+    END IF;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_UpsertStudentApplication`(
+    IN p_student_id INT, IN p_passport_name VARCHAR(255), IN p_age INT, IN p_dob DATE, IN p_gender ENUM('Male', 'Female', 'Other'),
+    IN p_marital_status VARCHAR(50), IN p_spouse_accompanying TINYINT(1), IN p_address_country VARCHAR(100),
+    IN p_address_state VARCHAR(100), IN p_address_suburb VARCHAR(100), IN p_mobile_country_code VARCHAR(10), IN p_contact1 VARCHAR(50),
+    IN p_phone_country_code VARCHAR(10), IN p_contact2 VARCHAR(50), IN p_email VARCHAR(100), IN p_citizenship_country VARCHAR(100),
+    IN p_passport_country VARCHAR(100), IN p_has_second_passport TINYINT(1), IN p_second_passport_country VARCHAR(100),
+    IN p_highest_education VARCHAR(100), IN p_education_field VARCHAR(100), IN p_has_canadian_edu TINYINT(1),
+    IN p_canadian_edu_level VARCHAR(100), IN p_canadian_edu_field VARCHAR(100), IN p_has_australian_edu TINYINT(1),
+    IN p_australian_edu_level VARCHAR(100), IN p_australian_edu_field VARCHAR(100), IN p_has_aus_specialised_edu TINYINT(1),
+    IN p_aus_specialised_edu_level VARCHAR(100), IN p_aus_specialised_edu_field VARCHAR(100), IN p_has_nz_edu TINYINT(1),
+    IN p_nz_edu_level VARCHAR(100), IN p_nz_edu_field VARCHAR(100), IN p_has_work_experience TINYINT(1),
+    IN p_total_work_experience VARCHAR(50), IN p_canadian_work_years VARCHAR(50), IN p_australian_work_years VARCHAR(50),
+    IN p_nz_work_years VARCHAR(50), IN p_has_language_test TINYINT(1), IN p_language_test_type VARCHAR(50),
+    IN p_writing_score VARCHAR(20), IN p_listening_score VARCHAR(20), IN p_speaking_score VARCHAR(20),
+    IN p_reading_score VARCHAR(20), IN p_has_admission_test TINYINT(1), IN p_admission_test_type VARCHAR(50),
+    IN p_quant_score VARCHAR(20), IN p_verbal_score VARCHAR(20), IN p_data_insights_score VARCHAR(20),
+    IN p_spouse_age INT, IN p_spouse_edu_level VARCHAR(100), IN p_spouse_canadian_edu TINYINT(1),
+    IN p_spouse_canadian_edu_level VARCHAR(100), IN p_spouse_canadian_edu_field VARCHAR(100),
+    IN p_spouse_australian_edu TINYINT(1), IN p_spouse_australian_edu_level VARCHAR(100),
+    IN p_spouse_australian_edu_field VARCHAR(100), IN p_spouse_aus_specialised_edu TINYINT(1),
+    IN p_spouse_aus_specialised_edu_level VARCHAR(100), IN p_spouse_aus_specialised_edu_field VARCHAR(100),
+    IN p_spouse_work_exp VARCHAR(50), IN p_spouse_canadian_work VARCHAR(50), IN p_spouse_australian_work VARCHAR(50),
+    IN p_spouse_nz_work VARCHAR(50), IN p_spouse_lang_test_type VARCHAR(50), IN p_spouse_writing VARCHAR(20),
+    IN p_spouse_listening VARCHAR(20), IN p_spouse_speaking VARCHAR(20), IN p_spouse_reading VARCHAR(20),
+    IN p_has_relatives TINYINT(1), IN p_relative_relationship VARCHAR(100), IN p_relative_related_to VARCHAR(50),
+    IN p_education_data JSON, IN p_migration_data JSON, IN p_migration_spouse_data JSON, IN p_relatives_data JSON
+)
+BEGIN
+    DECLARE v_app_id INT;
+    
+    SELECT application_id INTO v_app_id FROM student_applications WHERE student_id = p_student_id LIMIT 1;
+    
+    IF v_app_id IS NULL THEN
+        INSERT INTO student_applications (
+            student_id, passport_name, age, dob, gender, marital_status,
+            spouse_accompanying, address_country, address_state, address_suburb,
+            contact1_code, contact1, contact2_code, contact2, email, citizenship_country, passport_country,
+            has_second_passport, second_passport_country,
+            highest_education, education_field, has_canadian_edu,
+            canadian_edu_level, canadian_edu_field, has_australian_edu,
+            australian_edu_level, australian_edu_field, has_aus_specialised_edu,
+            aus_specialised_edu_level, aus_specialised_edu_field, has_nz_edu,
+            nz_edu_level, nz_edu_field, has_work_experience, total_work_experience,
+            canadian_work_years, australian_work_years, nz_work_years,
+            has_language_test, language_test_type, writing_score, listening_score,
+            speaking_score, reading_score, has_admission_test, admission_test_type,
+            quant_score, verbal_score, data_insights_score, spouse_age,
+            spouse_edu_level, spouse_canadian_edu, spouse_canadian_edu_level,
+            spouse_canadian_edu_field, spouse_australian_edu, spouse_australian_edu_level,
+            spouse_australian_edu_field, spouse_aus_specialised_edu,
+            spouse_aus_specialised_edu_level, spouse_aus_specialised_edu_field,
+            spouse_work_exp, spouse_canadian_work, spouse_australian_work,
+            spouse_nz_work, spouse_lang_test_type, spouse_writing, spouse_listening,
+            spouse_speaking, spouse_reading, has_relatives, relative_relationship,
+            relative_related_to, education_data, migration_data,
+            migration_spouse_data, relatives_data
+        ) VALUES (
+            p_student_id, p_passport_name, p_age, p_dob, p_gender, p_marital_status,
+            p_spouse_accompanying, p_address_country, p_address_state, p_address_suburb,
+            p_mobile_country_code, p_contact1, p_phone_country_code, p_contact2, p_email, p_citizenship_country, p_passport_country,
+            p_has_second_passport, p_second_passport_country,
+            p_highest_education, p_education_field, p_has_canadian_edu,
+            p_canadian_edu_level, p_canadian_edu_field, p_has_australian_edu,
+            p_australian_edu_level, p_australian_edu_field, p_has_aus_specialised_edu,
+            p_aus_specialised_edu_level, p_aus_specialised_edu_field, p_has_nz_edu,
+            p_nz_edu_level, p_nz_edu_field, p_has_work_experience, p_total_work_experience,
+            p_canadian_work_years, p_australian_work_years, p_nz_work_years,
+            p_has_language_test, p_language_test_type, p_writing_score, p_listening_score,
+            p_speaking_score, p_reading_score, p_has_admission_test, p_admission_test_type,
+            p_quant_score, p_verbal_score, p_data_insights_score, p_spouse_age,
+            p_spouse_edu_level, p_spouse_canadian_edu, p_spouse_canadian_edu_level,
+            p_spouse_canadian_edu_field, p_spouse_australian_edu, p_spouse_australian_edu_level,
+            p_spouse_australian_edu_field, p_spouse_aus_specialised_edu,
+            p_spouse_aus_specialised_edu_level, p_spouse_aus_specialised_edu_field,
+            p_spouse_work_exp, p_spouse_canadian_work, p_spouse_australian_work,
+            p_spouse_nz_work, p_spouse_lang_test_type, p_spouse_writing, p_spouse_listening,
+            p_spouse_speaking, p_spouse_reading, p_has_relatives, p_relative_relationship,
+            p_relative_related_to, p_education_data, p_migration_data,
+            p_migration_spouse_data, p_relatives_data
+        );
+        SET v_app_id = LAST_INSERT_ID();
+    ELSE
+        UPDATE student_applications SET
+            passport_name = p_passport_name, age = p_age, dob = p_dob, gender = p_gender,
+            marital_status = p_marital_status, spouse_accompanying = p_spouse_accompanying,
+            address_country = p_address_country, address_state = p_address_state,
+            address_suburb = p_address_suburb, contact1_code = p_mobile_country_code,
+            contact1 = p_contact1, contact2_code = p_phone_country_code,
+            contact2 = p_contact2,
+            email = p_email, citizenship_country = p_citizenship_country,
+            passport_country = p_passport_country, has_second_passport = p_has_second_passport,
+            second_passport_country = p_second_passport_country,
+            highest_education = p_highest_education, education_field = p_education_field,
+            has_canadian_edu = p_has_canadian_edu, canadian_edu_level = p_canadian_edu_level,
+            canadian_edu_field = p_canadian_edu_field, has_australian_edu = p_has_australian_edu,
+            australian_edu_level = p_australian_edu_level, australian_edu_field = p_australian_edu_field,
+            has_aus_specialised_edu = p_has_aus_specialised_edu,
+            aus_specialised_edu_level = p_aus_specialised_edu_level,
+            aus_specialised_edu_field = p_aus_specialised_edu_field, has_nz_edu = p_has_nz_edu,
+            nz_edu_level = p_nz_edu_level, nz_edu_field = p_nz_edu_field,
+            has_work_experience = p_has_work_experience, total_work_experience = p_total_work_experience,
+            canadian_work_years = p_canadian_work_years, australian_work_years = p_australian_work_years,
+            nz_work_years = p_nz_work_years, has_language_test = p_has_language_test,
+            language_test_type = p_language_test_type, writing_score = p_writing_score,
+            listening_score = p_listening_score, speaking_score = p_speaking_score,
+            reading_score = p_reading_score, has_admission_test = p_has_admission_test,
+            admission_test_type = p_admission_test_type, quant_score = p_quant_score,
+            verbal_score = p_verbal_score, data_insights_score = p_data_insights_score,
+            spouse_age = p_spouse_age, spouse_edu_level = p_spouse_edu_level,
+            spouse_canadian_edu = p_spouse_canadian_edu, spouse_canadian_edu_level = p_spouse_canadian_edu_level,
+            spouse_canadian_edu_field = p_spouse_canadian_edu_field,
+            spouse_australian_edu = p_spouse_australian_edu,
+            spouse_australian_edu_level = p_spouse_australian_edu_level,
+            spouse_australian_edu_field = p_spouse_australian_edu_field,
+            spouse_aus_specialised_edu = p_spouse_aus_specialised_edu,
+            spouse_aus_specialised_edu_level = p_spouse_aus_specialised_edu_level,
+            spouse_aus_specialised_edu_field = p_spouse_aus_specialised_edu_field,
+            spouse_work_exp = p_spouse_work_exp, spouse_canadian_work = p_spouse_canadian_work,
+            spouse_australian_work = p_spouse_australian_work, spouse_nz_work = p_spouse_nz_work,
+            spouse_lang_test_type = p_spouse_lang_test_type, spouse_writing = p_spouse_writing,
+            spouse_listening = p_spouse_listening, spouse_speaking = p_spouse_speaking,
+            spouse_reading = p_spouse_reading, has_relatives = p_has_relatives,
+            relative_relationship = p_relative_relationship, relative_related_to = p_relative_related_to,
+            education_data = p_education_data, migration_data = p_migration_data,
+            migration_spouse_data = p_migration_spouse_data, relatives_data = p_relatives_data,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE application_id = v_app_id;
+    END IF;
+    SELECT v_app_id AS application_id;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_UpsertStudentApplication_Core`(
+                IN p_student_id INT,
+                IN p_passport_name VARCHAR(255),
+                IN p_age INT,
+                IN p_dob DATE,
+                IN p_gender VARCHAR(50),
+                IN p_marital_status VARCHAR(50),
+                IN p_spouse_accompanying TINYINT(1),
+                IN p_address_country VARCHAR(255),
+                IN p_address_state VARCHAR(255),
+                IN p_address_suburb VARCHAR(255),
+                IN p_contact1_code VARCHAR(10),
+                IN p_contact1 VARCHAR(50),
+                IN p_contact2_code VARCHAR(10),
+                IN p_contact2 VARCHAR(50),
+                IN p_email VARCHAR(255),
+                IN p_citizenship_country VARCHAR(255),
+                IN p_passport_country VARCHAR(255),
+                IN p_has_second_passport TINYINT(1),
+                IN p_second_passport_country VARCHAR(255),
+                IN p_highest_education VARCHAR(255),
+                IN p_education_field VARCHAR(255),
+                IN p_spouse_age INT,
+                IN p_spouse_has_language_test TINYINT(1),
+                IN p_c1_whatsapp TINYINT(1), IN p_c1_bot TINYINT(1), IN p_c1_telegram TINYINT(1),
+                IN p_c2_whatsapp TINYINT(1), IN p_c2_bot TINYINT(1), IN p_c2_telegram TINYINT(1),
+                IN p_has_skill_assessment TINYINT(1),
+                IN p_skill_assessment_interest TINYINT(1),
+                IN p_has_language_interest TINYINT(1),
+                IN p_has_admission_interest TINYINT(1)
+            )
+BEGIN
+                INSERT INTO student_applications (
+                    student_id, passport_name, age, dob, gender, marital_status, spouse_accompanying,
+                    address_country, address_state, address_suburb, contact1_code, contact1,
+                    contact2_code, contact2, email, citizenship_country, passport_country,
+                    has_second_passport, second_passport_country, highest_education, education_field,
+                    spouse_age, spouse_has_language_test, contact1_whatsapp, contact1_bot, contact1_telegram,
+                    contact2_whatsapp, contact2_bot, contact2_telegram,
+                    has_skill_assessment, skill_assessment_interest,
+                    has_language_interest, has_admission_interest
+                )
+                VALUES (
+                    p_student_id, p_passport_name, p_age, p_dob, p_gender, p_marital_status, p_spouse_accompanying,
+                    p_address_country, p_address_state, p_address_suburb, p_contact1_code, p_contact1,
+                    p_contact2_code, p_contact2, p_email, p_citizenship_country, p_passport_country,
+                    p_has_second_passport, p_second_passport_country, p_highest_education, p_education_field,
+                    p_spouse_age, p_spouse_has_language_test, p_c1_whatsapp, p_c1_bot, p_c1_telegram,
+                    p_c2_whatsapp, p_c2_bot, p_c2_telegram,
+                    p_has_skill_assessment, p_skill_assessment_interest,
+                    p_has_language_interest, p_has_admission_interest
+                )
+                ON DUPLICATE KEY UPDATE
+                    passport_name = VALUES(passport_name),
+                    age = VALUES(age),
+                    dob = VALUES(dob),
+                    gender = VALUES(gender),
+                    marital_status = VALUES(marital_status),
+                    spouse_accompanying = VALUES(spouse_accompanying),
+                    address_country = VALUES(address_country),
+                    address_state = VALUES(address_state),
+                    address_suburb = VALUES(address_suburb),
+                    contact1_code = VALUES(contact1_code),
+                    contact1 = VALUES(contact1),
+                    contact1_whatsapp = VALUES(contact1_whatsapp),
+                    contact1_bot = VALUES(contact1_bot),
+                    contact1_telegram = VALUES(contact1_telegram),
+                    contact2_code = VALUES(contact2_code),
+                    contact2 = VALUES(contact2),
+                    contact2_whatsapp = VALUES(contact2_whatsapp),
+                    contact2_bot = VALUES(contact2_bot),
+                    contact2_telegram = VALUES(contact2_telegram),
+                    email = VALUES(email),
+                    citizenship_country = VALUES(citizenship_country),
+                    passport_country = VALUES(passport_country),
+                    has_second_passport = VALUES(has_second_passport),
+                    second_passport_country = VALUES(second_passport_country),
+                    highest_education = VALUES(highest_education),
+                    education_field = VALUES(education_field),
+                    spouse_age = VALUES(spouse_age),
+                    spouse_has_language_test = VALUES(spouse_has_language_test),
+                    has_skill_assessment = VALUES(has_skill_assessment),
+                    skill_assessment_interest = VALUES(skill_assessment_interest),
+                    has_language_interest = VALUES(has_language_interest),
+                    has_admission_interest = VALUES(has_admission_interest),
+                    updated_at = CURRENT_TIMESTAMP;
+                
+                SELECT application_id AS app_id FROM student_applications WHERE student_id = p_student_id ORDER BY created_at DESC LIMIT 1;
+            END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_UpsertStudentRegistration`(
+    IN p_student_id INT, IN p_passport_name VARCHAR(255), IN p_first_name VARCHAR(100), IN p_last_name VARCHAR(100), IN p_age INT, IN p_dob DATE, IN p_gender ENUM('Male', 'Female', 'Other'),
+    IN p_marital_status VARCHAR(50), IN p_spouse_accompanying TINYINT(1), IN p_address_country VARCHAR(100),
+    IN p_address_state VARCHAR(100), IN p_address_suburb VARCHAR(100), IN p_mobile_country_code VARCHAR(10), IN p_contact1 VARCHAR(50),
+    IN p_phone_country_code VARCHAR(10), IN p_contact2 VARCHAR(50), IN p_email VARCHAR(100), IN p_citizenship_country VARCHAR(100),
+    IN p_passport_country VARCHAR(100), IN p_has_second_passport TINYINT(1), IN p_second_passport_country VARCHAR(100),
+    IN p_highest_education VARCHAR(100), IN p_education_field VARCHAR(100), IN p_has_canadian_edu TINYINT(1),
+    IN p_canadian_edu_level VARCHAR(100), IN p_canadian_edu_field VARCHAR(100), IN p_has_australian_edu TINYINT(1),
+    IN p_australian_edu_level VARCHAR(100), IN p_australian_edu_field VARCHAR(100), IN p_has_aus_specialised_edu TINYINT(1),
+    IN p_aus_specialised_edu_level VARCHAR(100), IN p_aus_specialised_edu_field VARCHAR(100), IN p_has_nz_edu TINYINT(1),
+    IN p_nz_edu_level VARCHAR(100), IN p_nz_edu_field VARCHAR(100), IN p_has_work_experience TINYINT(1),
+    IN p_total_work_experience VARCHAR(50), IN p_canadian_work_years VARCHAR(50), IN p_australian_work_years VARCHAR(50),
+    IN p_nz_work_years VARCHAR(50), IN p_has_language_test TINYINT(1), IN p_language_test_type VARCHAR(50),
+    IN p_writing_score VARCHAR(20), IN p_listening_score VARCHAR(20), IN p_speaking_score VARCHAR(20),
+    IN p_reading_score VARCHAR(20), IN p_has_admission_test TINYINT(1), IN p_admission_test_type VARCHAR(50),
+    IN p_quant_score VARCHAR(20), IN p_verbal_score VARCHAR(20), IN p_data_insights_score VARCHAR(20),
+    IN p_spouse_age INT, IN p_spouse_edu_level VARCHAR(100), IN p_spouse_canadian_edu TINYINT(1),
+    IN p_spouse_canadian_edu_level VARCHAR(100), IN p_spouse_canadian_edu_field VARCHAR(100),
+    IN p_spouse_australian_edu TINYINT(1), IN p_spouse_australian_edu_level VARCHAR(100),
+    IN p_spouse_australian_edu_field VARCHAR(100), IN p_spouse_aus_specialised_edu TINYINT(1),
+    IN p_spouse_aus_specialised_edu_level VARCHAR(100), IN p_spouse_aus_specialised_edu_field VARCHAR(100),
+    IN p_spouse_work_exp VARCHAR(50), IN p_spouse_canadian_work VARCHAR(50), IN p_spouse_australian_work VARCHAR(50),
+    IN p_spouse_nz_work VARCHAR(50), IN p_spouse_lang_test_type VARCHAR(50), IN p_spouse_writing VARCHAR(20),
+    IN p_spouse_listening VARCHAR(20), IN p_spouse_speaking VARCHAR(20), IN p_spouse_reading VARCHAR(20),
+    IN p_has_relatives TINYINT(1), IN p_relative_relationship VARCHAR(100), IN p_relative_related_to VARCHAR(50),
+    IN p_education_data JSON, IN p_migration_data JSON, IN p_migration_spouse_data JSON, IN p_relatives_data JSON
+)
+BEGIN
+    DECLARE v_reg_id INT;
+    SELECT registration_id INTO v_reg_id FROM student_registrations WHERE student_id = p_student_id LIMIT 1;
+    IF v_reg_id IS NULL THEN
+        INSERT INTO student_registrations (
+            student_id, passport_name, first_name, last_name, age, dob, gender, marital_status, spouse_accompanying, address_country, address_state, address_suburb,
+            contact1_code, contact1, contact2_code, contact2, email, citizenship_country, passport_country, has_second_passport, second_passport_country,
+            highest_education, education_field, has_canadian_edu, canadian_edu_level,
+            canadian_edu_field, has_australian_edu, australian_edu_level, australian_edu_field, has_aus_specialised_edu, aus_specialised_edu_level,
+            aus_specialised_edu_field, has_nz_edu, nz_edu_level, nz_edu_field, has_work_experience, total_work_experience, canadian_work_years,
+            australian_work_years, nz_work_years, has_language_test, language_test_type, writing_score, listening_score, speaking_score,
+            reading_score, has_admission_test, admission_test_type, quant_score, verbal_score, data_insights_score, spouse_age, spouse_edu_level,
+            spouse_canadian_edu, spouse_canadian_edu_level, spouse_canadian_edu_field, spouse_australian_edu, spouse_australian_edu_level,
+            spouse_australian_edu_field, spouse_aus_specialised_edu, spouse_aus_specialised_edu_level, spouse_aus_specialised_edu_field,
+            spouse_work_exp, spouse_canadian_work, spouse_australian_work, spouse_nz_work, spouse_lang_test_type, spouse_writing, spouse_listening,
+            spouse_speaking, spouse_reading, has_relatives, relative_relationship, relative_related_to, education_data, migration_data,
+            migration_spouse_data, relatives_data
+        ) VALUES (
+            p_student_id, p_passport_name, p_first_name, p_last_name, p_age, p_dob, p_gender, p_marital_status, p_spouse_accompanying, p_address_country, p_address_state, p_address_suburb,
+            p_mobile_country_code, p_contact1, p_phone_country_code, p_contact2, p_email, p_citizenship_country, p_passport_country, p_has_second_passport, p_second_passport_country,
+            p_highest_education, p_education_field, p_has_canadian_edu, p_canadian_edu_level,
+            p_canadian_edu_field, p_has_australian_edu, p_australian_edu_level, p_australian_edu_field, p_has_aus_specialised_edu, p_aus_specialised_edu_level,
+            p_aus_specialised_edu_field, p_has_nz_edu, p_nz_edu_level, p_nz_edu_field, p_has_work_experience, p_total_work_experience, p_canadian_work_years,
+            p_australian_work_years, p_nz_work_years, p_has_language_test, p_language_test_type, p_writing_score, p_listening_score, p_speaking_score,
+            p_reading_score, p_has_admission_test, p_admission_test_type, p_quant_score, p_verbal_score, p_data_insights_score, p_spouse_age, p_spouse_edu_level,
+            p_spouse_canadian_edu, p_spouse_canadian_edu_level, p_spouse_canadian_edu_field, p_spouse_australian_edu, p_spouse_australian_edu_level,
+            p_spouse_australian_edu_field, p_spouse_aus_specialised_edu, p_spouse_aus_specialised_edu_level, p_spouse_aus_specialised_edu_field,
+            p_spouse_work_exp, p_spouse_canadian_work, p_spouse_australian_work, p_spouse_nz_work, p_spouse_lang_test_type, p_spouse_writing, p_spouse_listening,
+            p_spouse_speaking, p_spouse_reading, p_has_relatives, p_relative_relationship, p_relative_related_to, p_education_data, p_migration_data,
+            p_migration_spouse_data, p_relatives_data
+        );
+        SET v_reg_id = LAST_INSERT_ID();
+    ELSE
+        UPDATE student_registrations SET
+            passport_name = p_passport_name, first_name = p_first_name, last_name = p_last_name, age = p_age, dob = p_dob, gender = p_gender, marital_status = p_marital_status, spouse_accompanying = p_spouse_accompanying,
+            address_country = p_address_country, address_state = p_address_state, address_suburb = p_address_suburb, 
+            contact1_code = p_mobile_country_code, contact1 = p_contact1, 
+            contact2_code = p_phone_country_code, contact2 = p_contact2,
+            email = p_email, citizenship_country = p_citizenship_country, passport_country = p_passport_country, has_second_passport = p_has_second_passport,
+            second_passport_country = p_second_passport_country, highest_education = p_highest_education, education_field = p_education_field,
+            has_canadian_edu = p_has_canadian_edu, canadian_edu_level = p_canadian_edu_level, canadian_edu_field = p_canadian_edu_field,
+            has_australian_edu = p_has_australian_edu, australian_edu_level = p_australian_edu_level, australian_edu_field = p_australian_edu_field,
+            has_aus_specialised_edu = p_has_aus_specialised_edu, aus_specialised_edu_level = p_aus_specialised_edu_level,
+            aus_specialised_edu_field = p_aus_specialised_edu_field, has_nz_edu = p_has_nz_edu, nz_edu_level = p_nz_edu_level, nz_edu_field = p_nz_edu_field,
+            has_work_experience = p_has_work_experience, total_work_experience = p_total_work_experience, canadian_work_years = p_canadian_work_years,
+            australian_work_years = p_australian_work_years, nz_work_years = p_nz_work_years, has_language_test = p_has_language_test,
+            language_test_type = p_language_test_type, writing_score = p_writing_score, listening_score = p_listening_score, speaking_score = p_speaking_score,
+            reading_score = p_reading_score, has_admission_test = p_has_admission_test, admission_test_type = p_admission_test_type, quant_score = p_quant_score,
+            verbal_score = p_verbal_score, data_insights_score = p_data_insights_score, spouse_age = p_spouse_age, spouse_edu_level = p_spouse_edu_level,
+            spouse_canadian_edu = p_spouse_canadian_edu, spouse_canadian_edu_level = p_spouse_canadian_edu_level, spouse_canadian_edu_field = p_spouse_canadian_edu_field,
+            spouse_australian_edu = p_spouse_australian_edu, spouse_australian_edu_level = p_spouse_australian_edu_level,
+            spouse_australian_edu_field = p_spouse_australian_edu_field, spouse_aus_specialised_edu = p_spouse_aus_specialised_edu,
+            spouse_aus_specialised_edu_level = p_spouse_aus_specialised_edu_level, spouse_aus_specialised_edu_field = p_spouse_aus_specialised_edu_field,
+            spouse_work_exp = p_spouse_work_exp, spouse_canadian_work = p_spouse_canadian_work, spouse_australian_work = p_spouse_australian_work,
+            spouse_nz_work = p_spouse_nz_work, spouse_lang_test_type = p_spouse_lang_test_type, spouse_writing = p_spouse_writing,
+            spouse_listening = p_spouse_listening, spouse_speaking = p_spouse_speaking, spouse_reading = p_spouse_reading, has_relatives = p_has_relatives,
+            relative_relationship = p_relative_relationship, relative_related_to = p_relative_related_to, education_data = p_education_data,
+            migration_data = p_migration_data, migration_spouse_data = p_migration_spouse_data, relatives_data = p_relatives_data,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE registration_id = v_reg_id;
+    END IF;
+    SELECT v_reg_id AS registration_id;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_UpsertStudentRegistration_Core`(
+    IN p_student_id INT,
+    IN p_passport_name VARCHAR(255),
+    IN p_first_name VARCHAR(255),
+    IN p_last_name VARCHAR(255),
+    IN p_age INT,
+    IN p_dob DATE,
+    IN p_gender VARCHAR(50),
+    IN p_marital_status VARCHAR(50),
+    IN p_spouse_accompanying TINYINT(1),
+    IN p_address_country VARCHAR(255),
+    IN p_address_state VARCHAR(255),
+    IN p_address_suburb VARCHAR(255),
+    IN p_address_postcode VARCHAR(20),
+    IN p_contact1_code VARCHAR(10),
+    IN p_contact1 VARCHAR(50),
+    IN p_contact2_code VARCHAR(10),
+    IN p_contact2 VARCHAR(50),
+    IN p_email VARCHAR(255),
+    IN p_citizenship_country VARCHAR(255),
+    IN p_passport_country VARCHAR(255),
+    IN p_has_second_passport TINYINT(1),
+    IN p_second_passport_country VARCHAR(255),
+    IN p_highest_education VARCHAR(255),
+    IN p_education_field VARCHAR(255),
+    IN p_spouse_age INT,
+    IN p_spouse_has_language_test TINYINT(1),
+    IN p_c1_whatsapp TINYINT(1), IN p_c1_bot TINYINT(1), IN p_c1_telegram TINYINT(1),
+    IN p_c2_whatsapp TINYINT(1), IN p_c2_bot TINYINT(1), IN p_c2_telegram TINYINT(1),
+    IN p_has_skill_assessment TINYINT(1),
+    IN p_skill_assessment_interest TINYINT(1),
+    IN p_has_language_interest TINYINT(1),
+    IN p_has_admission_interest TINYINT(1),
+    IN p_has_language_test TINYINT(1),
+    IN p_has_admission_test TINYINT(1)
+)
+BEGIN
+    INSERT INTO student_registrations (
+        student_id, passport_name, first_name, last_name, age, dob, gender, marital_status, spouse_accompanying,
+        address_country, address_state, address_suburb, address_postcode, contact1_code, contact1,
+        contact2_code, contact2, email, citizenship_country, passport_country,
+        has_second_passport, second_passport_country, highest_education, education_field,
+        spouse_age, spouse_has_language_test, contact1_whatsapp, contact1_bot, contact1_telegram,
+        contact2_whatsapp, contact2_bot, contact2_telegram,
+        has_skill_assessment, skill_assessment_interest,
+        has_language_interest, has_admission_interest,
+        has_language_test, has_admission_test
+    )
+    VALUES (
+        p_student_id, p_passport_name, p_first_name, p_last_name, p_age, p_dob, p_gender, p_marital_status, p_spouse_accompanying,
+        p_address_country, p_address_state, p_address_suburb, p_address_postcode, p_contact1_code, p_contact1,
+        p_contact2_code, p_contact2, p_email, p_citizenship_country, p_passport_country,
+        p_has_second_passport, p_second_passport_country, p_highest_education, p_education_field,
+        p_spouse_age, p_spouse_has_language_test, p_c1_whatsapp, p_c1_bot, p_c1_telegram,
+        p_c2_whatsapp, p_c2_bot, p_c2_telegram,
+        p_has_skill_assessment, p_skill_assessment_interest,
+        p_has_language_interest, p_has_admission_interest,
+        p_has_language_test, p_has_admission_test
+    )
+    ON DUPLICATE KEY UPDATE
+        passport_name = VALUES(passport_name),
+        first_name = VALUES(first_name),
+        last_name = VALUES(last_name),
+        age = VALUES(age),
+        dob = VALUES(dob),
+        gender = VALUES(gender),
+        marital_status = VALUES(marital_status),
+        spouse_accompanying = VALUES(spouse_accompanying),
+        address_country = VALUES(address_country),
+        address_state = VALUES(address_state),
+        address_suburb = VALUES(address_suburb),
+        address_postcode = VALUES(address_postcode),
+        contact1_code = VALUES(contact1_code),
+        contact1 = VALUES(contact1),
+        contact1_whatsapp = VALUES(contact1_whatsapp),
+        contact1_bot = VALUES(contact1_bot),
+        contact1_telegram = VALUES(contact1_telegram),
+        contact2_code = VALUES(contact2_code),
+        contact2 = VALUES(contact2),
+        contact2_whatsapp = VALUES(contact2_whatsapp),
+        contact2_bot = VALUES(contact2_bot),
+        contact2_telegram = VALUES(contact2_telegram),
+        email = VALUES(email),
+        citizenship_country = VALUES(citizenship_country),
+        passport_country = VALUES(passport_country),
+        has_second_passport = VALUES(has_second_passport),
+        second_passport_country = VALUES(second_passport_country),
+        highest_education = VALUES(highest_education),
+        education_field = VALUES(education_field),
+        spouse_age = VALUES(spouse_age),
+        spouse_has_language_test = VALUES(spouse_has_language_test),
+        has_skill_assessment = VALUES(has_skill_assessment),
+        skill_assessment_interest = VALUES(skill_assessment_interest),
+        has_language_interest = VALUES(has_language_interest),
+        has_admission_interest = VALUES(has_admission_interest),
+        has_language_test = VALUES(has_language_test),
+        has_admission_test = VALUES(has_admission_test),
+        updated_at = CURRENT_TIMESTAMP;
+    
+    SELECT registration_id AS reg_id FROM student_registrations WHERE student_id = p_student_id ORDER BY created_at DESC LIMIT 1;
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_UpsertUser`(
+    IN p_user_id INT,
+    IN p_username VARCHAR(50),
+    IN p_password VARCHAR(255),
+    IN p_email VARCHAR(100),
+    IN p_mobile VARCHAR(20),
+    IN p_user_type VARCHAR(50),
+    IN p_status VARCHAR(50),
+    IN p_branch_id INT,
+    IN p_department_id INT,
+    IN p_user_role VARCHAR(100),
+    IN p_backup_user VARCHAR(100),
+    IN p_extension VARCHAR(50),
+    IN p_all_time_view BOOLEAN,
+    IN p_role VARCHAR(50)
+)
+BEGIN
+    IF p_user_id IS NULL OR p_user_id = 0 THEN
+        INSERT INTO users (
+            username, password, email, mobile, user_type, status, 
+            branch_id, department_id, user_role, backup_user, 
+            extension, all_time_view, role
+        ) VALUES (
+            p_username, p_password, p_email, p_mobile, p_user_type, p_status, 
+            p_branch_id, p_department_id, p_user_role, p_backup_user, 
+            p_extension, p_all_time_view, p_role
+        );
+        SELECT LAST_INSERT_ID() as user_id;
+    ELSE
+        UPDATE users SET
+            username = p_username,
+            password = IF(p_password IS NOT NULL AND p_password != '', p_password, password),
+            email = p_email,
+            mobile = p_mobile,
+            user_type = p_user_type,
+            status = p_status,
+            branch_id = p_branch_id,
+            department_id = p_department_id,
+            user_role = p_user_role,
+            backup_user = p_backup_user,
+            extension = p_extension,
+            all_time_view = p_all_time_view,
+            role = p_role
+        WHERE user_id = p_user_id;
+        SELECT p_user_id as user_id;
+    END IF;
+END$$
+DELIMITER ;

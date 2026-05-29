@@ -90,6 +90,7 @@ export class StudentApplicationComponent implements OnInit {
     };
     children: any[] = [];
     suggestedPrograms: any[] = [];
+    deletedSystemTypes: Set<string> = new Set();
 
     rowDepartments: { [key: number]: any[] } = {};
     rowStaff: { [key: number]: any[] } = {};
@@ -109,6 +110,7 @@ export class StudentApplicationComponent implements OnInit {
         { label: 'Related to Applicant', value: 'Applicant' },
         { label: 'Related to Spouse', value: 'Spouse' }
     ];
+    allUsers: any[] = [];
 
     lookups: any = {
         countries: [],
@@ -143,6 +145,7 @@ export class StudentApplicationComponent implements OnInit {
         this.route.params.subscribe(params => {
             this.studentId = +params['id'];
             if (this.studentId) {
+                this.userService.getUsers().subscribe(data => this.allUsers = data);
                 this.loadInitialData();
                 this.loadApplication();
                 this.loadApplicationStatuses();
@@ -260,8 +263,7 @@ export class StudentApplicationComponent implements OnInit {
 
                 this.initializeMigrationData();
                 this.prePopulateFields();
-                const hasInterests = this.suggestedPrograms.some(p => ['STUDY', 'MIGRATION', 'VISA', 'WORK', 'COACHING'].includes(p.type));
-                if (!hasInterests) {
+                if (this.suggestedPrograms.length === 0) {
                     this.syncSuggestedPrograms();
                 }
                 // Re-capture snapshot after student data mutates application fields,
@@ -495,13 +497,12 @@ export class StudentApplicationComponent implements OnInit {
                 // After loading, initialize cascading maps
                 this.suggestedPrograms.forEach((p, i) => {
                     if (p.branch_id) this.loadRowDepartments(i, p.branch_id);
-                    if (p.branch_id && p.department_id) this.loadRowStaff(i, p.branch_id, p.department_id);
+                    if (p.branch_id && p.department_id) this.loadRowStaff(i, p.branch_id, p.department_id, p.type, p.country);
                 });
 
                 this.resolveStatusIds();
 
-                const hasInterests = this.suggestedPrograms.some(p => ['STUDY', 'MIGRATION', 'VISA', 'WORK', 'COACHING'].includes(p.type));
-                if (!hasInterests) {
+                if (this.suggestedPrograms.length === 0) {
                     this.syncSuggestedPrograms();
                 }
 
@@ -828,7 +829,7 @@ export class StudentApplicationComponent implements OnInit {
         this.initializeMigrationData();
     }
 
-    onCountryChange(p: any) {
+    onCountryChange(p: any, index?: number) {
         if (p.type === 'STUDY') {
             p.program = `${p.country || ''}`.trim();
         } else if (p.type === 'MIGRATION') {
@@ -841,6 +842,11 @@ export class StudentApplicationComponent implements OnInit {
             p.program = `COACHING`;
         }
         this.initializeMigrationData();
+        
+        if (index !== undefined && p.branch_id && p.department_id) {
+            p.assigned_to = null;
+            this.loadRowStaff(index, p.branch_id, p.department_id, p.type, p.country);
+        }
     }
 
     onBranchChange(index: number) {
@@ -859,7 +865,7 @@ export class StudentApplicationComponent implements OnInit {
         p.assigned_to = null;
         this.rowStaff[index] = [];
         if (p.branch_id && p.department_id) {
-            this.loadRowStaff(index, p.branch_id, p.department_id);
+            this.loadRowStaff(index, p.branch_id, p.department_id, p.type, p.country);
         }
     }
 
@@ -869,13 +875,34 @@ export class StudentApplicationComponent implements OnInit {
         });
     }
 
-    loadRowStaff(index: number, branchId: number, deptId: number) {
-        this.studentService.getStaff(branchId, deptId).subscribe(data => {
+    loadRowStaff(index: number, branchId: number, deptId: number, processType?: string, country?: string) {
+        let mappedProcess = processType;
+        if (processType) {
+            const upper = processType.toUpperCase();
+            if (upper === 'STUDY') mappedProcess = 'Study';
+            else if (upper === 'MIGRATION') mappedProcess = 'Migration';
+            else if (upper === 'VISA') mappedProcess = 'Visa';
+            else if (upper === 'WORK') mappedProcess = 'Work';
+            else if (upper === 'COACHING') mappedProcess = 'Coaching';
+            else if (upper === 'LANGUAGE TEST' || upper === 'SPOUSE LANGUAGE TEST') mappedProcess = 'Language';
+            else if (upper === 'ADMISSION TEST') mappedProcess = 'Admission';
+            else if (upper === 'SKILL ASSESSMENT') mappedProcess = 'Skill Assessment';
+            else if (upper === 'EDUCATION LOAN') mappedProcess = 'Education Loan';
+            else if (upper === 'TICKETING') mappedProcess = 'Ticketing';
+            else if (upper === 'FOREX') mappedProcess = 'Forex';
+        }
+
+        this.studentService.getStaff(branchId, deptId, mappedProcess, country).subscribe(data => {
             this.rowStaff[index] = data;
         });
     }
 
     removeProgram(index: number) {
+        const removed = this.suggestedPrograms[index];
+        // If user manually deletes a system row, remember it so it won't be auto-added back
+        if (removed && removed._isSystem) {
+            this.deletedSystemTypes.add(removed.type);
+        }
         this.suggestedPrograms.splice(index, 1);
         this.initializeMigrationData();
     }
@@ -1158,8 +1185,7 @@ export class StudentApplicationComponent implements OnInit {
     }
 
     syncSuggestedPrograms() {
-        const hasInterests = this.suggestedPrograms.some(p => ['STUDY', 'MIGRATION', 'VISA', 'WORK', 'COACHING'].includes(p.type));
-        if (!this.studentPrograms || hasInterests) return;
+        if (!this.studentPrograms || this.suggestedPrograms.length > 0) return;
 
         const interests: any[] = [];
         (this.studentPrograms.study || []).forEach((p: any) => {
@@ -1672,74 +1698,78 @@ export class StudentApplicationComponent implements OnInit {
 
 
 
-    checkAndAddOtherSuggestedProgram() {
+    checkAndAddOtherSuggestedProgram(trigger?: string) {
         if (!this.suggestedPrograms) this.suggestedPrograms = [];
 
-        // 1. Skill Assessment (NO -> ensure there is an 'OTHER' row with program = 'Skill Assessment' and _isSystem = true)
-        if (this.application.has_skill_assessment === false) {
-            const exists = this.suggestedPrograms.some(p => (p.type === 'OTHER' && p.program === 'Skill Assessment' || p.type === 'Skill Assessment') && p._isSystem);
-            if (!exists) {
-                this.addSuggestedProgram('Skill Assessment', 'Skill Assessment', true);
-            }
-        } else {
-            const idx = this.suggestedPrograms.findIndex(p => (p.type === 'OTHER' && p.program === 'Skill Assessment' || p.type === 'Skill Assessment') && p._isSystem);
-            if (idx > -1) {
-                this.suggestedPrograms.splice(idx, 1);
-            }
-        }
-
-        // 2. Language Test (NO -> ensure there is an 'OTHER' row with program = 'Language Test' and _isSystem = true)
-        if (this.application.has_language_test === false) {
-            const exists = this.suggestedPrograms.some(p => (p.type === 'OTHER' && p.program === 'Language Test' || p.type === 'Language Test') && p._isSystem);
-            if (!exists) {
-                this.addSuggestedProgram('Language Test', 'Language Test', true);
-            }
-        } else {
-            const idx = this.suggestedPrograms.findIndex(p => (p.type === 'OTHER' && p.program === 'Language Test' || p.type === 'Language Test') && p._isSystem);
-            if (idx > -1) {
-                this.suggestedPrograms.splice(idx, 1);
+        // 1. Skill Assessment
+        if (!trigger || trigger === 'skill') {
+            if (this.application.has_skill_assessment === false) {
+                const exists = this.suggestedPrograms.some(p => p._isSystem && p.type === 'Skill Assessment');
+                if (!exists && !this.deletedSystemTypes.has('Skill Assessment')) {
+                    this.addSuggestedProgram('Skill Assessment', 'Skill Assessment', true);
+                }
+            } else {
+                this.deletedSystemTypes.delete('Skill Assessment');
+                const idx = this.suggestedPrograms.findIndex(p => p._isSystem && p.type === 'Skill Assessment');
+                if (idx > -1) this.suggestedPrograms.splice(idx, 1);
             }
         }
 
-        // 3. Admission Test (NO -> ensure there is an 'OTHER' row with program = 'Admission Test' and _isSystem = true)
-        if (this.application.has_admission_test === false) {
-            const exists = this.suggestedPrograms.some(p => (p.type === 'OTHER' && p.program === 'Admission Test' || p.type === 'Admission Test') && p._isSystem);
-            if (!exists) {
-                this.addSuggestedProgram('Admission Test', 'Admission Test', true);
-            }
-        } else {
-            const idx = this.suggestedPrograms.findIndex(p => (p.type === 'OTHER' && p.program === 'Admission Test' || p.type === 'Admission Test') && p._isSystem);
-            if (idx > -1) {
-                this.suggestedPrograms.splice(idx, 1);
+        // 2. Language Test
+        if (!trigger || trigger === 'language') {
+            if (this.application.has_language_test === false) {
+                const exists = this.suggestedPrograms.some(p => p._isSystem && p.type === 'Language Test');
+                if (!exists && !this.deletedSystemTypes.has('Language Test')) {
+                    this.addSuggestedProgram('Language Test', 'Language Test', true);
+                }
+            } else {
+                this.deletedSystemTypes.delete('Language Test');
+                const idx = this.suggestedPrograms.findIndex(p => p._isSystem && p.type === 'Language Test');
+                if (idx > -1) this.suggestedPrograms.splice(idx, 1);
             }
         }
 
-        // 4. Spouse Language Test (NO -> ensure there is an 'OTHER' row with program = 'Spouse Language Test' and _isSystem = true)
-        if (this.application.spouse_has_language_test === false) {
-            const exists = this.suggestedPrograms.some(p => (p.type === 'OTHER' && p.program === 'Spouse Language Test' || p.type === 'Spouse Language Test') && p._isSystem);
-            if (!exists) {
-                this.addSuggestedProgram('Spouse Language Test', 'Spouse Language Test', true);
+        // 3. Admission Test
+        if (!trigger || trigger === 'admission') {
+            if (this.application.has_admission_test === false) {
+                const exists = this.suggestedPrograms.some(p => p._isSystem && p.type === 'Admission Test');
+                if (!exists && !this.deletedSystemTypes.has('Admission Test')) {
+                    this.addSuggestedProgram('Admission Test', 'Admission Test', true);
+                }
+            } else {
+                this.deletedSystemTypes.delete('Admission Test');
+                const idx = this.suggestedPrograms.findIndex(p => p._isSystem && p.type === 'Admission Test');
+                if (idx > -1) this.suggestedPrograms.splice(idx, 1);
             }
-        } else {
-            const idx = this.suggestedPrograms.findIndex(p => (p.type === 'OTHER' && p.program === 'Spouse Language Test' || p.type === 'Spouse Language Test') && p._isSystem);
-            if (idx > -1) {
-                this.suggestedPrograms.splice(idx, 1);
+        }
+
+        // 4. Spouse Language Test
+        if (!trigger || trigger === 'spouse_language') {
+            if (this.application.spouse_has_language_test === false) {
+                const exists = this.suggestedPrograms.some(p => p._isSystem && p.type === 'Spouse Language Test');
+                if (!exists && !this.deletedSystemTypes.has('Spouse Language Test')) {
+                    this.addSuggestedProgram('Spouse Language Test', 'Spouse Language Test', true);
+                }
+            } else {
+                this.deletedSystemTypes.delete('Spouse Language Test');
+                const idx = this.suggestedPrograms.findIndex(p => p._isSystem && p.type === 'Spouse Language Test');
+                if (idx > -1) this.suggestedPrograms.splice(idx, 1);
             }
         }
     }
 
     onLanguageTestChange() {
-        this.checkAndAddOtherSuggestedProgram();
+        this.checkAndAddOtherSuggestedProgram('language');
         this.onTestCompletionChange();
     }
 
     onAdmissionTestChange() {
-        this.checkAndAddOtherSuggestedProgram();
+        this.checkAndAddOtherSuggestedProgram('admission');
         this.onTestCompletionChange();
     }
 
     onSpouseLanguageTestChange() {
-        this.checkAndAddOtherSuggestedProgram();
+        this.checkAndAddOtherSuggestedProgram('spouse_language');
     }
 
     onTestCompletionChange() {
@@ -1755,8 +1785,7 @@ export class StudentApplicationComponent implements OnInit {
             this.application.admission_coaching_course = '';
             this.application.expected_admission_coaching_date = '';
         }
-
-        this.checkAndAddOtherSuggestedProgram();
+        // Specific onXChange methods already called checkAndAddOtherSuggestedProgram with trigger, no need to call again here.
     }
 
     addLanguageTest(target: 'application' | 'spouse' = 'application') {
@@ -1845,7 +1874,7 @@ export class StudentApplicationComponent implements OnInit {
             this.application.skill_assessment_list = [];
             this.application.skill_assessment_interest = null;
         }
-        this.checkAndAddOtherSuggestedProgram();
+        this.checkAndAddOtherSuggestedProgram('skill');
     }
 
     onSkillAssessmentInterestToggle() {
@@ -1860,5 +1889,16 @@ export class StudentApplicationComponent implements OnInit {
 
     goBack() {
         this.router.navigate(['/students/edit', this.studentId]);
+    }
+
+    getAssignedUserName(userId: any): string {
+        if (!userId) return '';
+        const user = this.allUsers.find(u => u.user_id == userId);
+        return user ? user.username : userId;
+    }
+
+    isUserInDropdown(index: number, userId: any): boolean {
+        if (!this.rowStaff[index]) return false;
+        return this.rowStaff[index].some((s: any) => s.user_id == userId);
     }
 }

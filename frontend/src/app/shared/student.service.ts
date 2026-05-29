@@ -136,10 +136,12 @@ export class StudentService {
         return this.http.get<any[]>(`${this.apiUrl}/branches/${branchId}/departments`);
     }
 
-    getStaff(branchId?: any, deptId?: any): Observable<any[]> {
+    getStaff(branchId?: any, deptId?: any, processType?: string, country?: string): Observable<any[]> {
         let params = new HttpParams();
         if (branchId) params = params.set('branch_id', branchId.toString());
         if (deptId) params = params.set('department_id', deptId.toString());
+        if (processType) params = params.set('process_type', processType);
+        if (country) params = params.set('country', country);
         return this.http.get<any[]>(`${this.apiUrl}/staff`, { params });
     }
 }

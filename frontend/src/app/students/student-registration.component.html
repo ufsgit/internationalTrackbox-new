@@ -773,7 +773,7 @@
                                     <div *ngSwitchDefault class="flex-inputs">
                                         <ng-select [items]="lookups.countries" bindLabel="name" bindValue="name"
                                             placeholder="Country" [searchable]="true" [clearable]="true"
-                                            [(ngModel)]="p.country" (ngModelChange)="onCountryChange(p)"
+                                            [(ngModel)]="p.country" (ngModelChange)="onCountryChange(p, i)"
                                             class="suggested-program-select no-dropdown-btn"></ng-select>
                                     </div>
                                     <div *ngSwitchCase="'OTHER'">
@@ -911,6 +911,7 @@
                             <td>
                                 <select [(ngModel)]="p.assigned_to">
                                     <option [ngValue]="null">select</option>
+                                    <option *ngIf="p.assigned_to && !isUserInDropdown(i, p.assigned_to)" [ngValue]="p.assigned_to" hidden>{{ getAssignedUserName(p.assigned_to) }}</option>
                                     <option *ngFor="let s of rowStaff[i]" [value]="s.user_id">{{s.username}}</option>
                                 </select>
                             </td>

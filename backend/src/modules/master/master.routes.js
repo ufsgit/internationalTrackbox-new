@@ -359,18 +359,34 @@ router.delete('/application-sub-statuses/:id', checkAdmin, (req, res) => {
 
 // Staff for dropdowns
 router.get('/staff', (req, res) => {
-    const { branch_id, department_id } = req.query;
-    let sql = 'SELECT user_id, username FROM users WHERE status = "Working"';
+    const { branch_id, department_id, process_type, country } = req.query;
+    
+    let sql = 'SELECT u.user_id, u.username FROM users u ';
     const params = [];
+    
+    if (process_type) {
+        sql += ' JOIN user_process_assignments upa ON u.user_id = upa.user_id WHERE u.status = "Working" AND upa.process_name = ?';
+        params.push(process_type);
+        
+        // Country check for specific processes
+        if (country && ['STUDY', 'MIGRATION', 'VISA', 'WORK'].includes(process_type.toUpperCase())) {
+            sql += ' AND (upa.country_id = (SELECT country_id FROM countries WHERE name = ? LIMIT 1) OR upa.country_id IS NULL)';
+            params.push(country);
+        }
+    } else {
+        sql += ' WHERE u.status = "Working"';
+    }
+
     if (branch_id) {
-        sql += ' AND branch_id = ?';
+        sql += ' AND u.branch_id = ?';
         params.push(branch_id);
     }
     if (department_id) {
-        sql += ' AND department_id = ?';
+        sql += ' AND u.department_id = ?';
         params.push(department_id);
     }
-    sql += ' ORDER BY username';
+    sql += ' GROUP BY u.user_id, u.username ORDER BY u.username';
+
     db.query(sql, params, (err, results) => {
         if (err) return errorResponse(res, err.message);
         successResponse(res, results);

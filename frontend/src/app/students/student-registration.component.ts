@@ -100,6 +100,7 @@ export class StudentRegistrationComponent implements OnInit {
     };
     children: any[] = [];
     suggestedPrograms: any[] = [];
+    deletedSystemTypes: Set<string> = new Set();
 
     rowDepartments: { [key: number]: any[] } = {};
     rowStaff: { [key: number]: any[] } = {};
@@ -141,6 +142,7 @@ export class StudentRegistrationComponent implements OnInit {
         { label: 'Related to Applicant', value: 'Applicant' },
         { label: 'Related to Spouse', value: 'Spouse' }
     ];
+    allUsers: any[] = [];
 
     lookups: any = {
         countries: [],
@@ -183,6 +185,7 @@ export class StudentRegistrationComponent implements OnInit {
         this.route.params.subscribe(params => {
             this.studentId = +params['id'];
             if (this.studentId) {
+                this.userService.getUsers().subscribe(data => this.allUsers = data);
                 this.loadInitialData();
                 this.loadApplication();
                 this.loadApplicationStatuses();
@@ -333,8 +336,7 @@ export class StudentRegistrationComponent implements OnInit {
 
                 this.initializeMigrationData();
                 this.prePopulateFields();
-                const hasInterests = this.suggestedPrograms.some(p => ['STUDY', 'MIGRATION', 'VISA', 'WORK', 'COACHING'].includes(p.type));
-                if (!hasInterests) {
+                if (this.suggestedPrograms.length === 0) {
                     this.syncSuggestedPrograms();
                 }
             },
@@ -548,11 +550,9 @@ export class StudentRegistrationComponent implements OnInit {
 
                 this.resolveStatusIds();
 
-                const hasInterests = this.suggestedPrograms.some(p => ['STUDY', 'MIGRATION', 'VISA', 'WORK', 'COACHING'].includes(p.type));
-                // Do not auto-sync from student profile to prevent wiping out saved Registration programs
-                // if (!hasInterests) {
-                //     this.syncSuggestedPrograms();
-                // }
+                if (this.suggestedPrograms.length === 0) {
+                    this.syncSuggestedPrograms();
+                }
 
                 // --- Relational Re-assembly ---
                 // For existing registrations, we only wipe and re-map if we actually have relational data.
@@ -830,7 +830,7 @@ export class StudentRegistrationComponent implements OnInit {
         this.initializeMigrationData();
     }
 
-    onCountryChange(p: any) {
+    onCountryChange(p: any, index?: number) {
         if (p.type === 'STUDY') {
             p.program = `${p.country || ''}`.trim();
         } else if (p.type === 'MIGRATION') {
@@ -843,6 +843,11 @@ export class StudentRegistrationComponent implements OnInit {
             p.program = `COACHING`;
         }
         this.initializeMigrationData();
+        
+        if (index !== undefined && p.branch_id && p.department_id) {
+            p.assigned_to = null;
+            this.loadRowStaff(index, p.branch_id, p.department_id, p.type, p.country);
+        }
     }
 
     onBranchChange(index: number) {
@@ -861,7 +866,7 @@ export class StudentRegistrationComponent implements OnInit {
         p.assigned_to = null;
         this.rowStaff[index] = [];
         if (p.branch_id && p.department_id) {
-            this.loadRowStaff(index, p.branch_id, p.department_id);
+            this.loadRowStaff(index, p.branch_id, p.department_id, p.type, p.country);
         }
     }
 
@@ -871,8 +876,24 @@ export class StudentRegistrationComponent implements OnInit {
         });
     }
 
-    loadRowStaff(index: number, branchId: number, deptId: number) {
-        this.studentService.getStaff(branchId, deptId).subscribe(data => {
+    loadRowStaff(index: number, branchId: number, deptId: number, processType?: string, country?: string) {
+        let mappedProcess = processType;
+        if (processType) {
+            const upper = processType.toUpperCase();
+            if (upper === 'STUDY') mappedProcess = 'Study';
+            else if (upper === 'MIGRATION') mappedProcess = 'Migration';
+            else if (upper === 'VISA') mappedProcess = 'Visa';
+            else if (upper === 'WORK') mappedProcess = 'Work';
+            else if (upper === 'COACHING') mappedProcess = 'Coaching';
+            else if (upper === 'LANGUAGE TEST' || upper === 'SPOUSE LANGUAGE TEST') mappedProcess = 'Language';
+            else if (upper === 'ADMISSION TEST') mappedProcess = 'Admission';
+            else if (upper === 'SKILL ASSESSMENT') mappedProcess = 'Skill Assessment';
+            else if (upper === 'EDUCATION LOAN') mappedProcess = 'Education Loan';
+            else if (upper === 'TICKETING') mappedProcess = 'Ticketing';
+            else if (upper === 'FOREX') mappedProcess = 'Forex';
+        }
+
+        this.studentService.getStaff(branchId, deptId, mappedProcess, country).subscribe(data => {
             this.rowStaff[index] = data;
         });
     }
@@ -880,6 +901,11 @@ export class StudentRegistrationComponent implements OnInit {
 
 
     removeProgram(index: number) {
+        const removed = this.suggestedPrograms[index];
+        // If user manually deletes a system row, remember it so it won't be auto-added back
+        if (removed && removed._isSystem) {
+            this.deletedSystemTypes.add(removed.type);
+        }
         this.suggestedPrograms.splice(index, 1);
         this.initializeMigrationData();
     }
@@ -1134,7 +1160,7 @@ export class StudentRegistrationComponent implements OnInit {
     markSystemSuggestedPrograms() {
         if (!this.suggestedPrograms) return;
         const markFirst = (progName: string) => {
-            const row = this.suggestedPrograms.find(p => p.type === 'OTHER' && p.program === progName);
+            const row = this.suggestedPrograms.find(p => (p.type === 'OTHER' || p.type === progName) && p.program === progName);
             if (row) row._isSystem = true;
         };
 
@@ -1144,74 +1170,87 @@ export class StudentRegistrationComponent implements OnInit {
         if (this.application.spouse_has_language_test === false) markFirst('Spouse Language Test');
     }
 
-    checkAndAddOtherSuggestedProgram() {
-        // Evaluate system-controlled tests and inject or remove corresponding 'OTHER' program rows if they don't exist
+    checkAndAddOtherSuggestedProgram(trigger?: string) {
+        // Evaluate system-controlled tests and inject or remove corresponding program rows if they don't exist
 
         // 1. Skill Assessment
-        if (this.application.has_skill_assessment === false) {
-            const exists = this.suggestedPrograms.some(p => (p.type === 'OTHER' || p._isSystem) && p.program === 'Skill Assessment');
-            if (!exists) {
-                this.addSuggestedProgram('OTHER', 'Skill Assessment', true);
+        if (!trigger || trigger === 'skill') {
+            if (this.application.has_skill_assessment === false) {
+            const exists = this.suggestedPrograms.some(p => p._isSystem && p.type === 'Skill Assessment');
+            if (!exists && !this.deletedSystemTypes.has('Skill Assessment')) {
+                this.addSuggestedProgram('Skill Assessment', 'Skill Assessment', true);
             }
         } else {
-            const idx = this.suggestedPrograms.findIndex(p => (p.type === 'OTHER' || p._isSystem) && p.program === 'Skill Assessment');
-            if (idx > -1 && this.suggestedPrograms[idx]._isSystem) {
+            // User switched to YES — clear the deleted memory so NO can re-add later if needed
+            this.deletedSystemTypes.delete('Skill Assessment');
+            const idx = this.suggestedPrograms.findIndex(p => p._isSystem && p.type === 'Skill Assessment');
+            if (idx > -1) {
                 this.suggestedPrograms.splice(idx, 1);
             }
+        }
         }
 
         // 2. Language Test
+        if (!trigger || trigger === 'language') {
         if (this.application.has_language_test === false) {
-            const exists = this.suggestedPrograms.some(p => (p.type === 'OTHER' || p._isSystem) && p.program === 'Language Test');
-            if (!exists) {
-                this.addSuggestedProgram('OTHER', 'Language Test', true);
+            const exists = this.suggestedPrograms.some(p => p._isSystem && p.type === 'Language Test');
+            if (!exists && !this.deletedSystemTypes.has('Language Test')) {
+                this.addSuggestedProgram('Language Test', 'Language Test', true);
             }
         } else {
-            const idx = this.suggestedPrograms.findIndex(p => (p.type === 'OTHER' || p._isSystem) && p.program === 'Language Test');
-            if (idx > -1 && this.suggestedPrograms[idx]._isSystem) {
+            this.deletedSystemTypes.delete('Language Test');
+            const idx = this.suggestedPrograms.findIndex(p => p._isSystem && p.type === 'Language Test');
+            if (idx > -1) {
                 this.suggestedPrograms.splice(idx, 1);
             }
+        }
         }
 
         // 3. Admission Test
+        if (!trigger || trigger === 'admission') {
         if (this.application.has_admission_test === false) {
-            const exists = this.suggestedPrograms.some(p => (p.type === 'OTHER' || p._isSystem) && p.program === 'Admission Test');
-            if (!exists) {
-                this.addSuggestedProgram('OTHER', 'Admission Test', true);
+            const exists = this.suggestedPrograms.some(p => p._isSystem && p.type === 'Admission Test');
+            if (!exists && !this.deletedSystemTypes.has('Admission Test')) {
+                this.addSuggestedProgram('Admission Test', 'Admission Test', true);
             }
         } else {
-            const idx = this.suggestedPrograms.findIndex(p => (p.type === 'OTHER' || p._isSystem) && p.program === 'Admission Test');
-            if (idx > -1 && this.suggestedPrograms[idx]._isSystem) {
+            this.deletedSystemTypes.delete('Admission Test');
+            const idx = this.suggestedPrograms.findIndex(p => p._isSystem && p.type === 'Admission Test');
+            if (idx > -1) {
                 this.suggestedPrograms.splice(idx, 1);
             }
         }
+        }
 
         // 4. Spouse Language Test
+        if (!trigger || trigger === 'spouse_language') {
         if (this.application.spouse_has_language_test === false) {
-            const exists = this.suggestedPrograms.some(p => (p.type === 'OTHER' || p._isSystem) && p.program === 'Spouse Language Test');
-            if (!exists) {
-                this.addSuggestedProgram('OTHER', 'Spouse Language Test', true);
+            const exists = this.suggestedPrograms.some(p => p._isSystem && p.type === 'Spouse Language Test');
+            if (!exists && !this.deletedSystemTypes.has('Spouse Language Test')) {
+                this.addSuggestedProgram('Spouse Language Test', 'Spouse Language Test', true);
             }
         } else {
-            const idx = this.suggestedPrograms.findIndex(p => (p.type === 'OTHER' || p._isSystem) && p.program === 'Spouse Language Test');
-            if (idx > -1 && this.suggestedPrograms[idx]._isSystem) {
+            this.deletedSystemTypes.delete('Spouse Language Test');
+            const idx = this.suggestedPrograms.findIndex(p => p._isSystem && p.type === 'Spouse Language Test');
+            if (idx > -1) {
                 this.suggestedPrograms.splice(idx, 1);
             }
+        }
         }
     }
 
     onLanguageTestChange() {
-        this.checkAndAddOtherSuggestedProgram();
+        this.checkAndAddOtherSuggestedProgram('language');
         this.onTestCompletionChange();
     }
 
     onAdmissionTestChange() {
-        this.checkAndAddOtherSuggestedProgram();
+        this.checkAndAddOtherSuggestedProgram('admission');
         this.onTestCompletionChange();
     }
 
     onSpouseLanguageTestChange() {
-        this.checkAndAddOtherSuggestedProgram();
+        this.checkAndAddOtherSuggestedProgram('spouse_language');
     }
 
     onTestCompletionChange() {
@@ -1228,7 +1267,7 @@ export class StudentRegistrationComponent implements OnInit {
             this.application.expected_admission_coaching_date = '';
         }
 
-        this.checkAndAddOtherSuggestedProgram();
+        // We don't call checkAndAddOtherSuggestedProgram() here without a trigger because the specific onXChange methods already called it.
     }
 
 
@@ -1307,8 +1346,7 @@ export class StudentRegistrationComponent implements OnInit {
     }
 
     syncSuggestedPrograms() {
-        const hasInterests = this.suggestedPrograms.some(p => ['STUDY', 'MIGRATION', 'VISA', 'WORK', 'COACHING'].includes(p.type));
-        if (!this.studentPrograms || hasInterests) return;
+        if (!this.studentPrograms || this.suggestedPrograms.length > 0) return;
 
         const interests: any[] = [];
         (this.studentPrograms.study || []).forEach((p: any) => {
@@ -2033,7 +2071,7 @@ export class StudentRegistrationComponent implements OnInit {
             this.markSystemSuggestedPrograms();
             this.suggestedPrograms.forEach((p: any, i: number) => {
                 if (p.branch_id) this.loadRowDepartments(i, p.branch_id);
-                if (p.branch_id && p.department_id) this.loadRowStaff(i, p.branch_id, p.department_id);
+                if (p.branch_id && p.department_id) this.loadRowStaff(i, p.branch_id, p.department_id, p.type, p.country);
             });
             this.resolveStatusIds();
         }
@@ -2356,5 +2394,16 @@ export class StudentRegistrationComponent implements OnInit {
         } else {
             this.application.skill_assessment_list = [];
         }
+    }
+
+    getAssignedUserName(userId: any): string {
+        if (!userId) return '';
+        const user = this.allUsers.find(u => u.user_id == userId);
+        return user ? user.username : userId;
+    }
+
+    isUserInDropdown(index: number, userId: any): boolean {
+        if (!this.rowStaff[index]) return false;
+        return this.rowStaff[index].some((s: any) => s.user_id == userId);
     }
 }
