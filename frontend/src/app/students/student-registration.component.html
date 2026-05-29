@@ -897,20 +897,20 @@
                             <td><input type="text" [(ngModel)]="p.remarks" placeholder="Remarks"></td>
                             <td>
                                 <select [(ngModel)]="p.branch_id" (change)="onBranchChange(i)">
-                                    <option [ngValue]="null">Branch</option>
+                                    <option [ngValue]="null">select</option>
                                     <option *ngFor="let b of branches" [value]="b.branch_id">{{b.branch_name}}</option>
                                 </select>
                             </td>
                             <td>
                                 <select [(ngModel)]="p.department_id" (change)="onDepartmentChange(i)">
-                                    <option [ngValue]="null">Dept</option>
+                                    <option [ngValue]="null">select</option>
                                     <option *ngFor="let d of rowDepartments[i]" [value]="d.department_id">
                                         {{d.department_name}}</option>
                                 </select>
                             </td>
                             <td>
                                 <select [(ngModel)]="p.assigned_to">
-                                    <option [ngValue]="null">Staff</option>
+                                    <option [ngValue]="null">select</option>
                                     <option *ngFor="let s of rowStaff[i]" [value]="s.user_id">{{s.username}}</option>
                                 </select>
                             </td>

@@ -37,6 +37,10 @@ export class UserService {
         return this.http.get(`${this.apiUrl}/departments`);
     }
 
+    getBranchDepartments(branchId: number): Observable<any[]> {
+        return this.http.get<any[]>(`${this.apiUrl}/branches/${branchId}/departments`);
+    }
+
     getUserProcessAssignments(userId: number): Observable<any> {
         return this.http.get(`${this.apiUrl}/users/${userId}/process-assignments`);
     }

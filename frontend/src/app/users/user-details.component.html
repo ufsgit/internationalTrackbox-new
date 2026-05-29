@@ -51,7 +51,7 @@
                 </div>
                 <div class="form-group">
                     <label>Branch</label>
-                    <select [(ngModel)]="user.branchId">
+                    <select [(ngModel)]="user.branchId" (ngModelChange)="onBranchChange()">
                         <option [value]="null">Select Branch</option>
                         <option *ngFor="let b of branches" [value]="b.branch_id">{{b.branch_name}}</option>
                     </select>
@@ -64,7 +64,7 @@
                     <label>Department</label>
                     <select [(ngModel)]="user.departmentId">
                         <option [value]="null">Select Department</option>
-                        <option *ngFor="let d of departments" [value]="d.department_id">{{d.department_name}}</option>
+                        <option *ngFor="let d of filteredDepartments" [value]="d.department_id">{{d.department_name}}</option>
                     </select>
                 </div>
                 <div class="form-group">

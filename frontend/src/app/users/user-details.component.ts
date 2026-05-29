@@ -34,6 +34,7 @@ export class UserDetailsComponent implements OnInit {
     // Permissions Data
     branches: any[] = [];
     departments: any[] = [];
+    filteredDepartments: any[] = [];
 
     pages = [
         { name: 'Document' },
@@ -66,6 +67,7 @@ export class UserDetailsComponent implements OnInit {
             this.branches = data;
             this.userService.getDepartments().subscribe(deptData => {
                 this.departments = deptData;
+                this.filteredDepartments = deptData; // default: show all
                 this.initializePermissions();
 
                 if (userId) {
@@ -96,6 +98,11 @@ export class UserDetailsComponent implements OnInit {
                     allTimeView: !!u.all_time_view
                 };
 
+                // Filter departments based on the loaded branch
+                if (u.branch_id) {
+                    this.onBranchChange(u.branch_id);
+                }
+
                 // Map Branch Permissions
                 res.branchPermissions.forEach((bp: any) => {
                     const match = this.branchPermissions.find(p => p.branchId === bp.branch_id && p.deptId === bp.department_id);
@@ -118,6 +125,31 @@ export class UserDetailsComponent implements OnInit {
                 });
             },
             error: (err: any) => console.error('Error loading user:', err)
+        });
+    }
+
+    onBranchChange(branchId?: number | null) {
+        const id = branchId ?? this.user.branchId;
+        // Reset department if changing branch manually
+        if (branchId === undefined) {
+            this.user.departmentId = null;
+        }
+        if (!id) {
+            this.filteredDepartments = this.departments;
+            return;
+        }
+        this.userService.getBranchDepartments(Number(id)).subscribe({
+            next: (mapped) => {
+                if (mapped && mapped.length > 0) {
+                    this.filteredDepartments = this.departments.filter(d =>
+                        mapped.some((m: any) => m.department_id === d.department_id)
+                    );
+                } else {
+                    // No mapping set for this branch — show all
+                    this.filteredDepartments = this.departments;
+                }
+            },
+            error: () => { this.filteredDepartments = this.departments; }
         });
     }
 

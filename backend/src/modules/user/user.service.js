@@ -82,6 +82,8 @@ const createOrUpdate = (data) => {
                     );
                 });
 
+
+
                 const userId = userResult[0][0].user_id;
 
                 // 2. Clear old permissions if it's an update
@@ -130,6 +132,13 @@ const createOrUpdate = (data) => {
 
             } catch (error) {
                 await new Promise((res) => connection.rollback(() => res()));
+
+                if (error.code === 'ER_DUP_ENTRY') {
+        return reject({
+            message: 'Username already exists'
+        });
+    }
+
                 reject(error);
             } finally {
                 connection.release();
